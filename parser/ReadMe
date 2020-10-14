@@ -1,0 +1,49 @@
+Roberto Treviño A01282035
+Daniel Tijerina A01281870
+
+Nuestro proyecto es un lenguaje imperativo orientado a objetos.
+Esta hecho en OCaml entonces para poder correr el parser y el lexer
+tiene que tener instalado OCaml.
+
+Se pueden ver las instrucciones para instalar aqui: https://ocaml.org/docs/install.html
+
+Dentro del folder hay un makefile que se puede correr utilizando el commando make en la terminal. 
+El makefile contiene lo siguiente: 
+
+main: parser.cmo lexer.cmo main.cmo
+	ocamlc -o main lexer.cmo parser.cmo main.cmo
+	$(info 7th)
+
+parser.mli: Parser.mly
+	ocamlyacc Parser.mly
+	$(info 2nd)
+
+parser.ml: parser.mli
+
+lexer.ml:  Lexer.mll
+	ocamllex Lexer.mll
+	$(info 1st)
+
+lexer.cmo: lexer.ml parser.cmi
+	ocamlc -c lexer.ml
+	$(info 4th)
+
+parser.cmi: parser.mli
+	ocamlc -c parser.mli
+	$(info 3rd)
+
+parser.cmo: parser.ml lexer.ml parser.cmi
+	ocamlc -c parser.ml
+	$(info 5th)
+
+
+main.cmo: main.ml
+	ocamlc -c main.ml
+	$(info 6th)
+
+
+Para su compilacion, se tiene que complilar el archivo de Lexer y Parser hechos con Ocamllex y Ocamlyacc respectivamente.
+Si se necesita mas informacion, se puede checar en: https://caml.inria.fr/pub/docs/manual-ocaml/lexyacc.html#s:lexyacc-example
+
+En el folder tambien hay un archivo main que se puede correr desde terminal. 
+Este lee un archivo de ejemplo que tenemos (existen 2: ejemplo.lo y ejemploSenc.lo) y escribe "adecuado" si esta correcto sintaticamente.

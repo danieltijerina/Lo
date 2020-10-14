@@ -1,0 +1,57 @@
+class Figura {
+  string figura;
+  int largo, ancho;
+
+  constructor foo(int bar) {
+    largo = bar;
+  }
+
+  constructor bar() {
+    largo = 1;
+    ancho = 1 * 15 + (16/4);
+    largo[0] = 1;
+    figura = "cuadro";
+    int i, j, k;
+    bool status;
+
+    if(status == true) {
+      print("hola");
+      for(largo[12]; 2<=12 && 1<3; largo=largo+1) {
+        x.foo.bar = foo();
+        y = bar(12, "string", largo);
+      }
+    } else {
+      z = foo();
+    }
+  }
+
+  func bar(int lorem): bool {}
+}
+
+class Hola {}
+
+func foo(): string {
+  while(bar(x < (13+11) || 18/7*9 > a && 15==12)) {
+        if(a.length("hi") < 12) {
+          print("todo bien");
+        }
+        if(b>c) {
+          print("as");
+        } else {
+          print("f");
+        }
+      }
+}
+
+func main(): int {
+  int x = 0;
+  float y = 1.2;
+
+  Figura x;
+  x.largo = 10;
+  x.ancho = 15;
+  x.largo + 12;
+  x.foo(12, 134, true);
+
+  return x.foo(12, "hi");
+}
