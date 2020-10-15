@@ -1,4 +1,4 @@
-(*
+
 type variable = {
   name : string;
   tipo : string;
@@ -21,10 +21,25 @@ type clase = {
 }
 
 type high_level = 
-  | Clase of { clase: clase }
-  | Func of { func: funcion }
-*)
+  | Clase of clase
+  | Func of funcion
 
+
+let add_element tbl x y = 
+  Hashtbl.add tbl x y;;
+
+let has_tab = Hashtbl.create 1234;;
+
+let get_element x =
+  match x with
+  | Clase clase -> clase.name
+  | Func funcion -> funcion.name;;
+
+add_element has_tab "main" (Clase {name="nombre"; tipo="int"; dep=Hashtbl.create 0;});;
+let x = Hashtbl.find has_tab "main" in 
+  print_string (get_element x);;
+
+(* 
 type var_tbl = {
   name : string;
   tipo: string;
@@ -49,3 +64,5 @@ let y = Hashtbl.find has_tab "foo" in
 let x = Hashtbl.find has_tab "foo" in 
   let y = Hashtbl.find x.scope "size_of_square" in
     print_string y.name;;
+
+    *)
