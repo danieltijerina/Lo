@@ -40,11 +40,11 @@ let div_type_check a b =
 (* Operadores < > <= >= != == *)
 let relational_type_check a b =
 	match a, b with
-	| String, _ -> assert false
-	| _, String -> assert false
-	| Char, _ -> assert false
-	| _, Char -> assert false
-	|x, y -> Bool
+	| Int, Float -> Bool
+	| Int, Int -> Bool
+	| Float, Float -> Bool
+	| Float, Int -> Bool
+	|x, y -> assert false;;
 
 (* Operadores && || *)
 let logical_type_check a b =
