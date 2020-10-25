@@ -1,34 +1,10 @@
 %{
 open Printf
 open Lexing
-
-type variable = {
-  name : string;
-  tipo : string;
-}
-
-type funcion = {
-  name : string;
-  tipo : string;
-  variables: (string, variable) Hashtbl.t;
-}
-
-type clase = {
-  name : string;
-  tipo : string;
-  funcs : (string, funcion) Hashtbl.t;
-  vars : (string, variable) Hashtbl.t;
-}
-
-type high_level = 
-  | Clase of clase
-  | Func of funcion
-
-type op = Plus | Minus | Times | Div | LT | GT | LE | GE | NE | EE | And | Or;;
-type ttype = Int | Float | Char | String | Bool
-
-let var_table = Hashtbl.create 123
+open Ast
+open Util
 %}
+
 %token <int> INT
 %token <float> FLOAT
 %token <string> STRING
@@ -45,50 +21,51 @@ let var_table = Hashtbl.create 123
 %left PLUS MINUS
 %left TIMES DIV 
 %start init
-%type <string> init
+%type <upper_prog> init
 %%
 init:
-  b main {"adecuado"}
-  | main {"adecuado"}
+  b init {
+    let Program initial = $2 in Program ($1 :: initial)}
+  | main {Program ($1 :: [])}
 ;
 b:
-  clase {}
-  | funcion {}
-  | b clase {}
-  | b funcion {}
+  clase { $1 }
+  | funcion { Func {name="main"; tipo="int"; variables=Hashtbl.create 0} }
 ;
 
 main:
-  FUNC MAIN LPAREN RPAREN COLON INTTYPE bloque {}
+  FUNC MAIN LPAREN RPAREN COLON INTTYPE bloque { Func {name="main"; tipo="int"; variables=Hashtbl.create 0} }
 ;
 
 clase:
-  CLASS ID class_bloque {print_string "class "; print_endline $2}
+  CLASS ID LBRACE class_bloque RBRACE {  
+    let clase = Clase {name=$2; tipo="int"; funcs=Hashtbl.create 123; vars=Hashtbl.create 0} in 
+      addClaseHashtable clase (ClaseBloque $4);
+      clase }
 ;
+
 class_bloque:
-  LBRACE cb RBRACE {}
-;
-cb:
-  funcion {}
-  | constructor {}
-  | decvar {}
-  | funcion cb {}
-  | constructor cb {}
-  | decvar cb {}
-  | /* empty */ {}
+  | funcion class_bloque {$1 :: $2}
+  | constructor class_bloque {Func {name="main"; tipo="int"; variables=Hashtbl.create 0} :: $2}
+  | decvar class_bloque {Var {name="main"; tipo="int"} :: $2}
+  | /* empty */ {[]}
 ;
 
 funcion:
-  FUNC ID LPAREN f1 RPAREN f2 bloque {print_string "func w params "; print_endline $2}
-  | FUNC ID LPAREN RPAREN f2 bloque {print_string "func w/o params "; print_endline $2}
+  FUNC ID LPAREN f1 RPAREN f2 blo = bloque { 
+      let funct = Func {name=$2; tipo="int"; variables=Hashtbl.create 0} in
+      processBloque funct (Blo blo);
+      funct
+    }
+  | FUNC ID LPAREN RPAREN f2 bloque {Func {name=$2; tipo="int"; variables=Hashtbl.create 0}}
 ;
 f1:
-  tipo ID COMMA f1 {print_string $1; print_string " "; print_endline $2}
-  | tipo ID {print_string $1; print_string " "; print_endline $2}
+  tipo ID COMMA f1 { print_string " "; print_endline $2}
+  | tipo ID { print_string " "; print_endline $2}
 ;
 f2:
-  COLON tipo {}
-  | /* empty */ {}
+  COLON tipo { $2 }
+  | /* empty */ { VoidTy }
 ;
 constructor:
   CONSTRUCTOR ID LPAREN f1 RPAREN bloque {print_string "cons w params "; print_endline $2}
@@ -96,29 +73,28 @@ constructor:
 ;
 
 tipo:
-  INTTYPE {"int"}
-  | FLOATTYPE {"float"}
-  | CHARTYPE {"char"}
-  | STRINGTYPE {"string"}
-  | BOOLTYPE {"bool"}
+  INTTYPE { IntTy }
+  | FLOATTYPE { FloatTy }
+  | CHARTYPE { CharTy }
+  | STRINGTYPE { StringTy }
+  | BOOLTYPE { BoolTy }
 ;
 bloque:
-  LBRACE b1 RBRACE {}
-  | LBRACE RBRACE {}
+  LBRACE b1 RBRACE {$2}
 ;
 b1:
-  estatuto b1 {}
-  | estatuto  {}
+  estatuto b1 {$1 :: $2}
+  | {[]}
 ;
 estatuto:
-  asignacion {}
-  | condicion {}
-  | escritura {}
-  | decvar {}
-  | forloop {}
-  | whileloop {}
-  | expresion SEMICOLON {}
-  | return {}
+  asignacion { Assigna }
+  | condicion { CondIf }
+  | escritura { Escritura }
+  | decvar { Declaracion }
+  | forloop { ForLoop }
+  | whileloop { WhileLoop } 
+  | expresion SEMICOLON { Expresion }
+  | return { Return }
 ;
 asignacion:
   asignavar EQ expresion SEMICOLON {}

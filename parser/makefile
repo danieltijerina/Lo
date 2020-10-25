@@ -1,5 +1,5 @@
-main: parser.cmo lexer.cmo main.cmo
-	ocamlc -o main lexer.cmo parser.cmo main.cmo
+main: parser.cmo lexer.cmo Ast.ml main.cmo
+	ocamlc -o main lexer.cmo parser.cmo Ast.ml main.cmo
 	$(info 7th)
 
 parser.mli: Parser.mly
