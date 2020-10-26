@@ -1,0 +1,47 @@
+func test(int test, string sont) : int {
+
+}
+
+func test2(int it){}
+
+class Shape {
+  int y = 0;
+  Shape x = 0;
+
+  func test2() {
+
+  }
+
+  constructor customShape(int customShapeInteger, string customShapeString) {
+		size = s;
+		color = c;
+	}
+
+
+	func getSize(): int {
+		return size;
+	}
+
+
+  constructor basicShape() {
+		size = 1;
+		color = "red";
+	}
+}
+
+func main(): int {
+  int x = 0;
+  if( i < 5){
+    x = "test";
+  }
+  else{
+    x = "test2";
+  }
+  print ("a");
+
+  Shape a = 0;
+  x[0] = 14.1234;
+
+
+	for(x; x<10; x=x+1) { }
+}

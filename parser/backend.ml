@@ -7,7 +7,7 @@ let upper_prog elem =
 
 let rec back_main tree =
   match tree with 
-  | Program [] -> print_string "end"
+  | Program [] -> print_endline "end"
   | Program (i :: j) ->
       upper_prog i;
       back_main (Program j)

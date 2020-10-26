@@ -2,7 +2,6 @@
 open Printf
 open Lexing
 open Ast
-open Util
 %}
 
 %token <int> INT
@@ -28,48 +27,48 @@ init:
     let Program initial = $2 in Program ($1 :: initial)}
   | main {Program ($1 :: [])}
 ;
+
 b:
-  clase { $1 }
-  | funcion { Func {name="main"; tipo="int"; variables=Hashtbl.create 0} }
+  c = clase { c }
+  | f = funcion { Func f }
 ;
 
 main:
-  FUNC MAIN LPAREN RPAREN COLON INTTYPE bloque { Func {name="main"; tipo="int"; variables=Hashtbl.create 0} }
+  FUNC MAIN LPAREN RPAREN COLON INTTYPE blo = bloque { Func {name="main"; tipo=IntTy; bloque=blo; params=[]} }
 ;
 
 clase:
-  CLASS ID LBRACE class_bloque RBRACE {  
-    let clase = Clase {name=$2; tipo="int"; funcs=Hashtbl.create 123; vars=Hashtbl.create 0} in 
-      addClaseHashtable clase (ClaseBloque $4);
-      clase }
+  CLASS id=ID LBRACE cb = class_bloque RBRACE { Clase {name=id; bloque=cb} }
 ;
 
 class_bloque:
-  | funcion class_bloque {$1 :: $2}
-  | constructor class_bloque {Func {name="main"; tipo="int"; variables=Hashtbl.create 0} :: $2}
-  | decvar class_bloque {Var {name="main"; tipo="int"} :: $2}
+  | f = funcion cb = class_bloque { (Fun f) :: cb}
+  | c = constructor cb = class_bloque { (Fun c) :: cb}
+  | d = decvar class_bloque { (CVar d) :: $2}
   | /* empty */ {[]}
 ;
 
 funcion:
-  FUNC ID LPAREN f1 RPAREN f2 blo = bloque { 
-      let funct = Func {name=$2; tipo="int"; variables=Hashtbl.create 0} in
-      processBloque funct (Blo blo);
-      funct
-    }
-  | FUNC ID LPAREN RPAREN f2 bloque {Func {name=$2; tipo="int"; variables=Hashtbl.create 0}}
+  FUNC ID LPAREN par=funcParamsRec RPAREN t = funcType b = bloque { {name=$2; tipo=t; bloque=b; params=par} }
+  | FUNC ID LPAREN RPAREN t = funcType b = bloque { {name=$2; tipo=t; bloque=b; params=[]} }
 ;
-f1:
-  tipo ID COMMA f1 { print_string " "; print_endline $2}
-  | tipo ID { print_string " "; print_endline $2}
-;
-f2:
+
+funcType:
   COLON tipo { $2 }
   | /* empty */ { VoidTy }
 ;
+
+funcParamsRec:
+  t=tipo id=ID LBRACK d1=INT RBRACK LBRACK d2=INT RBRACK COMMA r=funcParamsRec { {param_id=VDVar2Array {name=id; dim1=d1; dim2=d2;}; tipo=t} :: r}
+  | t=tipo id=ID LBRACK d1=INT RBRACK COMMA r=funcParamsRec { {param_id=VDVarArray {name=id; dim=d1;}; tipo=t} :: r }
+  | t=tipo id=ID COMMA r=funcParamsRec { {param_id=VDVarID {name=id}; tipo=t} :: r}
+  | t=tipo id=ID LBRACK d1=INT RBRACK LBRACK d2=INT RBRACK { {param_id=VDVar2Array {name=id; dim1=d1; dim2=d2;}; tipo=t} :: []}
+  | t=tipo id=ID LBRACK d1=INT RBRACK { {param_id=VDVarArray {name=id; dim=d1;}; tipo=t}:: [] }
+  | t=tipo id=ID { {param_id=VDVarID {name=id}; tipo=t} :: []}
+
 constructor:
-  CONSTRUCTOR ID LPAREN f1 RPAREN bloque {print_string "cons w params "; print_endline $2}
-  | CONSTRUCTOR ID LPAREN RPAREN bloque {print_string "cons w/o params "; print_endline $2}
+  CONSTRUCTOR id=ID LPAREN param=funcParamsRec RPAREN blo=bloque { {name=id; tipo=VoidTy; bloque=blo; params=param} }
+  | CONSTRUCTOR id=ID LPAREN RPAREN blo=bloque { {name=id; tipo=VoidTy; bloque=blo; params=[]} }
 ;
 
 tipo:
@@ -80,133 +79,130 @@ tipo:
   | BOOLTYPE { BoolTy }
 ;
 bloque:
-  LBRACE b1 RBRACE {$2}
+  LBRACE blo = b1 RBRACE { blo }
 ;
+
 b1:
-  estatuto b1 {$1 :: $2}
+  est = estatuto blo = b1 {est :: blo}
   | {[]}
 ;
 estatuto:
-  asignacion { Assigna }
-  | condicion { CondIf }
-  | escritura { Escritura }
-  | decvar { Declaracion }
-  | forloop { ForLoop }
-  | whileloop { WhileLoop } 
-  | expresion SEMICOLON { Expresion }
-  | return { Return }
+  a = asignacion { a }
+  | c = condicion { c }
+  | e = escritura { e }
+  | d = decvar { EVar d }
+  | f = forloop { f }
+  | w = whileloop { w } 
+  | e = expresion SEMICOLON { Expresion e }
+  | r = return { Return r }
 ;
 asignacion:
-  asignavar EQ expresion SEMICOLON {}
+  var=asignavar EQ exp=expresion SEMICOLON { Asigna {izq=var; der=exp; } }
 ;
 asignavar:
-  ID LBRACK exp RBRACK LBRACK exp RBRACK {}
-  | ID LBRACK exp RBRACK {}
-  | ID av1 {}
-  | ID {}
+  id=ID LBRACK e1=exp RBRACK LBRACK e2=exp RBRACK { Var2Array {name=id; expresion1=e1; expresion2=e2}}
+  | id=ID LBRACK e=exp RBRACK { VarArray {name= id; expresion=e;}}
+  | id=ID inner=av1 { VarPoint {name=id; inner=inner } }
+  | id=ID { VarID {name=id} }
 ;
-av1:
-  POINT ID av2 {}
+av1: POINT v=asignavar { v }
 ;
-av2:
-  POINT ID av2 {}
-  | /* empty */ {}
-;
+
 escritura:
-  PRINT LPAREN e1 RPAREN SEMICOLON {}
+  PRINT LPAREN e1=e1 RPAREN SEMICOLON { Escritura e1 }
 ;
 e1:
-  expresion COMMA e1 {}
-  | expresion {}
+  e=expresion COMMA rest=e1 {e :: rest}
+  | e=expresion {e :: []}
 ;
 expresion:
-  e_exp {}
-  | e_exp OR expresion {}
+  e=e_exp { Exp e }
+  | e1=e_exp OR e2=expresion { OrExp {left=e1; right=e2} }
 ;
 condicion:
-  IF LPAREN expresion RPAREN bloque c1 {}
+  IF LPAREN e=expresion RPAREN b=bloque el=c1 { CondIf {cond= e; true_block=b; false_block=el } }
 ;
 c1:
-  ELSE bloque {}
-  | /* empty */ {}
+  ELSE b=bloque {b}
+  | /* empty */ {[]}
 ;
 e_exp:
-  c_exp {}
-  | c_exp AND e_exp {}
+  e=c_exp {AExp e}
+  | e1=c_exp AND e2=e_exp {AndExp {left=e1; right=e2}}
 ;
 c_exp:
-  exp {}
-  | exp GT exp {}
-  | exp LT exp {}
-  | exp GE exp {}
-  | exp LE exp {}
-  | exp EE exp {}
-  | exp NE exp {}
+  e=exp { OExp e }
+  | e1=exp GT e2=exp { GreaterT {left=e1; right=e2} }
+  | e1=exp LT e2=exp { LessT {left=e1; right=e2} }
+  | e1=exp GE e2=exp { GreaterE {left=e1; right=e2} }
+  | e1=exp LE e2=exp { LessE {left=e1; right=e2} }
+  | e1=exp EE e2=exp { Equal {left=e1; right=e2} }
+  | e1=exp NE e2=exp { NotEqual {left=e1; right=e2} }
 ;
 exp:
-  termino {}
-  | termino PLUS exp {}
-  | termino MINUS exp {}
+  t=termino { Termino t }
+  | t=termino PLUS e=exp { Plus {left=t; right=e} }
+  | t=termino MINUS e=exp { Mnius {left=t; right=e} }
 ;
 termino:
-  factor {}
-  | factor TIMES termino {}
-  | factor DIV termino {}
+  f=factor { Factor f }
+  | f=factor TIMES t=termino { Times {left=f; right=t} }
+  | f=factor DIV t=termino { Div {left=f; right=t} }
 ;
 factor:
-  varcte {}
-  | variable {}
-  | LPAREN exp RPAREN {}
+  c = varcte {Const c}
+  | v=variable {FVarId v}
+  | LPAREN e=exp RPAREN {FExp e}
 ;
 varcte:
-  INT {}
-  | FLOAT {}
-  | STRING {}
-  | TRUE {}
-  | FALSE {}
+  i = INT { Int i }
+  | f = FLOAT { Float f }
+  | s = STRING { String s }
+  | b = TRUE { Bool true }
+  | b = FALSE { Bool false }
 ;
 variable:
-  ID LPAREN var1 RPAREN {}
-  | ID LBRACK exp RBRACK {}
-  | ID POINT variable {}
-  | ID {}
-;
+  id=ID LPAREN p=var1 RPAREN { VarFuncCall { func=id; params=p } }
+  | id=ID LBRACK e=exp RBRACK { VarArray {name=id; expresion=e;} }
+  | id=ID POINT i=variable { VarPoint {name=id; inner=i} }
+  | id=ID { VarID {name=id} }
+; 
 var1:
-  expresion var2 {}
-  | ID var2 {}
-  | /* empty */ {}
+  e=expresion r=var2 {e :: r}
+  | /* empty */ {[]}
 ;
 var2:
-  COMMA expresion var2 {}
-  | COMMA ID var2 {}
-  | /* empty */ {}
+  COMMA e=expresion r=var2 {e :: r}
+  | /* empty */ {[]}
 ;
 
 decvar:
-  tipo ID decvar1 decvar2 SEMICOLON {}
-  | ID ID decvar1 decvar2 SEMICOLON {}
-  | ID ID LPAREN var1 RPAREN SEMICOLON {}
-;
+  t=tipo v=decvarRec SEMICOLON { {vars=v; tipo=t; id_class=""}  }
+  | classId=ID v=decvarRec SEMICOLON { {vars=v; tipo=ClassTy; id_class=classId} }
+  | classId=ID id=ID LPAREN par=var1 RPAREN SEMICOLON { {vars= ({id=VDVarID {name=id}; right=VDConst {params=par }})::[]; tipo=ClassTy; id_class=classId}}
 
-decvar1:
-  LBRACK INT RBRACK          {}
-  | EQ exp                   {}
-  | /*  empty */             {}
-;
+decvarRec:
+  id=ID LBRACK d1=INT RBRACK LBRACK d2=INT RBRACK e=decvarExp COMMA r=decvarRec { {id=VDVar2Array {name=id; dim1=d1; dim2=d2;}; right=e} :: r}
+  | id=ID LBRACK d1=INT RBRACK e=decvarExp COMMA r=decvarRec { { id=VDVarArray {name=id; dim=d1;}; right=e} :: r }
+  | id=ID e=decvarExp COMMA r=decvarRec { {id=VDVarID {name=id}; right=e} :: r}
+  | id=ID LBRACK d1=INT RBRACK LBRACK d2=INT RBRACK e=decvarExp { {id=VDVar2Array {name=id; dim1=d1; dim2=d2;}; right=e} :: []}
+  | id=ID LBRACK d1=INT RBRACK e=decvarExp { { id=VDVarArray {name=id; dim=d1;}; right=e} :: [] }
+  | id=ID e=decvarExp { {id=VDVarID {name=id}; right=e} :: []}
 
-decvar2:
-  COMMA ID decvar1 decvar2   {}
-  | /* empty */              {}
-;
+decvarExp:
+  EQ e=expresion { VDExp e }
+  |  { None }
 
 forloop:
-  FOR LPAREN asignavar SEMICOLON expresion SEMICOLON asignavar EQ expresion RPAREN bloque {}
+  FOR LPAREN init=asignavar SEMICOLON cond=expresion SEMICOLON as1=asignavar EQ as2=expresion RPAREN b=bloque {
+    ForLoop {init=init; cond=cond; post=({izq=as1; der=as2}); bloque=b }
+  }
 ;
 
 whileloop:
-  WHILE LPAREN expresion RPAREN bloque {}
+  WHILE LPAREN e=expresion RPAREN b=bloque { WhileLoop {cond=e; bloque=b} }
 ;
 
 return:
-  RETURN expresion SEMICOLON  {}
+  RETURN e=expresion SEMICOLON  { e }
 ;

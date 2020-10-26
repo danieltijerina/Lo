@@ -26,7 +26,6 @@ type high_level =
   | Clase of clase
   | Func of funcion
 
-
 let add_element tbl x y = 
   Hashtbl.add tbl x y;;
 
