@@ -2,11 +2,13 @@ class Figura {
   string figura;
   int largo, ancho;
 
+  bool test1, test2, test3, test4;
+
   constructor foo(int bar) {
     largo = bar;
   }
 
-  constructor bar() {
+  constructor test() {
     largo = 1;
     ancho = 1 * 15 + (16/4);
     largo[0] = 1;

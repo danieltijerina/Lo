@@ -108,10 +108,10 @@ type functionParams = {
 }
 
 type funcionDef = {
-  name : string;
+  fname : string;
   tipo : type_def;
   params: functionParams list;
-  bloque : estatuto list;
+  fbloque : estatuto list;
 }
 
 type clase_bloque =

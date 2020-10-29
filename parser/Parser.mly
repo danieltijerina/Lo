@@ -34,7 +34,7 @@ b:
 ;
 
 main:
-  FUNC MAIN LPAREN RPAREN COLON INTTYPE blo = bloque { Func {name="main"; tipo=IntTy; bloque=blo; params=[]} }
+  FUNC MAIN LPAREN RPAREN COLON INTTYPE blo = bloque { Func {fname="main"; tipo=IntTy; fbloque=blo; params=[]} }
 ;
 
 clase:
@@ -49,8 +49,8 @@ class_bloque:
 ;
 
 funcion:
-  FUNC ID LPAREN par=funcParamsRec RPAREN t = funcType b = bloque { {name=$2; tipo=t; bloque=b; params=par} }
-  | FUNC ID LPAREN RPAREN t = funcType b = bloque { {name=$2; tipo=t; bloque=b; params=[]} }
+  FUNC ID LPAREN par=funcParamsRec RPAREN t = funcType b = bloque { {fname=$2; tipo=t; fbloque=b; params=par} }
+  | FUNC ID LPAREN RPAREN t = funcType b = bloque { {fname=$2; tipo=t; fbloque=b; params=[]} }
 ;
 
 funcType:
@@ -67,8 +67,8 @@ funcParamsRec:
   | t=tipo id=ID { {param_id=VDVarID {name=id}; tipo=t} :: []}
 
 constructor:
-  CONSTRUCTOR id=ID LPAREN param=funcParamsRec RPAREN blo=bloque { {name=id; tipo=VoidTy; bloque=blo; params=param} }
-  | CONSTRUCTOR id=ID LPAREN RPAREN blo=bloque { {name=id; tipo=VoidTy; bloque=blo; params=[]} }
+  CONSTRUCTOR id=ID LPAREN param=funcParamsRec RPAREN blo=bloque { {fname=id; tipo=VoidTy; fbloque=blo; params=param} }
+  | CONSTRUCTOR id=ID LPAREN RPAREN blo=bloque { {fname=id; tipo=VoidTy; fbloque=blo; params=[]} }
 ;
 
 tipo:
