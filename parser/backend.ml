@@ -1,5 +1,6 @@
 open Ast
 open VarTabl
+open ExpValidator
 
 let rec process_VarId var = 
   match var with 
@@ -43,6 +44,9 @@ let upper_prog elem =
   | Clase c -> print_string "Class start:"; print_endline c.name; process_clase_bloque c.bloque; print_endline "Class ends";
   | Func f -> process_function f;;
 
+let process_expression exp = 
+  let res = process_or_expression exp in
+  print_endline "valid expression";;
 
 (* Procesar semantica del parse tree*)
 let rec back_main tree =
@@ -72,7 +76,7 @@ let rec add_vars_to_tbl_rec t vars tbl =
 (* Match estatuto to add variable to table *)
 let add_func_elems_to_tbl elem func_tbl tbls =
   match elem with 
-  | Asigna a -> print_string "Asignando "; process_VarId a.izq; print_endline "";
+  | Asigna a -> print_string "Asignando "; process_VarId a.izq; print_endline ""; process_expression a.der;
   | CondIf cif -> ()
   | Escritura e -> ()
   | EVar evar -> add_vars_to_tbl_rec evar.tipo evar.vars func_tbl;
