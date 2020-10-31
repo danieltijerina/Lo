@@ -19,8 +19,6 @@ type varDeclID =
   | VDVarArray of {name: string; dim:int}
   | VDVar2Array of {name: string; dim1: int; dim2: int}
 
-
-
 type exp = 
   | OrExp of { left: aExp; right: exp}
   | Exp of aExp

@@ -1,12 +1,13 @@
 open Ast
 open VarTabl
 open ExpValidator
+open Util
 
 let rec process_VarId var = 
   match var with 
   | VarID vid -> print_string vid.name;
   | VarFuncCall vfun -> ()
-  | VarArray varray -> print_string varray.name; print_string "[1]";
+  | VarArray varray -> print_string varray.name; print_string "[1]"; 
   | Var2Array varray2 -> print_string varray2.name; print_string "[][]";
   | VarPoint vpoin -> print_string vpoin.name; print_string "."; process_VarId vpoin.inner;;
 
@@ -44,9 +45,8 @@ let upper_prog elem =
   | Clase c -> print_string "Class start:"; print_endline c.name; process_clase_bloque c.bloque; print_endline "Class ends";
   | Func f -> process_function f;;
 
-let process_expression exp = 
-  let res = process_or_expression exp in
-  print_endline "valid expression";;
+let process_expression exp tbls = 
+  process_or_expression exp tbls
 
 (* Procesar semantica del parse tree*)
 let rec back_main tree =
@@ -61,9 +61,12 @@ let rec back_main tree =
 (* Match the variable declaration to add it to the table*)
 let add_vars_to_tbl t var tbl =
   match var.id with
-  | VDVarID v -> add_var tbl v.name {name=v.name; tipo=t}
-  | VDVarArray v -> add_var tbl v.name {name=v.name; tipo=t} (* Need to add array part *)
-  | VDVar2Array v -> add_var tbl v.name {name=v.name; tipo=t};; (* Need to add array part *)
+  | VDVarID v -> add_element tbl v.name {name=v.name; tipo=t}
+  | VDVarArray v -> add_element tbl v.name {name=v.name; tipo=t} (* Need to add array part *)
+  | VDVar2Array v -> add_element tbl v.name {name=v.name; tipo=t};; (* Need to add array part *)
+
+let process_asignacion left right tbls = 
+  assert_equalCS (changeTypeToCS (variableLookup left tbls)) (process_expression right tbls); ();;
 
 (* Iterate through all the variables in a variable declaration *)
 let rec add_vars_to_tbl_rec t vars tbl = 
@@ -73,30 +76,46 @@ let rec add_vars_to_tbl_rec t vars tbl =
       add_vars_to_tbl t f tbl;
       add_vars_to_tbl_rec t fs tbl;;
 
+let getFunctionTbl name tbl = 
+  let ftbl = (Hashtbl.find tbl name) in
+    match ftbl with
+    | FuncT ftbl -> ftbl.variables
+    | ClaseT ctbl -> failwith "Function not found"
+
+let getFunctionTblInClass name classTbl = 
+  match classTbl with 
+    | ClaseT ctbl -> (Hashtbl.find ctbl.funcs name).variables
+    | FuncT ftbl -> failwith "Classtbl is a function"
+
+let getClaseTbl high_level =
+  match high_level with
+  | ClaseT ct -> ct
+  | FuncT ft -> failwith "Should be a classtable"
+
 (* Match estatuto to add variable to table *)
-let add_func_elems_to_tbl elem func_tbl tbls =
+let add_func_elems_to_tbl elem tbls =
   match elem with 
-  | Asigna a -> print_string "Asignando "; process_VarId a.izq; print_endline ""; process_expression a.der;
+  | Asigna a -> process_asignacion a.izq a.der tbls; 
   | CondIf cif -> ()
   | Escritura e -> ()
-  | EVar evar -> add_vars_to_tbl_rec evar.tipo evar.vars func_tbl;
+  | EVar evar -> add_vars_to_tbl_rec evar.tipo evar.vars tbls.function_tbl;
   | ForLoop floop -> ()
   | WhileLoop wloop -> ()
   | Return r -> ()
   | Expresion ex -> ();;
 
 (* Iterate through the function elements to add variables to the tbl *)
-let rec add_func_elems_to_tbl_rec bloque func_tbl tbls =
+let rec add_func_elems_to_tbl_rec bloque tbls =
   match bloque with
   | [] -> ();
   | (f::fs) -> 
-      add_func_elems_to_tbl f func_tbl tbls;
-      add_func_elems_to_tbl_rec fs func_tbl tbls;;
+      add_func_elems_to_tbl f tbls;
+      add_func_elems_to_tbl_rec fs tbls;;
 
 (* Match the element of a class to a function and add the function elements to tbl *)
 let add_inner_fucs_of_class elem class_tbl tbl =
   match elem, class_tbl with
-  | Fun f, ClaseT ct -> add_func_elems_to_tbl_rec f.fbloque (FuncT (Hashtbl.find ct.funcs f.fname)) (tbl :: []); ();
+  | Fun f, ClaseT ct -> add_func_elems_to_tbl_rec f.fbloque { function_tbl=(getFunctionTblInClass f.fname class_tbl); class_tbl=ClassTbl (getClaseTbl class_tbl); global_tbl=tbl}; ();
   | CVar cv, ClaseT ct -> ();
   | _, _ -> assert false;;
 
@@ -111,14 +130,14 @@ let rec add_inner_fucs_of_class_rec bloque class_tbl tbl =
 (* Check elem to match class of function, then add all variables in functions to table*)
 let add_inner_func_to_tbl elem tbl = 
   match elem with
-  | Func f -> add_func_elems_to_tbl_rec f.fbloque (Hashtbl.find tbl f.fname) (tbl :: []);
+  | Func f -> add_func_elems_to_tbl_rec f.fbloque { function_tbl=(getFunctionTbl f.fname tbl); class_tbl=Nil; global_tbl=tbl};
   | Clase c -> add_inner_fucs_of_class_rec c.bloque (Hashtbl.find tbl c.name) tbl;;
 
 (* Processing a single element of each class *)
 let add_class_att_to_table_inner elem class_tbl = 
-  match elem with
-  | Fun f -> add_func class_tbl f.fname {name=f.fname; tipo=f.tipo; variables=Hashtbl.create 0}; [];
-  | CVar cv -> add_vars_to_tbl_rec cv.tipo cv.vars class_tbl; [];; (*If type is class, validate class type *)
+  match elem, class_tbl with
+  | Fun f, ClaseT ctbl -> add_func class_tbl f.fname {name=f.fname; tipo=f.tipo; variables=Hashtbl.create 0}; [];
+  | CVar cv, ClaseT ctbl -> add_vars_to_tbl_rec cv.tipo cv.vars ctbl.vars; [];; (*If type is class, validate class type *)
 
 (* Iterating through all the class variables and funcs *)
 let rec add_class_att_to_table bloque class_tbl = 

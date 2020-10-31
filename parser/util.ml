@@ -1,36 +1,48 @@
 open Ast
+open VarTabl
 
-let var_tbl : (string, high_level) Hashtbl.t = Hashtbl.create 0;;
+type classTbl = 
+  | ClassTbl of clase_tbl 
+  | Nil;;
 
-let add_var parent key value = 
-  match parent with 
-  | Func funcion -> Hashtbl.add funcion.variables key value
-  | Clase clase -> Hashtbl.add clase.vars key value;;
+type current_tbls = 
+  {
+    function_tbl: (string, variable) Hashtbl.t;
+    class_tbl: classTbl;
+    global_tbl: (string, high_level) Hashtbl.t;
+  }
 
-let add_func parent key value =
-  match parent with
-  | Clase clase -> Hashtbl.add clase.funcs key value
-  | _ -> assert false;;
 
-let addClaseHash clase innerBloque = 
-  match innerBloque with
-  | Func f -> add_func clase f.name f
-  | Var v -> add_var clase v.name v
+let variableLookupVarID var current_tbls = 
+  try (Hashtbl.find current_tbls.function_tbl var).tipo
+  with e -> 
+    match current_tbls.class_tbl with
+    | ClassTbl ct -> (try (Hashtbl.find ct.vars var).tipo with Not_found -> (failwith (String.concat var ["Variable "; " not found"] )));
+    | Nil -> raise e;;
 
-let rec addClaseHashtable clase bloque =
-  match clase, bloque with
-    | Clase c, ClaseBloque [] -> []
-    | Clase c, ClaseBloque (i :: j) -> 
-      addClaseHash clase i;
-      addClaseHashtable clase (ClaseBloque j);
-    | _, _ -> assert false;;
+let functionLookup f current_tbls = 
+  match f with 
+  | VarFuncCall vf -> ( match current_tbls.class_tbl with 
+                        | ClassTbl ct -> (try (Hashtbl.find ct.funcs vf.func).tipo with Not_found -> (
+                                try let tbl = (Hashtbl.find current_tbls.global_tbl vf.func) in match tbl  with 
+                                                      | FuncT funct -> funct.tipo; 
+                                                      | _ -> failwith "No function found"
+                                with Not_found -> failwith "No function found"
+                              ))
+                        | Nil -> (try let tbl = (Hashtbl.find current_tbls.global_tbl vf.func) in match tbl  with 
+                                                        | FuncT funct -> funct.tipo; 
+                                                        | _ -> failwith "No function found"
+                                  with Not_found -> failwith "No function found") )
 
-let processBloqueInd upper bloque = []
+let pointVarLookup vp current_tbls = 
+  match vp with
+  | VarPoint vpoint -> print_endline vpoint.name; VoidTy;;
 
-let rec processBloque upper bloque =
-  match upper, bloque with
-    | Func f, Blo [] -> []
-    | Func f, Blo (x :: y) -> 
-      processBloqueInd upper x;
-      processBloque upper (Blo y);
-    | _, _ -> assert false;
+
+let rec variableLookup var_id current_tbls = 
+  match var_id with
+  | VarID v -> variableLookupVarID v.name current_tbls;
+  | VarFuncCall vfunc -> functionLookup (VarFuncCall vfunc) current_tbls;
+  | VarArray varr ->  variableLookupVarID varr.name current_tbls; (* Need to implement arrays *)
+  | Var2Array v2arr -> variableLookupVarID v2arr.name current_tbls; (* Need to implement arrays *)
+  | VarPoint vpoint -> pointVarLookup (VarPoint vpoint) current_tbls;;

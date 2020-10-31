@@ -1,5 +1,5 @@
 type op = CsPlus | CsMinus | CsTimes | CsDiv | CsLT | CsGT | CsLE | CsGE | CsNE | CsEE | CsAnd | CsOr;;
-type ttype = CsInt | CsFloat | CsChar | CsString | CsBool;;
+type ttype = CsInt | CsFloat | CsChar | CsString | CsBool | CsVoid | CsClass;;
 
 (* Operador + *)
 let sum_type_check a b =

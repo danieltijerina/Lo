@@ -16,8 +16,8 @@ let print_type t =
 let test_result tbl = 
   let mainf = Hashtbl.find tbl "Figura" in
     match mainf with
-    | ClaseT c -> printf "%d\n" (Hashtbl.length (Hashtbl.find c.funcs "test").variables);
-    | _ -> assert false;; 
+    | ClaseT c -> printf "%s\n" (print_type (Hashtbl.find c.vars "test1").tipo);
+    | _ -> assert false;;
 
 (*
 let test_result tbl = 
@@ -32,8 +32,8 @@ let _ =
   try
     let lexbuf = Lexing.from_channel in_channel in
     while true do
-      let result = Parser.init Lexer.token lexbuf in
-        test_result (semantic_start result);
+      let parse_tree = Parser.init Lexer.token lexbuf in
+        test_result (semantic_start parse_tree);
         (* print_string result; print_newline(); flush stdout *)
     done
   with Lexer.Eof ->
