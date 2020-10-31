@@ -76,6 +76,22 @@ let rec add_vars_to_tbl_rec t vars tbl =
       add_vars_to_tbl t f tbl;
       add_vars_to_tbl_rec t fs tbl;;
 
+let process_print exp tbl =
+  match (process_expression exp tbl) with
+  | CsChar -> ()
+  | CsString -> ()
+  | _ -> failwith "Non-printable type"
+
+let rec process_print_rec exps tbl =
+  match exps with
+  | [] -> ()
+  | (e::es) -> process_print e tbl; process_print_rec es tbl
+
+let process_condition exp tbl =
+  match (process_expression exp tbl) with
+  | CsBool -> ()
+  | _ -> failwith "Condition expression is not bool"
+
 let getFunctionTbl name tbl = 
   let ftbl = (Hashtbl.find tbl name) in
     match ftbl with
@@ -93,24 +109,26 @@ let getClaseTbl high_level =
   | FuncT ft -> failwith "Should be a classtable"
 
 (* Match estatuto to add variable to table *)
-let add_func_elems_to_tbl elem tbls =
+let rec add_func_elems_to_tbl elem tbls =
   match elem with 
   | Asigna a -> process_asignacion a.izq a.der tbls; 
-  | CondIf cif -> ()
-  | Escritura e -> ()
+  | CondIf cif -> process_condition cif.cond tbls; process_block cif.true_block tbls; process_block cif.false_block tbls
+  | Escritura e -> process_print_rec e tbls;
   | EVar evar -> add_vars_to_tbl_rec evar.tipo evar.vars tbls.function_tbl;
   | ForLoop floop -> ()
-  | WhileLoop wloop -> ()
+  | WhileLoop wloop -> process_condition wloop.cond tbls; process_block wloop.bloque tbls
   | Return r -> ()
-  | Expresion ex -> ();;
-
+  | Expresion ex -> ()
 (* Iterate through the function elements to add variables to the tbl *)
-let rec add_func_elems_to_tbl_rec bloque tbls =
+and add_func_elems_to_tbl_rec bloque tbls =
   match bloque with
-  | [] -> ();
+  | [] -> ()
   | (f::fs) -> 
       add_func_elems_to_tbl f tbls;
-      add_func_elems_to_tbl_rec fs tbls;;
+      add_func_elems_to_tbl_rec fs tbls
+(* Process blocks for conditions and loops *)
+and process_block bloque tbl =
+  add_func_elems_to_tbl_rec bloque tbl
 
 (* Match the element of a class to a function and add the function elements to tbl *)
 let add_inner_fucs_of_class elem class_tbl tbl =

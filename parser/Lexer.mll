@@ -6,7 +6,7 @@ rule token = parse
   [' ' '\t' '\n']       { token lexbuf }     (* skip blanks *)
   | ['0'-'9']+ as lxm { INT(int_of_string lxm) }
   | ['0'-'9']+ '.' ['0'-'9']+ as fxm {FLOAT(float_of_string fxm)}
-  | '"' ['a'-'z' 'A'-'Z' '0'-'9' ' ']+ '"' as string { STRING string } (* maybe we should include special characters *)
+  | '"' ['a'-'z' 'A'-'Z' '0'-'9' ' ' ''' ':' ';' '!' '@' '#' '$' '%' '^' '&' '*' '(' ')' '-' '_' '=' '+' '/']+ '"' as string { STRING string } (* maybe we should include special characters *)
   | '+'            { PLUS }
   | '-'            { MINUS }
   | '*'            { TIMES }

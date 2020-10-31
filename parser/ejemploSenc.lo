@@ -14,6 +14,7 @@ class Figura {
     largo[0] = 1;
     figura = "cuadro";
     int i, j, k;
+    string z;
     bool status;
 
     float test1, test2, test3;
@@ -25,7 +26,8 @@ class Figura {
         y = bar(12, "string", largo);
       }
     } else {
-      z = foo();
+      print("Aqui no se puede llamar a foo()");
+      z = "hi";
     }
   }
 
@@ -35,8 +37,9 @@ class Figura {
 class Hola {}
 
 func foo(): string {
-  while(bar(x < (13+11) || 18/7*9 > a && 15==12)) {
-        if(a.length("hi") < 12) {
+  int a = 0, b = 1, c = 2, x = 3;
+  while(x < (13+11) || 18/7*9 > a && 15==12) {
+        if(c < 12) {
           print("todo bien");
         }
         if(b>c) {
@@ -50,6 +53,16 @@ func foo(): string {
 func main(): int {
   int x = 0;
   float y = 1.2;
+
+  print("hola ", "como estas");
+
+  if(false && true) {
+    int z;
+  } else {
+    print("this shouldn't work", "maybe we can leave it as runtime error");
+    z = 1234;
+  }
+  z = 0;
 
   Figura x;
 }

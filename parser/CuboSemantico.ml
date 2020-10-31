@@ -8,7 +8,7 @@ let sum_type_check a b =
 	| CsInt, CsFloat -> CsFloat
 	| CsFloat, CsInt -> CsFloat
 	| CsFloat, CsFloat -> CsFloat
-	| x, y -> assert false;;
+	| x, y -> failwith "Invalid opoerands for addition operator";;
 
 (* Operador - *)
 let sub_type_check a b =
@@ -17,7 +17,7 @@ let sub_type_check a b =
 	| CsInt, CsFloat -> CsFloat
 	| CsFloat, CsInt -> CsFloat
 	| CsFloat, CsFloat -> CsFloat
-	| x, y -> assert false;;
+	| x, y -> failwith "Invalid operands for subtraction operator";;
 
 (* Operador * *)
 let times_type_check a b =
@@ -26,7 +26,7 @@ let times_type_check a b =
 	| CsInt, CsFloat -> CsFloat
 	| CsFloat, CsInt -> CsFloat
 	| CsFloat, CsFloat -> CsFloat
-	| x, y -> assert false;;
+	| x, y -> failwith "Invalid operands for multiplication operator";;
 
 (* Operador / *)
 let div_type_check a b =
@@ -35,7 +35,7 @@ let div_type_check a b =
 	| CsInt, CsFloat -> CsFloat
 	| CsFloat, CsInt -> CsFloat
 	| CsFloat, CsFloat -> CsFloat
-	| x, y -> assert false;;
+	| x, y -> failwith "Invalid operands for division operator";;
 
 (* Operadores < > <= >= != == *)
 let relational_type_check a b =
@@ -44,13 +44,14 @@ let relational_type_check a b =
 	| CsInt, CsInt -> CsBool
 	| CsFloat, CsFloat -> CsBool
 	| CsFloat, CsInt -> CsBool
-	|x, y -> assert false;;
+	| CsBool, CsBool -> CsBool
+	|x, y -> failwith "Invalid operands for relational operator";;
 
 (* Operadores && || *)
 let logical_type_check a b =
 	match a, b with
 	| CsBool, CsBool -> CsBool
-	| x, y -> assert false
+	| x, y -> failwith "Invalid operands for logical operator"
 
 let type_check op arg1 arg2 =
 	match op with
