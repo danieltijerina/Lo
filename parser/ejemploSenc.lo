@@ -22,7 +22,6 @@ class Figura {
     if(status == true) {
       print("hola");
       for(largo[12]; 2<=12 && 1<3; largo=largo+1) {
-        x.foo.bar = foo();
         y = bar(12, "string", largo);
       }
     } else {
@@ -31,7 +30,7 @@ class Figura {
     }
   }
 
-  func bar(int lorem): bool {}
+  func bar(int lorem) {}
 }
 
 class Hola {}
@@ -64,5 +63,6 @@ func main(): int {
   }
   z = 0;
 
-  Figura x;
+  Figura fig;
+  fig.largo = x;
 }

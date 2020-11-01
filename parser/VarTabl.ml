@@ -3,6 +3,7 @@ open Ast
 type variable = {
   name : string;
   tipo : type_def;
+  id_class: string;
 }
 
 type funcion_tbl = {

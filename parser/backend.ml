@@ -59,22 +59,22 @@ let rec back_main tree =
 (* Semantics *)
 
 (* Match the variable declaration to add it to the table*)
-let add_vars_to_tbl t var tbl =
+let add_vars_to_tbl t var class_id tbl =
   match var.id with
-  | VDVarID v -> add_element tbl v.name {name=v.name; tipo=t}
-  | VDVarArray v -> add_element tbl v.name {name=v.name; tipo=t} (* Need to add array part *)
-  | VDVar2Array v -> add_element tbl v.name {name=v.name; tipo=t};; (* Need to add array part *)
+  | VDVarID v -> add_element tbl v.name {name=v.name; tipo=t; id_class=class_id}
+  | VDVarArray v -> add_element tbl v.name {name=v.name; tipo=t; id_class=class_id} (* Need to add array part *)
+  | VDVar2Array v -> add_element tbl v.name {name=v.name; tipo=t; id_class=class_id};; (* Need to add array part *)
 
 let process_asignacion left right tbls = 
   assert_equalCS (changeTypeToCS (variableLookup left tbls)) (process_expression right tbls); ();;
 
 (* Iterate through all the variables in a variable declaration *)
-let rec add_vars_to_tbl_rec t vars tbl = 
+let rec add_vars_to_tbl_rec t vars class_id tbl = 
   match vars with
   | [] -> ();
   | (f::fs) -> 
-      add_vars_to_tbl t f tbl;
-      add_vars_to_tbl_rec t fs tbl;;
+      add_vars_to_tbl t f class_id tbl;
+      add_vars_to_tbl_rec t fs class_id tbl;;
 
 let process_print exp tbl =
   match (process_expression exp tbl) with
@@ -114,11 +114,11 @@ let rec add_func_elems_to_tbl elem tbls =
   | Asigna a -> process_asignacion a.izq a.der tbls; 
   | CondIf cif -> process_condition cif.cond tbls; process_block cif.true_block tbls; process_block cif.false_block tbls
   | Escritura e -> process_print_rec e tbls;
-  | EVar evar -> add_vars_to_tbl_rec evar.tipo evar.vars tbls.function_tbl;
+  | EVar evar -> add_vars_to_tbl_rec evar.tipo evar.vars evar.id_class tbls.function_tbl;
   | ForLoop floop -> ()
   | WhileLoop wloop -> process_condition wloop.cond tbls; process_block wloop.bloque tbls
   | Return r -> ()
-  | Expresion ex -> ()
+  | Expresion ex -> assert_equalCS CsVoid (process_expression ex tbls); ();
 (* Iterate through the function elements to add variables to the tbl *)
 and add_func_elems_to_tbl_rec bloque tbls =
   match bloque with
@@ -155,7 +155,7 @@ let add_inner_func_to_tbl elem tbl =
 let add_class_att_to_table_inner elem class_tbl = 
   match elem, class_tbl with
   | Fun f, ClaseT ctbl -> add_func class_tbl f.fname {name=f.fname; tipo=f.tipo; variables=Hashtbl.create 0}; [];
-  | CVar cv, ClaseT ctbl -> add_vars_to_tbl_rec cv.tipo cv.vars ctbl.vars; [];; (*If type is class, validate class type *)
+  | CVar cv, ClaseT ctbl -> add_vars_to_tbl_rec cv.tipo cv.vars cv.id_class ctbl.vars; [];; (*If type is class, validate class type *)
 
 (* Iterating through all the class variables and funcs *)
 let rec add_class_att_to_table bloque class_tbl = 
