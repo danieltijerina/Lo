@@ -30,7 +30,9 @@ class Figura {
     }
   }
 
-  func bar(int lorem) {}
+  func bar(int lorem) : int {
+    return 0;
+  }
 }
 
 class Hola {}
@@ -47,6 +49,7 @@ func foo(): string {
           print("f");
         }
       }
+    return "string";
 }
 
 func main(): int {
@@ -64,5 +67,5 @@ func main(): int {
   z = 0;
 
   Figura fig;
-  fig.largo = x;
+  return fig.largo;
 }
