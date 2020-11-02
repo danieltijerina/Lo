@@ -115,7 +115,7 @@ let rec add_func_elems_to_tbl elem tbls ft=
   | CondIf cif -> process_condition cif.cond tbls; process_block cif.true_block tbls ft; process_block cif.false_block tbls ft;
   | Escritura e -> process_print_rec e tbls;
   | EVar evar -> add_vars_to_tbl_rec evar.tipo evar.vars evar.id_class tbls.function_tbl;
-  | ForLoop floop -> ()
+  | ForLoop floop -> process_for_loop floop tbls ft;
   | WhileLoop wloop -> process_condition wloop.cond tbls; process_block wloop.bloque tbls ft;
   | Return r -> assert_equalCS (changeTypeToCS ft) (process_expression r tbls); ();
   | Expresion ex -> assert_equalCS CsVoid (process_expression ex tbls); ();
@@ -129,6 +129,12 @@ and add_func_elems_to_tbl_rec bloque tbls ft=
 (* Process blocks for conditions and loops *)
 and process_block bloque tbl ft=
   add_func_elems_to_tbl_rec bloque tbl ft
+and process_for_loop floop tbl ft= 
+  variableLookup floop.init tbl;
+  assert_equalCS CsBool (process_expression floop.cond tbl);
+  add_func_elems_to_tbl (Asigna floop.post) tbl;
+  process_block floop.bloque tbl ft;;
+
 
 (* Match the element of a class to a function and add the function elements to tbl *)
 let add_inner_fucs_of_class elem class_tbl tbl =

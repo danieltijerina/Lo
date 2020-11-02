@@ -21,8 +21,8 @@ class Figura {
 
     if(status == true) {
       print("hola");
-      for(largo[12]; 2<=12 && 1<3; largo=largo+1) {
-        y = bar(12, "string", largo);
+      for(largo; largo<=12 && 1<largo; largo=largo+1) {
+        k = bar(12);
       }
     } else {
       print("Aqui no se puede llamar a foo()");
