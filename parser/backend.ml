@@ -2,6 +2,8 @@ open Ast
 open VarTabl
 open ExpValidator
 open Util
+open Printer
+open Printf
 
 let rec process_VarId var = 
   match var with 
@@ -45,8 +47,8 @@ let upper_prog elem =
   | Clase c -> print_string "Class start:"; print_endline c.name; process_clase_bloque c.bloque; print_endline "Class ends";
   | Func f -> process_function f;;
 
-let process_expression exp tbls = 
-  process_or_expression exp tbls
+let process_expression exp tbls oc = 
+  process_or_expression exp tbls oc
 
 (* Procesar semantica del parse tree*)
 let rec back_main tree =
@@ -65,8 +67,8 @@ let add_vars_to_tbl t var class_id tbl =
   | VDVarArray v -> add_element tbl v.name {name=v.name; tipo=t; id_class=class_id} (* Need to add array part *)
   | VDVar2Array v -> add_element tbl v.name {name=v.name; tipo=t; id_class=class_id};; (* Need to add array part *)
 
-let process_asignacion left right tbls = 
-  assert_equalCS (changeTypeToCS (variableLookup left tbls)) (process_expression right tbls); ();;
+let process_asignacion left right tbls oc = 
+  assert_equalCS (changeTypeToCS (variableLookup left tbls)) (process_expression right tbls oc); ();;
 
 (* Iterate through all the variables in a variable declaration *)
 let rec add_vars_to_tbl_rec t vars class_id tbl = 
@@ -76,19 +78,19 @@ let rec add_vars_to_tbl_rec t vars class_id tbl =
       add_vars_to_tbl t f class_id tbl;
       add_vars_to_tbl_rec t fs class_id tbl;;
 
-let process_print exp tbl =
-  match (process_expression exp tbl) with
+let process_print exp tbl oc=
+  match (process_expression exp tbl oc) with
   | CsChar -> ()
   | CsString -> ()
   | _ -> failwith "Non-printable type"
 
-let rec process_print_rec exps tbl =
+let rec process_print_rec exps tbl oc=
   match exps with
   | [] -> ()
-  | (e::es) -> process_print e tbl; process_print_rec es tbl
+  | (e::es) -> process_print e tbl oc; process_print_rec es tbl oc
 
-let process_condition exp tbl =
-  match (process_expression exp tbl) with
+let process_condition exp tbl oc=
+  match (process_expression exp tbl oc) with
   | CsBool -> ()
   | _ -> failwith "Condition expression is not bool"
 
@@ -109,53 +111,53 @@ let getClaseTbl high_level =
   | FuncT ft -> failwith "Should be a classtable"
 
 (* Match estatuto to add variable to table *)
-let rec add_func_elems_to_tbl elem tbls ft=
+let rec add_func_elems_to_tbl elem tbls ft oc=
   match elem with 
-  | Asigna a -> process_asignacion a.izq a.der tbls; 
-  | CondIf cif -> process_condition cif.cond tbls; process_block cif.true_block tbls ft; process_block cif.false_block tbls ft;
-  | Escritura e -> process_print_rec e tbls;
+  | Asigna a -> process_asignacion a.izq a.der tbls oc; 
+  | CondIf cif -> process_condition cif.cond tbls oc; process_block cif.true_block tbls ft oc; process_block cif.false_block tbls ft oc;
+  | Escritura e -> process_print_rec e tbls oc;
   | EVar evar -> add_vars_to_tbl_rec evar.tipo evar.vars evar.id_class tbls.function_tbl;
-  | ForLoop floop -> process_for_loop floop tbls ft;
-  | WhileLoop wloop -> process_condition wloop.cond tbls; process_block wloop.bloque tbls ft;
-  | Return r -> assert_equalCS (changeTypeToCS ft) (process_expression r tbls); ();
-  | Expresion ex -> assert_equalCS CsVoid (process_expression ex tbls); ();
+  | ForLoop floop -> process_for_loop floop tbls ft oc;
+  | WhileLoop wloop -> process_condition wloop.cond tbls oc; process_block wloop.bloque tbls ft oc;
+  | Return r -> assert_equalCS (changeTypeToCS ft) (process_expression r tbls oc); ();
+  | Expresion ex -> assert_equalCS CsVoid (process_expression ex tbls oc); ();
 (* Iterate through the function elements to add variables to the tbl *)
-and add_func_elems_to_tbl_rec bloque tbls ft=
+and add_func_elems_to_tbl_rec bloque tbls ft oc=
   match bloque with
   | [] -> ()
   | (f::fs) -> 
-      add_func_elems_to_tbl f tbls ft;
-      add_func_elems_to_tbl_rec fs tbls ft
+      add_func_elems_to_tbl f tbls ft oc;
+      add_func_elems_to_tbl_rec fs tbls ft oc
 (* Process blocks for conditions and loops *)
-and process_block bloque tbl ft=
-  add_func_elems_to_tbl_rec bloque tbl ft
-and process_for_loop floop tbl ft= 
+and process_block bloque tbl ft oc=
+  add_func_elems_to_tbl_rec bloque tbl ft oc
+and process_for_loop floop tbl ft oc= 
   variableLookup floop.init tbl;
-  assert_equalCS CsBool (process_expression floop.cond tbl);
+  assert_equalCS CsBool (process_expression floop.cond tbl oc);
   add_func_elems_to_tbl (Asigna floop.post) tbl;
-  process_block floop.bloque tbl ft;;
+  process_block floop.bloque tbl ft oc;;
 
 
 (* Match the element of a class to a function and add the function elements to tbl *)
-let add_inner_fucs_of_class elem class_tbl tbl =
+let add_inner_fucs_of_class elem class_tbl tbl oc=
   match elem, class_tbl with
-  | Fun f, ClaseT ct -> add_func_elems_to_tbl_rec f.fbloque { function_tbl=(getFunctionTblInClass f.fname class_tbl); class_tbl=ClassTbl (getClaseTbl class_tbl); global_tbl=tbl} f.tipo; ();
+  | Fun f, ClaseT ct -> add_func_elems_to_tbl_rec f.fbloque { function_tbl=(getFunctionTblInClass f.fname class_tbl); class_tbl=ClassTbl (getClaseTbl class_tbl); global_tbl=tbl} f.tipo oc; ();
   | CVar cv, ClaseT ct -> ();
   | _, _ -> assert false;;
 
 (* Iterate through the class to check on functions *)
-let rec add_inner_fucs_of_class_rec bloque class_tbl tbl = 
+let rec add_inner_fucs_of_class_rec bloque class_tbl tbl oc = 
   match bloque with
   | [] -> ();
   | (f::fs) -> 
-      add_inner_fucs_of_class f class_tbl tbl;
-      add_inner_fucs_of_class_rec fs class_tbl tbl;;
+      add_inner_fucs_of_class f class_tbl tbl oc;
+      add_inner_fucs_of_class_rec fs class_tbl tbl oc;;
 
 (* Check elem to match class of function, then add all variables in functions to table*)
-let add_inner_func_to_tbl elem tbl = 
+let add_inner_func_to_tbl elem tbl oc = 
   match elem with
-  | Func f -> add_func_elems_to_tbl_rec f.fbloque { function_tbl=(getFunctionTbl f.fname tbl); class_tbl=Nil; global_tbl=tbl} f.tipo;
-  | Clase c -> add_inner_fucs_of_class_rec c.bloque (Hashtbl.find tbl c.name) tbl;;
+  | Func f -> add_func_elems_to_tbl_rec f.fbloque { function_tbl=(getFunctionTbl f.fname tbl); class_tbl=Nil; global_tbl=tbl} f.tipo oc;
+  | Clase c -> add_inner_fucs_of_class_rec c.bloque (Hashtbl.find tbl c.name) tbl oc;;
 
 (* Processing a single element of each class *)
 let add_class_att_to_table_inner elem class_tbl = 
@@ -178,16 +180,17 @@ let add_upper_prog_to_table elem table =
   | Clase c -> let class_tbl = add_high_level_element table elem in add_class_att_to_table c.bloque class_tbl;;
 
 (* Iterating through all the elemnts in tree *)
-let rec semantic_main tree table = 
+let rec semantic_main tree table oc = 
   match tree with 
   | Program [] -> table
   | Program (i :: j) ->
       add_upper_prog_to_table i table; (* Adds high level funcs and classes to main table, including vars and funcs of class *)
-      semantic_main (Program j) table; (* Iterate *)
-      add_inner_func_to_tbl i table; (* Process functions of classes or funcs *)
+      semantic_main (Program j) table oc; (* Iterate *)
+      add_inner_func_to_tbl i table oc; (* Process functions of classes or funcs *)
       table;;
 
 (* Main Semantic start *)
-let semantic_start tree = 
+let semantic_start tree oc = 
   let main_table = Hashtbl.create 1234 in
-    semantic_main tree main_table;;
+    semantic_main tree main_table oc;;
+    

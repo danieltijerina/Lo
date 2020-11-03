@@ -1,6 +1,7 @@
 open Ast
 open CuboSemantico
 open Util
+open Printf
 
 let assert_equalCS right left = 
   match right, left with
@@ -71,12 +72,12 @@ and process_logic_expression exp tbls =
   | NotEqual e -> relational_type_check (process_pm_expression e.left tbls) (process_pm_expression e.right tbls)
   | OExp e -> process_pm_expression e tbls
 
-and process_and_expression exp tbls = 
+and process_and_expression exp tbls oc = 
   match exp with
-  | AndExp e -> logical_type_check (process_logic_expression e.left tbls) (process_and_expression e.right tbls)
+  | AndExp e -> fprintf oc "%s\n" "andExp"; logical_type_check (process_logic_expression e.left tbls) (process_and_expression e.right tbls oc)
   | AExp e -> process_logic_expression e tbls
 
-and process_or_expression exp tbls =
+and process_or_expression exp tbls oc =
   match exp with
-  | OrExp e -> logical_type_check (process_and_expression e.left tbls) (process_or_expression e.right tbls)
-  | Exp e -> process_and_expression e tbls
+  | OrExp e -> fprintf oc "%s\n" "orExp"; logical_type_check (process_and_expression e.left tbls oc) (process_or_expression e.right tbls oc);
+  | Exp e -> process_and_expression e tbls oc

@@ -2,6 +2,7 @@ open Backend
 open Ast
 open VarTabl
 open Format
+open Printf
 
 let print_type t = 
   match t with
@@ -32,8 +33,9 @@ let _ =
   try
     let lexbuf = Lexing.from_channel in_channel in
     while true do
-      let parse_tree = Parser.init Lexer.token lexbuf in
-        test_result (semantic_start parse_tree);
+      let oc = open_out "ejemploSenc.clo" in
+        let parse_tree = Parser.init Lexer.token lexbuf in
+          semantic_start parse_tree oc;
         (* print_string result; print_newline(); flush stdout *)
     done
   with Lexer.Eof ->

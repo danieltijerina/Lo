@@ -12,7 +12,6 @@ type current_tbls =
     global_tbl: (string, high_level) Hashtbl.t;
   }
 
-
 let variableLookupVarID var current_tbls = 
   try (Hashtbl.find current_tbls.function_tbl var)
   with e -> 
