@@ -62,3 +62,8 @@ let rec variableLookup var_id current_tbls =
   | VarArray varr ->  (variableLookupVarID varr.name current_tbls).tipo; (* Need to implement arrays *)
   | Var2Array v2arr -> (variableLookupVarID v2arr.name current_tbls).tipo; (* Need to implement arrays *)
   | VarPoint vpoint -> (pointVarLookup (VarPoint vpoint) current_tbls);;
+
+let vLookup var_id current_tbls =
+  match var_id with
+  | VarID v -> (variableLookupVarID v.name current_tbls).address;
+  | _ -> assert false

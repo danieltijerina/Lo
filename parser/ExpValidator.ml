@@ -24,58 +24,50 @@ let changeTypeToCS t =
   | VoidTy -> CsVoid
   | ClassTy -> CsClass
 
-(* This function still needs to lookup data type in Vartbl *)
-let rec process_var_expression exp tbls =
+let rec process_var_expression exp tbls oc =
+  fprintf oc "%d " (vLookup exp tbls);
   changeTypeToCS (variableLookup exp tbls)
-  (*
-  match exp with
-  | VarID e -> print_endline e.name; CsVoid;
-  | VarFuncCall e -> print_endline e.func; CsVoid;
-  | VarArray e -> print_endline e.name; CsVoid;
-  | Var2Array e -> print_endline e.name; CsVoid;
-  | VarPoint e -> print_endline e.name; CsVoid;
-  *) 
 
-and process_const_expression exp = 
+and process_const_expression exp oc = 
   match exp with 
-  | Int e -> CsInt
+  | Int e -> fprintf oc "%d " e; CsInt
   | Float e -> CsFloat
   | Bool e -> CsBool
   | String e -> CsString
   | Char e -> CsChar
 
-and process_factor_expression exp tbls =
+and process_factor_expression exp tbls oc =
   match exp with
-  | Const e -> process_const_expression e
-  | FExp e -> process_pm_expression e tbls
-  | FVarId e -> process_var_expression e tbls
+  | Const e -> process_const_expression e oc
+  | FExp e -> process_pm_expression e tbls oc
+  | FVarId e -> process_var_expression e tbls oc
 
-and process_term_expression exp tbls = 
+and process_term_expression exp tbls oc = 
   match exp with
-  | Times e -> times_type_check (process_factor_expression e.left tbls) (process_term_expression e.right tbls)
-  | Div e -> div_type_check (process_factor_expression e.left tbls) (process_term_expression e.right tbls)
-  | Factor e -> process_factor_expression e tbls
+  | Times e -> fprintf oc "%s " "*"; times_type_check (process_factor_expression e.left tbls oc) (process_term_expression e.right tbls oc)
+  | Div e -> fprintf oc "%s " "/"; div_type_check (process_factor_expression e.left tbls oc) (process_term_expression e.right tbls oc)
+  | Factor e -> process_factor_expression e tbls oc
 
-and process_pm_expression exp tbls = 
+and process_pm_expression exp tbls oc = 
   match exp with
-  | Plus e -> sum_type_check (process_term_expression e.left tbls) (process_pm_expression e.right tbls)
-  | Mnius e -> sub_type_check (process_term_expression e.left tbls) (process_pm_expression e.right tbls)
-  | Termino e -> process_term_expression e tbls
+  | Plus e -> fprintf oc "%s " "+"; sum_type_check (process_term_expression e.left tbls oc) (process_pm_expression e.right tbls oc)
+  | Mnius e -> fprintf oc "%s " "-"; sub_type_check (process_term_expression e.left tbls oc) (process_pm_expression e.right tbls oc)
+  | Termino e -> process_term_expression e tbls oc
 
-and process_logic_expression exp tbls = 
+and process_logic_expression exp tbls oc = 
   match exp with
-  | GreaterT e -> relational_type_check (process_pm_expression e.left tbls) (process_pm_expression e.right tbls)
-  | LessT e -> relational_type_check (process_pm_expression e.left tbls) (process_pm_expression e.right tbls)
-  | GreaterE e -> relational_type_check (process_pm_expression e.left tbls) (process_pm_expression e.right tbls)
-  | LessE e -> relational_type_check (process_pm_expression e.left tbls) (process_pm_expression e.right tbls)
-  | Equal e -> relational_type_check (process_pm_expression e.left tbls) (process_pm_expression e.right tbls)
-  | NotEqual e -> relational_type_check (process_pm_expression e.left tbls) (process_pm_expression e.right tbls)
-  | OExp e -> process_pm_expression e tbls
+  | GreaterT e -> relational_type_check (process_pm_expression e.left tbls oc) (process_pm_expression e.right tbls oc)
+  | LessT e -> relational_type_check (process_pm_expression e.left tbls oc) (process_pm_expression e.right tbls oc)
+  | GreaterE e -> relational_type_check (process_pm_expression e.left tbls oc) (process_pm_expression e.right tbls oc)
+  | LessE e -> relational_type_check (process_pm_expression e.left tbls oc) (process_pm_expression e.right tbls oc)
+  | Equal e -> relational_type_check (process_pm_expression e.left tbls oc) (process_pm_expression e.right tbls oc)
+  | NotEqual e -> relational_type_check (process_pm_expression e.left tbls oc) (process_pm_expression e.right tbls oc)
+  | OExp e -> process_pm_expression e tbls oc
 
 and process_and_expression exp tbls oc = 
   match exp with
-  | AndExp e -> fprintf oc "%s\n" "andExp"; logical_type_check (process_logic_expression e.left tbls) (process_and_expression e.right tbls oc)
-  | AExp e -> process_logic_expression e tbls
+  | AndExp e -> fprintf oc "%s\n" "andExp"; logical_type_check (process_logic_expression e.left tbls oc) (process_and_expression e.right tbls oc)
+  | AExp e -> process_logic_expression e tbls oc
 
 and process_or_expression exp tbls oc =
   match exp with

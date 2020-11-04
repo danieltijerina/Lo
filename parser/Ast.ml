@@ -14,6 +14,11 @@ type type_def =
   | VoidTy
   | ClassTy
 
+type count_tbl = {
+  count: int;
+  base: int;
+}
+
 type varDeclID =
   | VDVarID of {name: string}
   | VDVarArray of {name: string; dim:int}

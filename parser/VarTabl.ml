@@ -4,6 +4,7 @@ type variable = {
   name : string;
   tipo : type_def;
   id_class: string;
+  address : int;
 }
 
 type funcion_tbl = {
@@ -21,6 +22,9 @@ type clase_tbl = {
 type high_level = 
   | ClaseT of clase_tbl
   | FuncT of funcion_tbl
+
+let update_count tbl key = 
+  Hashtbl.replace tbl key {count=(Hashtbl.find tbl key).count + 1; base=(Hashtbl.find tbl key).base}
 
 let add_element tbl key value = 
   Hashtbl.add tbl key value;
