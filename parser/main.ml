@@ -13,6 +13,7 @@ let print_type t =
   | BoolTy -> "bool"
   | VoidTy -> "void"
   | ClassTy -> "class"
+  | _ -> "some constant"
 
 let test_result tbl = 
   let mainf = Hashtbl.find tbl "Figura" in

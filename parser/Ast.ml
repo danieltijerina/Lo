@@ -11,12 +11,25 @@ type type_def =
   | CharTy
   | StringTy
   | BoolTy
+  | IntCte
+  | FloatCte
+  | CharCte
+  | StringCte
+  | BoolCte
   | VoidTy
   | ClassTy
 
 type count_tbl = {
   count: int;
   base: int;
+}
+
+type cte_table = {
+  integer: (int, int) Hashtbl.t;
+  floating: (float, int) Hashtbl.t;
+  strings: (string, int) Hashtbl.t;
+  characters: (char, int) Hashtbl.t;
+  booleans: (bool, int) Hashtbl.t;
 }
 
 type varDeclID =
