@@ -16,6 +16,11 @@ type type_def =
   | CharCte
   | StringCte
   | BoolCte
+  | IntTmp
+  | FloatTmp
+  | CharTmp
+  | StringTmp
+  | BoolTmp
   | VoidTy
   | ClassTy
 
