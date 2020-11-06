@@ -30,7 +30,7 @@ let test_result tbl =
 *)
 
 let _ =
-  let in_channel = open_in "ejemploSenc.lo" in
+  let in_channel = open_in "ejemploQuads.lo" in
   try
     let lexbuf = Lexing.from_channel in_channel in
     while true do

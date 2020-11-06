@@ -60,6 +60,11 @@ let rec back_main tree =
 
 (* Semantics *)
 
+let get_next_tag var_count = 
+  let tmp = Hashtbl.find var_count JTag in 
+    update_count var_count JTag;
+    tmp.base + tmp.count
+
 (* Match the variable declaration to add it to the table*)
 let add_vars_to_tbl t var class_id tbl var_count cte_tbl =
   match var.id with
@@ -89,10 +94,19 @@ let rec process_print_rec exps tbl var_count cte_tbl oc=
   | [] -> ()
   | (e::es) -> process_print e tbl var_count cte_tbl oc; process_print_rec es tbl var_count cte_tbl oc
 
-let process_condition exp tbl var_count cte_tbl oc=
-  match (process_expression exp tbl var_count cte_tbl oc).rtipo with
+let check_condition_type ty = 
+  match ty with
   | BoolTy -> ()
   | _ -> failwith "Condition expression is not bool"
+
+let process_condition exp tbl var_count cte_tbl oc=
+  let exp_result = (process_expression exp tbl var_count cte_tbl oc) in
+    check_condition_type exp_result.rtipo;
+    exp_result
+and check_else_block block = 
+  match block with
+  | [] -> false
+  | _ -> true
 
 let getFunctionTbl name tbl = 
   let ftbl = (Hashtbl.find tbl name) in
@@ -114,11 +128,32 @@ let getClaseTbl high_level =
 let rec add_func_elems_to_tbl elem tbls var_count cte_tbl ft oc=
   match elem with 
   | Asigna a -> process_asignacion a.izq a.der tbls var_count cte_tbl oc; 
-  | CondIf cif -> process_condition cif.cond tbls var_count cte_tbl oc; process_block cif.true_block tbls var_count cte_tbl ft oc; process_block cif.false_block tbls var_count cte_tbl ft oc;
+  | CondIf cif -> (let cond = process_condition cif.cond tbls var_count cte_tbl oc in
+                    let next_tag = get_next_tag var_count in 
+                      fprintf oc "%s %d %d %d\n" "gotoF" cond.address (-1) next_tag;
+                      process_block cif.true_block tbls var_count cte_tbl ft oc;
+                      let else_block = check_else_block cif.false_block in 
+                        match else_block with
+                        | true -> ( let final_tag = get_next_tag var_count in 
+                                      fprintf oc "%s %d %d %d\n" "goto" final_tag (-1) (-1);
+                                      fprintf oc "%s %d %d %d\n" "tag" next_tag (-1) (-1);
+                                      process_block cif.false_block tbls var_count cte_tbl ft oc;
+                                      fprintf oc "%s %d %d %d\n" "tag" final_tag (-1) (-1);
+                                      )
+                        | false -> ( fprintf oc "%s %d %d %d\n" "tag" next_tag (-1) (-1); );
+                    )
   | Escritura e -> process_print_rec e tbls var_count cte_tbl oc;
   | EVar evar -> add_vars_to_tbl_rec evar.tipo evar.vars evar.id_class tbls.function_tbl var_count cte_tbl;
   | ForLoop floop -> process_for_loop floop tbls var_count cte_tbl ft oc;
-  | WhileLoop wloop -> process_condition wloop.cond tbls var_count cte_tbl oc; process_block wloop.bloque tbls var_count cte_tbl ft oc;
+  | WhileLoop wloop -> (let starter_tag = get_next_tag var_count in
+                          fprintf oc "%s %d %d %d\n" "tag" starter_tag (-1) (-1); 
+                          let cond = process_condition wloop.cond tbls var_count cte_tbl oc in
+                            let end_tag = get_next_tag var_count in
+                              fprintf oc "%s %d %d %d\n" "gotoF" cond.address (-1) end_tag;
+                              process_block wloop.bloque tbls var_count cte_tbl ft oc;
+                              fprintf oc "%s %d %d %d\n" "goto" starter_tag (-1) (-1);
+                              fprintf oc "%s %d %d %d\n" "tag" end_tag (-1) (-1); 
+                              )
   | Return r -> assert_equal ft (process_expression r tbls var_count cte_tbl oc).rtipo; ();
   | Expresion ex -> assert_equal VoidTy (process_expression ex tbls var_count cte_tbl oc).rtipo; ();
 (* Iterate through the function elements to add variables to the tbl *)
@@ -133,11 +168,17 @@ and process_block bloque tbl var_count cte_tbl ft oc=
   add_func_elems_to_tbl_rec bloque tbl var_count cte_tbl ft oc
 and process_for_loop floop tbl var_count cte_tbl ft oc= 
   variableLookup floop.init tbl;
-  assert_equal BoolTy (process_expression floop.cond tbl var_count cte_tbl oc).rtipo;
-  add_func_elems_to_tbl (Asigna floop.post) tbl var_count cte_tbl ft oc;
-  process_block floop.bloque tbl var_count cte_tbl ft oc;;
-
-
+  let starter_tag = get_next_tag var_count in
+    fprintf oc "%s %d %d %d\n" "tag" starter_tag (-1) (-1); 
+    let cond = process_expression floop.cond tbl var_count cte_tbl oc in
+      let end_tag = get_next_tag var_count in
+        assert_equal BoolTy cond.rtipo;
+        fprintf oc "%s %d %d %d\n" "gotoF" cond.address (-1) end_tag;
+        process_block floop.bloque tbl var_count cte_tbl ft oc;
+        add_func_elems_to_tbl (Asigna floop.post) tbl var_count cte_tbl ft oc;
+        fprintf oc "%s %d %d %d\n" "goto" starter_tag (-1) (-1);
+        fprintf oc "%s %d %d %d\n" "tag" end_tag (-1) (-1);;
+        
 (* Match the element of a class to a function and add the function elements to tbl *)
 let add_inner_fucs_of_class elem class_tbl tbl var_count cte_tbl oc=
   match elem, class_tbl with
@@ -190,6 +231,7 @@ let rec semantic_main tree table var_count cte_tbl oc =
       table;;
 
 let initialize_count tbl =
+  Hashtbl.add tbl JTag {count=0; base=0};
   Hashtbl.add tbl IntTy {count=0; base=1000};
   Hashtbl.add tbl FloatTy {count=0; base=2000};
   Hashtbl.add tbl StringTy {count=0; base=3000};

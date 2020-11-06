@@ -1,10 +1,21 @@
 func main(): int {
-  int x = 0;
-  float y = 0.2;
-  int z = -1;
+  int x, y;
+  for(x; x < 5; x=x+1){
+    y = 1 + 2;
+  }
 
-  bool xy, zy;
+  while(x > 5){
+    y = y + 1;
+  }
 
-  x = z * -2 - 1;
-  xy = xy && zy;
+  if(x == 5){
+    y = 1 * 3;
+  }
+  
+  if(x == 6){
+    y = 6 * 1;
+  }
+  else {
+    y = 7 * 2;
+  }
 }

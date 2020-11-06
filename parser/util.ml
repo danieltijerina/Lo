@@ -1,7 +1,7 @@
 open Ast
 open VarTabl
 
-type variableInfo = 
+type quadInfo = 
   {
     rtipo: type_def;
     address: int;

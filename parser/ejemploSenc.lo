@@ -61,9 +61,10 @@ func main(): int {
 
   if(false && true) {
     int z;
+    z = 1 + 2 + 3;
   } else {
     print("this shouldn't work", "maybe we can leave it as runtime error");
-    z = 1234;
+    z = 1 * 2 + 3 / 4;
   }
   z = 0;
 }

@@ -23,6 +23,14 @@ type type_def =
   | BoolTmp
   | VoidTy
   | ClassTy
+  | JTag
+
+type quad = {
+  operator: string;
+  operand_left: int;
+  operand_right: int;
+  stored: int;
+}
 
 type count_tbl = {
   count: int;
