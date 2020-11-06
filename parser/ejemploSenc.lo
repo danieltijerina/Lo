@@ -49,6 +49,7 @@ func foo(): string {
           print("f");
         }
       }
+    a = b * x + 2;
     return "string";
 }
 
@@ -65,7 +66,4 @@ func main(): int {
     z = 1234;
   }
   z = 0;
-
-  Figura fig;
-  return fig.largo;
 }

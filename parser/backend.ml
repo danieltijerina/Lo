@@ -68,7 +68,7 @@ let add_vars_to_tbl t var class_id tbl var_count cte_tbl =
   | VDVar2Array v -> add_element tbl v.name {name=v.name; tipo=t; id_class=class_id; address=0};; (* Need to add array part *)
 
 let process_asignacion left right tbls var_count cte_tbl oc = 
-  assert_equalCS (changeTypeToCS (variableLookup left tbls)) (process_expression right tbls var_count cte_tbl oc); ();;
+  assert_equal ( (variableLookup left tbls).rtipo) (process_expression right tbls var_count cte_tbl oc).rtipo; ();;
 
 (* Iterate through all the variables in a variable declaration *)
 let rec add_vars_to_tbl_rec t vars class_id tbl var_count cte_tbl = 
@@ -79,9 +79,9 @@ let rec add_vars_to_tbl_rec t vars class_id tbl var_count cte_tbl =
       add_vars_to_tbl_rec t fs class_id tbl var_count cte_tbl;;
 
 let process_print exp tbl var_count cte_tbl oc=
-  match (process_expression exp tbl var_count cte_tbl oc) with
-  | CsChar -> ()
-  | CsString -> ()
+  match (process_expression exp tbl var_count cte_tbl oc).rtipo with
+  | CharTy -> ()
+  | StringTy -> ()
   | _ -> failwith "Non-printable type"
 
 let rec process_print_rec exps tbl var_count cte_tbl oc=
@@ -90,8 +90,8 @@ let rec process_print_rec exps tbl var_count cte_tbl oc=
   | (e::es) -> process_print e tbl var_count cte_tbl oc; process_print_rec es tbl var_count cte_tbl oc
 
 let process_condition exp tbl var_count cte_tbl oc=
-  match (process_expression exp tbl var_count cte_tbl oc) with
-  | CsBool -> ()
+  match (process_expression exp tbl var_count cte_tbl oc).rtipo with
+  | BoolTy -> ()
   | _ -> failwith "Condition expression is not bool"
 
 let getFunctionTbl name tbl = 
@@ -119,8 +119,8 @@ let rec add_func_elems_to_tbl elem tbls var_count cte_tbl ft oc=
   | EVar evar -> add_vars_to_tbl_rec evar.tipo evar.vars evar.id_class tbls.function_tbl var_count cte_tbl;
   | ForLoop floop -> process_for_loop floop tbls var_count cte_tbl ft oc;
   | WhileLoop wloop -> process_condition wloop.cond tbls var_count cte_tbl oc; process_block wloop.bloque tbls var_count cte_tbl ft oc;
-  | Return r -> assert_equalCS (changeTypeToCS ft) (process_expression r tbls var_count cte_tbl oc); ();
-  | Expresion ex -> assert_equalCS CsVoid (process_expression ex tbls var_count cte_tbl oc); ();
+  | Return r -> assert_equal ft (process_expression r tbls var_count cte_tbl oc).rtipo; ();
+  | Expresion ex -> assert_equal VoidTy (process_expression ex tbls var_count cte_tbl oc).rtipo; ();
 (* Iterate through the function elements to add variables to the tbl *)
 and add_func_elems_to_tbl_rec bloque tbls var_count cte_tbl ft oc=
   match bloque with
@@ -133,7 +133,7 @@ and process_block bloque tbl var_count cte_tbl ft oc=
   add_func_elems_to_tbl_rec bloque tbl var_count cte_tbl ft oc
 and process_for_loop floop tbl var_count cte_tbl ft oc= 
   variableLookup floop.init tbl;
-  assert_equalCS CsBool (process_expression floop.cond tbl var_count cte_tbl oc);
+  assert_equal BoolTy (process_expression floop.cond tbl var_count cte_tbl oc).rtipo;
   add_func_elems_to_tbl (Asigna floop.post) tbl var_count cte_tbl ft oc;
   process_block floop.bloque tbl var_count cte_tbl ft oc;;
 
@@ -199,7 +199,7 @@ let initialize_count tbl =
   Hashtbl.add tbl FloatCte {count=0; base=11000};
   Hashtbl.add tbl StringCte {count=0; base=12000};
   Hashtbl.add tbl CharCte {count=0; base=13000};
-  Hashtbl.add tbl BoolCte {count=0; base=14000};;
+  Hashtbl.add tbl BoolCte {count=0; base=14000};
   Hashtbl.add tbl IntTmp {count=0; base=20000};
   Hashtbl.add tbl FloatTmp {count=0; base=21000};
   Hashtbl.add tbl StringTmp {count=0; base=22000};

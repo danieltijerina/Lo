@@ -1,0 +1,10 @@
+func main(): int {
+  int x = 0;
+  float y = 0.2;
+  int z = -1;
+
+  bool xy, zy;
+
+  x = z * -2 - 1;
+  xy = xy && zy;
+}

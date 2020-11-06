@@ -1,6 +1,12 @@
 open Ast
 open VarTabl
 
+type variableInfo = 
+  {
+    rtipo: type_def;
+    address: int;
+  }
+
 type classTbl = 
   | ClassTbl of clase_tbl 
   | Nil;;
@@ -22,23 +28,23 @@ let variableLookupVarID var current_tbls =
 let functionLookup f current_tbls = 
   match f with 
   | VarFuncCall vf -> ( match current_tbls.class_tbl with 
-                        | ClassTbl ct -> (try (Hashtbl.find ct.funcs vf.func).tipo with Not_found -> (
+                        | ClassTbl ct -> (try let fres = (Hashtbl.find ct.funcs vf.func) in {rtipo=fres.tipo; address=0} with Not_found -> (
                                 try let tbl = (Hashtbl.find current_tbls.global_tbl vf.func) in match tbl  with 
-                                                      | FuncT funct -> funct.tipo; 
+                                                      | FuncT funct -> {rtipo=funct.tipo; address=0}; 
                                                       | _ -> failwith "No function found"
                                 with Not_found -> failwith "No function found"
                               ))
                         | Nil -> (try let tbl = (Hashtbl.find current_tbls.global_tbl vf.func) in match tbl  with 
-                                                        | FuncT funct -> funct.tipo; 
+                                                        | FuncT funct -> {rtipo=funct.tipo; address=0}; 
                                                         | _ -> failwith "No function found"
                                   with Not_found -> failwith "No function found") )
 
 let variableInClassLookup var_id class_tbl =
   match var_id with
-  | VarID v -> (try (Hashtbl.find class_tbl.vars v.name).tipo with Not_found -> failwith "No Variable found in class");
-  | VarFuncCall vfunc -> (try (Hashtbl.find class_tbl.funcs vfunc.func).tipo with Not_found -> failwith "No function found in class");
-  | VarArray varr ->  (try (Hashtbl.find class_tbl.vars varr.name).tipo with Not_found -> failwith "No Variable found in class"); (* Need to implement arrays *)
-  | Var2Array v2arr -> (try (Hashtbl.find class_tbl.vars v2arr.name).tipo with Not_found -> failwith "No Variable found in class"); (* Need to implement arrays *)
+  | VarID v -> (try let res = (Hashtbl.find class_tbl.vars v.name) in {rtipo=res.tipo; address=res.address} with Not_found -> failwith "No Variable found in class");
+  | VarFuncCall vfunc -> (try let res = (Hashtbl.find class_tbl.funcs vfunc.func) in {rtipo=res.tipo; address=0} with Not_found -> failwith "No function found in class");
+  | VarArray varr ->  (try let res = (Hashtbl.find class_tbl.vars varr.name) in {rtipo=res.tipo; address=res.address} with Not_found -> failwith "No Variable found in class"); (* Need to implement arrays *)
+  | Var2Array v2arr -> (try let res = (Hashtbl.find class_tbl.vars v2arr.name) in {rtipo=res.tipo; address=res.address} with Not_found -> failwith "No Variable found in class"); (* Need to implement arrays *)
   | VarPoint vpoint -> failwith "class in class not supported yet";; (* Need to do class in class *)
 
 let pointVarLookup vp current_tbls = 
@@ -57,10 +63,10 @@ let pointVarLookup vp current_tbls =
 
 let rec variableLookup var_id current_tbls = 
   match var_id with
-  | VarID v -> (variableLookupVarID v.name current_tbls).tipo;
-  | VarFuncCall vfunc -> functionLookup (VarFuncCall vfunc) current_tbls;
-  | VarArray varr ->  (variableLookupVarID varr.name current_tbls).tipo; (* Need to implement arrays *)
-  | Var2Array v2arr -> (variableLookupVarID v2arr.name current_tbls).tipo; (* Need to implement arrays *)
+  | VarID v -> let res = (variableLookupVarID v.name current_tbls) in {rtipo=res.tipo; address=res.address};
+  | VarFuncCall vfunc -> (functionLookup (VarFuncCall vfunc) current_tbls);
+  | VarArray varr ->  let res = (variableLookupVarID varr.name current_tbls) in {rtipo=res.tipo; address=res.address}; (* Need to implement arrays *)
+  | Var2Array v2arr -> let res = (variableLookupVarID v2arr.name current_tbls) in {rtipo=res.tipo; address=res.address}; (* Need to implement arrays *)
   | VarPoint vpoint -> (pointVarLookup (VarPoint vpoint) current_tbls);;
 
 let vLookup var_id current_tbls =
