@@ -73,21 +73,38 @@ let add_vars_to_tbl t var class_id tbl var_count cte_tbl =
   | VDVar2Array v -> add_element tbl v.name {name=v.name; tipo=t; id_class=class_id; address=0};; (* Need to add array part *)
 
 let process_asignacion left right tbls var_count cte_tbl oc = 
-  assert_equal ( (variableLookup left tbls).rtipo) (process_expression right tbls var_count cte_tbl oc).rtipo; ();;
+  let leftVar = variableLookup left tbls in
+    let rightExp = process_expression right tbls var_count cte_tbl oc in
+      assert_equal leftVar.rtipo rightExp.rtipo;
+      fprintf oc "%s %d %d %d\n" "=" leftVar.address rightExp.address (-1)
 
-(* Iterate through all the variables in a variable declaration *)
-let rec add_vars_to_tbl_rec t vars class_id tbl var_count cte_tbl = 
+let rec add_vars_to_func_tbl_rec t vars class_id tbl var_count cte_tbl oc = 
   match vars with
   | [] -> ();
   | (f::fs) -> 
-      add_vars_to_tbl t f class_id tbl var_count cte_tbl;
-      add_vars_to_tbl_rec t fs class_id tbl var_count cte_tbl;;
+      let new_var = add_vars_to_tbl t f class_id tbl.function_tbl var_count cte_tbl in
+        let exp = f.right in
+          match exp with
+          | VDExp e ->  let tmp = process_expression e tbl var_count cte_tbl oc in
+                          assert_equal tmp.rtipo t;
+                          fprintf oc "%s %d %d %d\n" "=" new_var.address tmp.address (-1);
+                          add_vars_to_func_tbl_rec t fs class_id tbl var_count cte_tbl oc
+          | _ -> add_vars_to_func_tbl_rec t fs class_id tbl var_count cte_tbl oc
+
+(* Expresion validation in class variable declaration is STILL missing *)
+let rec add_vars_to_class_tbl_rec t vars class_id tbl var_count cte_tbl = 
+  match vars with
+  | [] -> ();
+  | (f::fs) -> 
+      add_vars_to_tbl t f class_id tbl.vars var_count cte_tbl;
+      add_vars_to_class_tbl_rec t fs class_id tbl var_count cte_tbl
 
 let process_print exp tbl var_count cte_tbl oc=
-  match (process_expression exp tbl var_count cte_tbl oc).rtipo with
-  | CharTy -> ()
-  | StringTy -> ()
-  | _ -> failwith "Non-printable type"
+  let tmp = process_expression exp tbl var_count cte_tbl oc in
+    match tmp.rtipo with
+    | CharTy -> fprintf oc "%s %d %d %d\n" "print" tmp.address (-1) (-1)
+    | StringTy -> fprintf oc "%s %d %d %d\n" "print" tmp.address (-1) (-1)
+    | _ -> failwith "Non-printable type"
 
 let rec process_print_rec exps tbl var_count cte_tbl oc=
   match exps with
@@ -143,7 +160,7 @@ let rec add_func_elems_to_tbl elem tbls var_count cte_tbl ft oc=
                         | false -> ( fprintf oc "%s %d %d %d\n" "tag" next_tag (-1) (-1); );
                     )
   | Escritura e -> process_print_rec e tbls var_count cte_tbl oc;
-  | EVar evar -> add_vars_to_tbl_rec evar.tipo evar.vars evar.id_class tbls.function_tbl var_count cte_tbl;
+  | EVar evar -> add_vars_to_func_tbl_rec evar.tipo evar.vars evar.id_class tbls var_count cte_tbl oc;
   | ForLoop floop -> process_for_loop floop tbls var_count cte_tbl ft oc;
   | WhileLoop wloop -> (let starter_tag = get_next_tag var_count in
                           fprintf oc "%s %d %d %d\n" "tag" starter_tag (-1) (-1); 
@@ -204,7 +221,7 @@ let add_inner_func_to_tbl elem tbl var_count cte_tbl oc =
 let add_class_att_to_table_inner elem class_tbl var_count cte_tbl = 
   match elem, class_tbl with
   | Fun f, ClaseT ctbl -> add_func class_tbl f.fname {name=f.fname; tipo=f.tipo; variables=Hashtbl.create 0}; [];
-  | CVar cv, ClaseT ctbl -> add_vars_to_tbl_rec cv.tipo cv.vars cv.id_class ctbl.vars var_count cte_tbl; [];; (*If type is class, validate class type *)
+  | CVar cv, ClaseT ctbl -> add_vars_to_class_tbl_rec cv.tipo cv.vars cv.id_class ctbl var_count cte_tbl; [];; (*If type is class, validate class type *)
 
 (* Iterating through all the class variables and funcs *)
 let rec add_class_att_to_table bloque class_tbl var_count cte_tbl = 
