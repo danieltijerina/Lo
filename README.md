@@ -3,6 +3,6 @@ Object oriented language. Developed using Ocaml.
 
 ## Avance actual:
 
-El proceso de lexing y parsing esta terminado y funcionando bien. El parser genera un arbol sintactico que se consume en el backend y se itera para realizar el analisis sintactico. La generacion del arbol ya esta terminada y ya se esta consumiendo para el analisis sintactico inicial.
+Los procesos de lexing y parsing han sido terminados y probados. El parser genera un arbol sintactico que se consume en el backend, donde se realizan las validaciones semanticas de cada instruccion encontrada en el programa. El analisis semantico tambien ha sido terminado.
 
- Actualmente estamos trabajando en los ultimos detalles del analisis sintactico. Ya se analizan expresiones, tipos de datos y condiciones en estatutos if y while. Falta afinar unos detalles sobre las consideraciones semanticas en los estatutos for y en los usos de atributos o metodos de una clase.
+Actualmente estamos trabajando en la generacion de codigo intermedio usando cuadruplos. Ya se generan exitosamente los cuadruplos de expresiones, asignaciones, condiciones, bucles for y bucles while. Estamos trabajando en la generacion de cuadruplos para funciones y clases, asi como sus llamados. Los cuadruplos generados por el compilador (guardados en un archivo .clo) seran ejecutados en una maquina virtual que no hemos empezado.
