@@ -9,8 +9,9 @@ type variable = {
 
 type funcion_tbl = {
   name : string;
-  tipo : type_def;
+  ftipo : type_def;
   variables: (string, variable) Hashtbl.t;
+  params: variable list;
 }
 
 type clase_tbl = {
@@ -30,9 +31,19 @@ let add_element tbl key value =
   Hashtbl.add tbl key value;
   value;;
 
+let rec getVariablesFromParamsRec params = 
+  match params with
+  | [] -> []
+  | (f::fs) -> getVariablesFromParams f :: (getVariablesFromParamsRec fs)
+and getVariablesFromParams param =
+  match param.param_id with
+  | VDVarID vid -> {name=vid.name; tipo=param.tipo; id_class=""; address=0;};
+  | VDVarArray vid -> {name=vid.name; tipo=param.tipo; id_class=""; address=0;};
+  | VDVar2Array vid -> {name=vid.name; tipo=param.tipo; id_class=""; address=0;};;
+
 let add_high_level_element tbl value =
   match value with
-  | Func f -> add_element tbl f.fname (FuncT {name=f.fname; tipo=f.tipo; variables=Hashtbl.create 0})
+  | Func f -> add_element tbl f.fname (FuncT {name=f.fname; ftipo=f.tipo; variables=Hashtbl.create 0; params=(getVariablesFromParamsRec f.params);})
   | Clase c -> add_element tbl c.name (ClaseT {name=c.name; funcs=Hashtbl.create 0; vars=Hashtbl.create 0})
 
 let get_element x =
@@ -59,6 +70,8 @@ let find_func parent key =
   match parent with
   | ClaseT clase -> Hashtbl.find clase.funcs key
   | _ -> assert false;;
+
+
 
 (* 
 add_element has_tab "figura" (Clase {name="figura"; tipo="int"; funcs=Hashtbl.create 123; vars=Hashtbl.create 123; dep=Hashtbl.create 123;});;

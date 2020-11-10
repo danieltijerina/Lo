@@ -22,7 +22,7 @@ let add_vars_to_tbl t var class_id tbl var_count cte_tbl =
   | VDVar2Array v -> add_element tbl v.name {name=v.name; tipo=t; id_class=class_id; address=0};; (* Need to add array part *)
 
 let process_asignacion left right tbls var_count cte_tbl oc = 
-  let leftVar = variableLookup left tbls in
+  let leftVar = variableLookup left tbls var_count cte_tbl oc in
     let rightExp = process_expression right tbls var_count cte_tbl oc in
       assert_equal leftVar.rtipo rightExp.rtipo;
       fprintf oc "%s %d %d %d\n" "=" leftVar.address rightExp.address (-1)
@@ -31,7 +31,7 @@ let rec add_vars_to_func_tbl_rec t vars class_id tbl var_count cte_tbl oc =
   match vars with
   | [] -> ();
   | (f::fs) -> 
-      let new_var = add_vars_to_tbl t f class_id tbl.function_tbl var_count cte_tbl in
+      let new_var = add_vars_to_tbl t f class_id (match tbl.function_tbl with | FuncTbl f -> f | FNil -> failwith "Not valid") var_count cte_tbl in
         let exp = f.right in
           match exp with
           | VDExp e ->  let tmp = process_expression e tbl var_count cte_tbl oc in
@@ -148,7 +148,7 @@ and process_for_loop floop tbl var_count cte_tbl ft oc=
 (* Match the element of a class to a function and add the function elements to tbl *)
 let add_inner_fucs_of_class elem class_tbl tbl var_count cte_tbl oc=
   match elem, class_tbl with
-  | Fun f, ClaseT ct -> add_func_elems_to_tbl_rec f.fbloque { function_tbl=(getFunctionTblInClass f.fname class_tbl); class_tbl=ClassTbl (getClaseTbl class_tbl); global_tbl=tbl} var_count cte_tbl f.tipo oc; ();
+  | Fun f, ClaseT ct -> add_func_elems_to_tbl_rec f.fbloque { function_tbl=FuncTbl(getFunctionTblInClass f.fname class_tbl); class_tbl=ClassTbl (getClaseTbl class_tbl); global_tbl=tbl} var_count cte_tbl f.tipo oc; ();
   | CVar cv, ClaseT ct -> ();
   | _, _ -> assert false;;
 
@@ -163,13 +163,13 @@ let rec add_inner_fucs_of_class_rec bloque class_tbl tbl var_count cte_tbl oc =
 (* Check elem to match class of function, then add all variables in functions to table*)
 let add_inner_func_to_tbl elem tbl var_count cte_tbl oc = 
   match elem with
-  | Func f -> add_func_elems_to_tbl_rec f.fbloque { function_tbl=(getFunctionTbl f.fname tbl); class_tbl=Nil; global_tbl=tbl} var_count cte_tbl f.tipo oc;
+  | Func f -> add_func_elems_to_tbl_rec f.fbloque { function_tbl=FuncTbl(getFunctionTbl f.fname tbl); class_tbl=Nil; global_tbl=tbl} var_count cte_tbl f.tipo oc;
   | Clase c -> add_inner_fucs_of_class_rec c.bloque (Hashtbl.find tbl c.name) tbl var_count cte_tbl oc;;
 
 (* Processing a single element of each class *)
 let add_class_att_to_table_inner elem class_tbl var_count cte_tbl = 
   match elem, class_tbl with
-  | Fun f, ClaseT ctbl -> add_func class_tbl f.fname {name=f.fname; tipo=f.tipo; variables=Hashtbl.create 0}; [];
+  | Fun f, ClaseT ctbl -> add_func class_tbl f.fname {name=f.fname; ftipo=f.tipo; variables=Hashtbl.create 0; params=(getVariablesFromParamsRec f.params);}; [];
   | CVar cv, ClaseT ctbl -> add_vars_to_class_tbl_rec cv.tipo cv.vars cv.id_class ctbl var_count cte_tbl; [];; (*If type is class, validate class type *)
 
 (* Iterating through all the class variables and funcs *)

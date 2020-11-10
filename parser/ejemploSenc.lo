@@ -37,7 +37,7 @@ class Figura {
 
 class Hola {}
 
-func foo(): string {
+func foo(int test): string {
   int a = 0, b = 1, c = 2, x = 3;
   while(x < (13+11) || 18/7*9 > a && 15==12) {
         if(c < 12) {
@@ -53,6 +53,8 @@ func foo(): string {
     return "string";
 }
 
+func bar(int test) {}
+
 func main(): int {
   int x = 0;
   float y = 1.2;
@@ -65,6 +67,7 @@ func main(): int {
   } else {
     print("this shouldn't work", "maybe we can leave it as runtime error");
     z = 1 * 2 + 3 / 4;
+    bar(1);
   }
   z = 0;
 }
