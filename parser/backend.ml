@@ -2,61 +2,10 @@ open Ast
 open VarTabl
 open ExpValidator
 open Util
-open Printer
 open Printf
-
-let rec process_VarId var = 
-  match var with 
-  | VarID vid -> print_string vid.name;
-  | VarFuncCall vfun -> ()
-  | VarArray varray -> print_string varray.name; print_string "[1]"; 
-  | Var2Array varray2 -> print_string varray2.name; print_string "[][]";
-  | VarPoint vpoin -> print_string vpoin.name; print_string "."; process_VarId vpoin.inner;;
-
-let process_func_elem elem =
-  match elem with 
-  | Asigna a -> print_string "Asignando "; process_VarId a.izq; print_endline "";
-  | CondIf cif -> ()
-  | Escritura e -> ()
-  | EVar evar -> ()
-  | ForLoop floop -> ()
-  | WhileLoop wloop -> ()
-  | Return r -> ()
-  | Expresion ex -> ();;
-
-let rec process_func_bloque bloque = 
-  match bloque with 
-  | [] -> ()
-  | (f :: fs) -> process_func_elem f; process_func_bloque fs;;
-
-let process_function func =
-  print_string "Function start:"; print_endline func.fname; process_func_bloque func.fbloque;;
-
-let process_clase_elem elem = 
-  match elem with
-  | Fun f -> process_function f;
-  | CVar v -> ();;
-
-let rec process_clase_bloque bloque =
-  match bloque with 
-  | [] -> ()
-  | (f :: fs) -> process_clase_elem f; process_clase_bloque fs;;
-
-let upper_prog elem = 
-  match elem with
-  | Clase c -> print_string "Class start:"; print_endline c.name; process_clase_bloque c.bloque; print_endline "Class ends";
-  | Func f -> process_function f;;
 
 let process_expression exp tbls var_count cte_tbl oc = 
   process_or_expression exp tbls var_count cte_tbl oc
-
-(* Procesar semantica del parse tree*)
-let rec back_main tree =
-  match tree with 
-  | Program [] -> print_endline "end of file"
-  | Program (i :: j) ->
-      upper_prog i;
-      back_main (Program j);;
 
 (* Semantics *)
 
