@@ -35,10 +35,11 @@ class Figura {
   }
 }
 
-class Hola {}
+class Figura2 {}
 
 func foo(int test): string {
   int a = 0, b = 1, c = 2, x = 3;
+  string t = " ";
   while(x < (13+11) || 18/7*9 > a && 15==12) {
         if(c < 12) {
           print("todo bien");
@@ -53,14 +54,19 @@ func foo(int test): string {
     return "string";
 }
 
-func bar(int test, string test2, float x) {
+func foo2(int test, string test2, float x) {
   int x = 1 + 2 + 3;
 }
 
 func main(): int {
-  int x = 0;
+  Figura x; 
+  int foo2;
+  
+  int w = x.bar(1);
   float y = 1.2;
   print("hola ", "como estas");
+
+  
 
   if(false && true) {
     int z;
@@ -68,7 +74,7 @@ func main(): int {
   } else {
     print("this shouldn't work", "maybe we can leave it as runtime error");
     z = 1 * 2 + 3 / 4;
-    bar(1, " ", 1.2 * 2 - 2.5);
+    foo2(1, " ", 1.2 * 2 - 2.5);
   }
   z = 0;
 }

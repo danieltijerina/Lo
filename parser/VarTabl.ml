@@ -28,8 +28,12 @@ let update_count tbl key =
   Hashtbl.replace tbl key {count=(Hashtbl.find tbl key).count + 1; base=(Hashtbl.find tbl key).base}
 
 let add_element tbl key value = 
-  Hashtbl.add tbl key value;
-  value;;
+  try 
+  Hashtbl.find tbl key;
+  failwith "name already exists";
+  with Not_found -> 
+  (Hashtbl.add tbl key value;
+  value);;
 
 let rec getVariablesFromParamsRec params = 
   match params with

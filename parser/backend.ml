@@ -213,7 +213,9 @@ let initialize_count tbl =
   Hashtbl.add tbl FloatTmp {count=0; base=21000};
   Hashtbl.add tbl StringTmp {count=0; base=22000};
   Hashtbl.add tbl CharTmp {count=0; base=23000};
-  Hashtbl.add tbl BoolTmp {count=0; base=24000};;
+  Hashtbl.add tbl BoolTmp {count=0; base=24000};
+  Hashtbl.add tbl ClassTy {count=0; base=30000};;
+  
 
 (* Main Semantic start *)
 let semantic_start tree oc = 
