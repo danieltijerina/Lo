@@ -178,17 +178,17 @@ and process_or_expression exp tbls var_count cte_tbl oc =
                         {rtipo=t; address=nxt_temp};
   | Exp e -> process_and_expression e tbls var_count cte_tbl oc
 
-and checkFuncParamsRec fparams vfparams current_tbls var_count const_tbl oc= 
+and checkFuncParamsRec fparams vfparams current_tbls var_count const_tbl oc count= 
   match fparams, vfparams with 
   | [], [] -> ()
   | [], _ -> failwith "Different parameter size"
   | _, [] -> failwith "Different parameter size"
-  | (f:: fs), (x :: xs) -> checkFuncParams f x current_tbls var_count const_tbl oc; 
-                          checkFuncParamsRec fs xs current_tbls var_count const_tbl oc;
-and checkFuncParams fparam vfparam current_tbls var_count const_tbl oc = 
+  | (f:: fs), (x :: xs) -> checkFuncParams f x current_tbls var_count const_tbl oc count; 
+                          checkFuncParamsRec fs xs current_tbls var_count const_tbl oc (count+1);
+and checkFuncParams fparam vfparam current_tbls var_count const_tbl oc count= 
   let ex = (process_or_expression vfparam current_tbls var_count const_tbl oc) in
     assert_equal ex.rtipo fparam.tipo; 
-    fprintf oc "%s %d %d %d\n" "param" ex.address (-1) (-1); (* Put the param in quads *)
+    fprintf oc "%s %d %d %d\n" "param" ex.address count (-1); (* Put the param in quads *)
 
 and variableLookupVarID var current_tbls= 
   match current_tbls.function_tbl with 
@@ -205,16 +205,19 @@ and functionLookup f current_tbls var_count const_tbl oc=
   match f with 
   | VarFuncCall vf -> ( match current_tbls.class_tbl with 
                         | ClassTbl ct -> (try let fres = (Hashtbl.find ct.funcs vf.func) in 
-                        checkFuncParamsRec fres.params vf.params current_tbls var_count const_tbl oc; 
+                        checkFuncParamsRec fres.params vf.params current_tbls var_count const_tbl oc 1;
+                        fprintf oc "%s %s %d %d\n" "goSub" vf.func (-1) (-1); (* Check initial address *) 
                         {rtipo=fres.ftipo; address=0} with Not_found -> (
                                 try let tbl = (Hashtbl.find current_tbls.global_tbl vf.func) in match tbl  with 
-                                                      | FuncT funct -> checkFuncParamsRec funct.params vf.params current_tbls var_count const_tbl oc;
+                                                      | FuncT funct -> checkFuncParamsRec funct.params vf.params current_tbls var_count const_tbl oc 1;
+                                                      fprintf oc "%s %s %d %d\n" "goSub" vf.func (-1) (-1); (* Check initial address *)
                                                       {rtipo=funct.ftipo; address=0}; 
                                                       | _ -> failwith "No function found"
                                 with Not_found -> failwith "No function found"
                               ))
                         | Nil -> (try let tbl = (Hashtbl.find current_tbls.global_tbl vf.func) in match tbl  with 
-                                                        | FuncT funct -> checkFuncParamsRec funct.params vf.params current_tbls var_count const_tbl oc; 
+                                                        | FuncT funct -> checkFuncParamsRec funct.params vf.params current_tbls var_count const_tbl oc 1;
+                                                        fprintf oc "%s %s %d %d\n" "goSub" vf.func (-1) (-1); (* Check initial address *) 
                                                         {rtipo=funct.ftipo; address=0}; 
                                                         | _ -> failwith "No function found"
                                   with Not_found -> failwith "No function found") )
@@ -223,7 +226,8 @@ and variableInClassLookup var_id class_tbl var_count const_tbl oc global_tbl=
   match var_id with
   | VarID v -> (try let res = (Hashtbl.find class_tbl.vars v.name) in {rtipo=res.tipo; address=res.address} with Not_found -> failwith "No Variable found in class");
   | VarFuncCall vfunc -> (try let res = (Hashtbl.find class_tbl.funcs vfunc.func) in 
-  checkFuncParamsRec res.params vfunc.params {function_tbl=FNil; class_tbl=ClassTbl class_tbl; global_tbl=global_tbl} var_count const_tbl oc;
+  checkFuncParamsRec res.params vfunc.params {function_tbl=FNil; class_tbl=ClassTbl class_tbl; global_tbl=global_tbl} var_count const_tbl oc 1;
+  fprintf oc "%s %s %d %d\n" "goSub" vfunc.func (-1) (-1); (* Check initial address *)
   {rtipo=res.ftipo; address=0} with Not_found -> failwith "No function found in class");
   | VarArray varr ->  (try let res = (Hashtbl.find class_tbl.vars varr.name) in {rtipo=res.tipo; address=res.address} with Not_found -> failwith "No Variable found in class"); (* Need to implement arrays *)
   | Var2Array v2arr -> (try let res = (Hashtbl.find class_tbl.vars v2arr.name) in {rtipo=res.tipo; address=res.address} with Not_found -> failwith "No Variable found in class"); (* Need to implement arrays *)

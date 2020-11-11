@@ -53,12 +53,13 @@ func foo(int test): string {
     return "string";
 }
 
-func bar(int test) {}
+func bar(int test, string test2, float x) {
+  int x = 1 + 2 + 3;
+}
 
 func main(): int {
   int x = 0;
   float y = 1.2;
-
   print("hola ", "como estas");
 
   if(false && true) {
@@ -67,7 +68,7 @@ func main(): int {
   } else {
     print("this shouldn't work", "maybe we can leave it as runtime error");
     z = 1 * 2 + 3 / 4;
-    bar(1);
+    bar(1, " ", 1.2 * 2 - 2.5);
   }
   z = 0;
 }

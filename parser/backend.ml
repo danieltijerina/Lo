@@ -164,6 +164,7 @@ let rec add_inner_fucs_of_class_rec bloque class_tbl tbl var_count cte_tbl oc =
 let add_inner_func_to_tbl elem tbl var_count cte_tbl oc = 
   match elem with
   | Func f -> add_func_elems_to_tbl_rec f.fbloque { function_tbl=FuncTbl(getFunctionTbl f.fname tbl); class_tbl=Nil; global_tbl=tbl} var_count cte_tbl f.tipo oc;
+  fprintf oc "%s\n" "endFunc";
   | Clase c -> add_inner_fucs_of_class_rec c.bloque (Hashtbl.find tbl c.name) tbl var_count cte_tbl oc;;
 
 (* Processing a single element of each class *)
