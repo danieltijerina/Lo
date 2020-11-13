@@ -8,28 +8,6 @@ class Figura {
     largo = ancho;
   }
 
-  constructor test() {
-    largo = 1;
-    ancho = 1 * 15 + (16/4);
-    largo[0] = 1;
-    figura = "cuadro";
-    int i, j, k;
-    string z;
-    bool status;
-
-    float test1, test2, test3;
-
-    if(status == true) {
-      print("hola");
-      for(largo; largo<=12 && 1<largo; largo=largo+1) {
-        k = bar(12);
-      }
-    } else {
-      print("Aqui no se puede llamar a foo()");
-      z = "hi";
-    }
-  }
-
   func bar(int lorem) : int {
     return 0;
   }
@@ -55,7 +33,7 @@ func foo(int test): string {
 }
 
 func foo2(int test, string test2, float x) {
-  int x = 1 + 2 + 3;
+  int z = 1 + 2 + 3;
 }
 
 func main(): int {
@@ -65,8 +43,6 @@ func main(): int {
   int w = x.bar(1);
   float y = 1.2;
   print("hola ", "como estas");
-
-  
 
   if(false && true) {
     int z;

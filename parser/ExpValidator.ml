@@ -19,31 +19,31 @@ let find_or_add_int_cte var_count cte_tbl e =
   try 
     Hashtbl.find cte_tbl.integer e
   with Not_found -> 
-    Hashtbl.add cte_tbl.integer e (let tmp = Hashtbl.find var_count IntCte in tmp.base + tmp.count); Hashtbl.find cte_tbl.integer e
+    Hashtbl.add cte_tbl.integer e (let tmp = Hashtbl.find var_count IntCte in tmp.base + Hashtbl.length cte_tbl.integer); update_count var_count IntCte; Hashtbl.find cte_tbl.integer e
 
 let find_or_add_float_cte var_count cte_tbl e = 
   try 
     Hashtbl.find cte_tbl.floating e
   with Not_found -> 
-    Hashtbl.add cte_tbl.floating e (let tmp = Hashtbl.find var_count FloatCte in tmp.base + tmp.count); Hashtbl.find cte_tbl.floating e
+    Hashtbl.add cte_tbl.floating e (let tmp = Hashtbl.find var_count FloatCte in tmp.base + Hashtbl.length cte_tbl.floating); update_count var_count FloatCte; Hashtbl.find cte_tbl.floating e
 
 let find_or_add_bool_cte var_count cte_tbl e = 
   try 
     Hashtbl.find cte_tbl.booleans e
   with Not_found -> 
-    Hashtbl.add cte_tbl.booleans e (let tmp = Hashtbl.find var_count BoolCte in tmp.base + tmp.count); Hashtbl.find cte_tbl.booleans e
+    Hashtbl.add cte_tbl.booleans e (let tmp = Hashtbl.find var_count BoolCte in tmp.base + Hashtbl.length cte_tbl.booleans); update_count var_count BoolCte; Hashtbl.find cte_tbl.booleans e
 
 let find_or_add_string_cte var_count cte_tbl e = 
   try 
     Hashtbl.find cte_tbl.strings e
   with Not_found -> 
-    Hashtbl.add cte_tbl.strings e (let tmp = Hashtbl.find var_count StringCte in tmp.base + tmp.count); Hashtbl.find cte_tbl.strings e
+    Hashtbl.add cte_tbl.strings e (let tmp = Hashtbl.find var_count StringCte in tmp.base + Hashtbl.length cte_tbl.strings); update_count var_count StringCte; Hashtbl.find cte_tbl.strings e
 
 let find_or_add_char_cte var_count cte_tbl e = 
   try 
     Hashtbl.find cte_tbl.characters e
   with Not_found -> 
-    Hashtbl.add cte_tbl.characters e (let tmp = Hashtbl.find var_count CharCte in tmp.base + tmp.count); Hashtbl.find cte_tbl.characters e
+    Hashtbl.add cte_tbl.characters e (let tmp = Hashtbl.find var_count CharCte in tmp.base + Hashtbl.length cte_tbl.characters); update_count var_count CharCte; Hashtbl.find cte_tbl.characters e
 
 let get_temp_type ty = 
   match ty with
@@ -65,19 +65,14 @@ let rec process_var_expression exp tbls var_count cte_tbl oc =
 and process_const_expression exp var_count cte_tbl oc = 
   match exp with 
   | Int e -> let addr = (find_or_add_int_cte var_count cte_tbl e) in 
-                update_count var_count IntCte; 
                 { rtipo=IntTy; address=addr; }
   | Float e -> let addr = (find_or_add_float_cte var_count cte_tbl e) in 
-                  update_count var_count FloatCte; 
                   { rtipo=FloatTy; address=addr;}
   | Bool e -> let addr = (find_or_add_bool_cte var_count cte_tbl e) in 
-                update_count var_count BoolCte; 
                 {rtipo=BoolTy; address=addr; }
   | String e -> let addr = (find_or_add_string_cte var_count cte_tbl e) in 
-                  update_count var_count StringCte; 
                   {rtipo=StringTy; address=addr;}
   | Char e -> let addr = (find_or_add_char_cte var_count cte_tbl e) in 
-                  update_count var_count CharCte; 
                   {rtipo=CharTy; address=addr;}
 
 and process_factor_expression exp tbls var_count cte_tbl oc =
@@ -192,7 +187,7 @@ and checkFuncParams fparam vfparam current_tbls var_count const_tbl oc count=
 
 and variableLookupVarID var current_tbls= 
   match current_tbls.function_tbl with 
-  | FuncTbl f -> (try (Hashtbl.find f var)
+  | FuncTbl f -> (try (Hashtbl.find f.variables var)
                     with e -> 
                       match current_tbls.class_tbl with
                       | ClassTbl ct -> (try (Hashtbl.find ct.vars var) with Not_found -> (failwith (String.concat var ["Variable "; " not found"] )));

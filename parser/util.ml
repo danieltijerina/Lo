@@ -7,12 +7,20 @@ type quadInfo =
     address: int;
   }
 
+type funcInfo =
+  {
+    variables: (string, variable) Hashtbl.t;
+    var_count: (type_def, count_tbl) Hashtbl.t;
+  }
+
 type classTbl = 
   | ClassTbl of clase_tbl 
   | Nil;;
 
 type functionTbl = 
-  | FuncTbl of (string, variable) Hashtbl.t
+  (* | FuncTbl of {variables: (string, variable) Hashtbl.t;
+                count: (type_def, count_tbl) Hashtbl.t} *)
+  | FuncTbl of funcInfo
   | FNil
 
 type current_tbls = 
