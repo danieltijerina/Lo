@@ -49,6 +49,34 @@ let print_counts oc k var_count =
   fprintf oc "BoolTmp %d\n" (Hashtbl.find var_count BoolTmp).count;
   fprintf oc "JTag %d\n" (Hashtbl.find var_count JTag).count
 
+let print_floating oc key value = 
+  fprintf oc "%f %d\n" key value
+
+let print_integers oc key value = 
+  fprintf oc "%d %d\n" key value
+
+let print_strings oc key value = 
+  fprintf oc "%s %d\n" key value
+
+let print_chars oc key value = 
+  fprintf oc "%c %d\n" key value
+
+let print_bools oc key value = 
+  fprintf oc "%b %d\n" key value
+
+let print_constants oc cte_table = 
+  fprintf oc "\n$$$$ \n";
+  fprintf oc "ints %d\n" (Hashtbl.length cte_table.integer);
+  Hashtbl.iter (print_integers oc) cte_table.integer;
+  fprintf oc "\nfloat %d\n" (Hashtbl.length cte_table.floating);
+  Hashtbl.iter (print_floating oc) cte_table.floating;
+  fprintf oc "\nstring %d\n" (Hashtbl.length cte_table.strings);
+  Hashtbl.iter (print_strings oc) cte_table.strings;
+  fprintf oc "\nchars %d\n" (Hashtbl.length cte_table.characters);
+  Hashtbl.iter (print_chars oc) cte_table.characters;
+  fprintf oc "\nbools %d\n" (Hashtbl.length cte_table.booleans);
+  Hashtbl.iter (print_bools oc) cte_table.booleans
+
 let get_next_tag var_count = 
   let tmp = Hashtbl.find var_count JTag in 
     update_count var_count JTag;
@@ -262,6 +290,7 @@ let semantic_start tree oc =
             initialize_count var_count;
             initialize_jmp jmp_count;
             semantic_main tree main_table var_count cte_table jmp_count mem oc;
-            Hashtbl.iter (print_counts oc) mem
+            Hashtbl.iter (print_counts oc) mem;
+            print_constants oc cte_table
             (* print_counts oc var_count *)
     

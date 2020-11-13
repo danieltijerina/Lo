@@ -123,3 +123,39 @@ CharTmp 0
 StringTmp 0
 BoolTmp 0
 JTag 0
+
+$$$$ 
+ints 12
+2 10001
+7 10008
+0 10004
+13 10005
+9 10009
+11 10006
+3 10002
+1 10000
+12 10011
+15 10010
+4 10003
+18 10007
+
+float 2
+1.200000 11000
+2.500000 11001
+
+string 9
+"maybe we can leave it as runtime error" 12003
+"f" 12007
+"this shouldn't work" 12002
+"as" 12006
+"todo bien" 12005
+"string" 12008
+"como estas" 12001
+"hola " 12000
+" " 12004
+
+chars 0
+
+bools 2
+false 14000
+true 14001
