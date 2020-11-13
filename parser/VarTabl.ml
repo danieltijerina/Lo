@@ -45,9 +45,21 @@ and getVariablesFromParams param =
   | VDVarArray vid -> {name=vid.name; tipo=param.tipo; id_class=""; address=0;};
   | VDVar2Array vid -> {name=vid.name; tipo=param.tipo; id_class=""; address=0;};;
 
+let rec addParams elem =
+  match elem with
+  | FuncT func -> addParamsToVartblRec func.params func.variables
+  | _ -> failwith "Cannot add params to something that is not a function"
+and addParamsToVartblRec params table =
+  match params with
+  | [] -> []
+  | (p::ps) -> addParamsToVartbl p table :: (addParamsToVartblRec ps table)
+and addParamsToVartbl param table =
+  Hashtbl.add table param.name param;;
+
 let add_high_level_element tbl value =
   match value with
-  | Func f -> add_element tbl f.fname (FuncT {name=f.fname; ftipo=f.tipo; variables=Hashtbl.create 0; params=(getVariablesFromParamsRec f.params);})
+  | Func f -> let new_element = add_element tbl f.fname (FuncT {name=f.fname; ftipo=f.tipo; variables=Hashtbl.create 0; params=(getVariablesFromParamsRec f.params);}) in addParams new_element; new_element
+  (* | Func f -> add_element tbl f.fname (FuncT {name=f.fname; ftipo=f.tipo; variables=Hashtbl.create 0; params=(getVariablesFromParamsRec f.params);}) *)
   | Clase c -> add_element tbl c.name (ClaseT {name=c.name; funcs=Hashtbl.create 0; vars=Hashtbl.create 0})
 
 let get_element x =
