@@ -2,6 +2,7 @@
 #ifndef MEMORY_H // include guard
 #define MEMORY_H
 #include <string>
+#include "FunctionDef.h"
 
 class Memory {
 public:
@@ -20,6 +21,26 @@ public:
     }
 
     Memory(){}
+};
+
+class FunctionMemory {
+  public:
+    Memory variables_;
+    Memory temporals_;
+
+    FunctionMemory(FunctionDef& func_def) {
+      variables_.integers = new int[func_def.intTy];
+      variables_.floats = new float[func_def.floatTy];
+      variables_.strings = new std::string[func_def.stringTy];
+      variables_.chars = new char[func_def.charTy];
+      variables_.booleans = new bool[func_def.boolTy];
+
+      temporals_.integers = new int[func_def.intTmp];
+      temporals_.floats = new float[func_def.floatTmp];
+      temporals_.strings = new std::string[func_def.stringTmp];
+      temporals_.chars = new char[func_def.charTmp];
+      temporals_.booleans = new bool[func_def.boolTmp];
+    }
 };
 
 #endif /* MEMORY_H */

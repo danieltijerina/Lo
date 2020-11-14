@@ -32,6 +32,7 @@ namespace Quads {
     public:
       QuadType type_;
       int first_, second_, third_;
+      std::string name_;
   };
 
 }

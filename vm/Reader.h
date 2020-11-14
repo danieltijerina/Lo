@@ -21,8 +21,13 @@ namespace Reader {
     current_quad.type_ = quad_type;
     switch (quad_type)
     {
-      case goSub:
       case era:
+      {
+        stream >> current_quad.name_;
+        break;
+      }
+
+      case goSub:
       {
         std::string fname;
         stream >> fname;
@@ -38,6 +43,7 @@ namespace Reader {
             std::vector<int> pending_tag({index});
             pending_tags_ -> insert({{fname, pending_tag}});
           }
+          current_quad.first_ = -1;
         }
         break;
       }
@@ -105,7 +111,6 @@ namespace Reader {
     string quad_type;
     quad_stream >> quad_type;
     while(quad_type != "$$$"){
-      std::cout << quad_type << std::endl;
       Quad quad = processNextQuad((quad_type_ref.find(quad_type))->second, 
           quad_stream, quads_->size(), &tags_, &pending_tags_, quads_);
       quads_->push_back(quad);
