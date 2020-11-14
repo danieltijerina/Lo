@@ -16,8 +16,9 @@ int main(int argc, char** argv) {
 
     std::vector<Quad> quads_;
     std::unordered_map<string, FunctionDef> function_def_;
+    Memory constant_memory;
 
-    Reader::processFile(argv[1], &quads_, &function_def_);
+    Reader::processFile(argv[1], &quads_, &function_def_, &constant_memory);
 
     // Testing purposes only! 
     std::cout << quads_.size() << std::endl;
@@ -28,6 +29,10 @@ int main(int argc, char** argv) {
     std::cout << function_def_.size() << std::endl;
     for(auto i : function_def_){
       std::cout << i.first << " " << i.second.intTy << std::endl;
+    }
+
+    for(int i = 0;i < 2; i++){
+      std::cout << constant_memory.booleans[i] << std::endl;
     }
 
     return 0;

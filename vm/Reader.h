@@ -5,6 +5,7 @@
 #include <fstream>
 #include <unordered_map>
 #include "Quads.h"
+#include "Memory.h"
 #include "FunctionDef.h"
 
 using namespace Quads;
@@ -70,7 +71,8 @@ namespace Reader {
   }
 
   void processFile(const std::string& filename, std::vector<Quad>* quads_, 
-                   std::unordered_map<string, FunctionDef>* function_def){
+                   std::unordered_map<string, FunctionDef>* function_def,
+                   Memory* constant_mem){
     std::unordered_map<string, QuadType> quad_type_ref({
       {"goSub", QuadType::goSub},
       {"ftag", QuadType::ftag},
@@ -129,6 +131,45 @@ namespace Reader {
       function_def->insert({{quad_type, func}});
       quad_stream >> quad_type;
     }
+    int cst_amount;
+    int cst_location;
+    quad_stream >> trash >> cst_amount;
+    constant_mem -> integers = new int[cst_amount];
+    for(int i = 0; i < cst_amount; i++) {
+      quad_stream >> cst_location;
+      quad_stream >> constant_mem->integers[cst_location % 10000];
+    }
+
+    quad_stream >> trash >> cst_amount;
+    constant_mem -> floats = new float[cst_amount];
+    for(int i = 0; i < cst_amount; i++) {
+      quad_stream >> cst_location;
+      quad_stream >> constant_mem->floats[cst_location % 11000];
+    }
+
+    quad_stream >> trash >> cst_amount;
+    constant_mem -> strings = new std::string[cst_amount];
+    for(int i = 0; i < cst_amount; i++){
+      quad_stream >> cst_location;
+      std::getline(quad_stream, constant_mem->strings[cst_location % 12000]);
+    }
+
+    quad_stream >> trash >> cst_amount;
+    constant_mem -> chars = new char[cst_amount];
+    for(int i = 0; i < cst_amount; i++){
+      quad_stream >> cst_location;
+      quad_stream >> constant_mem->chars[cst_location % 13000];
+    }
+
+    quad_stream >> trash >> cst_amount;
+    constant_mem -> booleans = new bool[cst_amount];
+    for(int i = 0; i < cst_amount; i++){
+      quad_stream >> cst_location;
+      std::string bool_string;
+      quad_stream >> bool_string;
+      constant_mem->booleans[cst_location % 14000] = bool_string == "true";
+    }
+
   }
 
 }

@@ -18,6 +18,8 @@ public:
         chars = new char[c];
         booleans = new bool[b];
     }
+
+    Memory(){}
 };
 
 #endif /* MEMORY_H */
