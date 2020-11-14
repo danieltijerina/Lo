@@ -1,3 +1,6 @@
+goSub main
+ftag main
+era bar
 param 10000 1 -1
 goSub bar -1 -1
 = 1001 0 -1
@@ -17,6 +20,7 @@ print 12003 -1 -1
 / 10002 10003 20003
 + 20002 20003 20004
 = 1002 20004 -1
+era foo2
 param 10000 1 -1
 param 12004 2 -1
 * 11000 10001 21000
@@ -26,10 +30,12 @@ goSub foo2 -1 -1
 tag 1 -1 -1
 = 1002 10004 -1
 endFunc -1 -1 -1
+ftag foo2
 + 10001 10002 20000
 + 10000 20000 20001
 = 1000 20001 -1
 endFunc -1 -1 -1
+ftag foo
 = 1000 10004 -1
 = 1001 10000 -1
 = 1002 10001 -1
@@ -62,7 +68,9 @@ tag 3 -1 -1
 + 20003 10001 20004
 = 1000 20004 -1
 endFunc -1 -1 -1
+ftag foo.Figura
 = 1000 1001 -1
+ftag bar.Figura
 
 $$$
 main
@@ -72,19 +80,11 @@ CharTy 0
 StringTy 0
 BoolTy 0
 ClassTy 1
-IntCte 5
-FloatCte 2
-CharCte 0
-StringCte 5
-BoolCte 2
 IntTmp 5
 FloatTmp 2
 CharTmp 0
 StringTmp 0
-BoolTmp 1
-JTag 0
-
-$$$
+BoolTmp 1 d
 foo
 IntTy 4
 FloatTy 0
@@ -92,19 +92,11 @@ CharTy 0
 StringTy 1
 BoolTy 0
 ClassTy 0
-IntCte 7
-FloatCte 0
-CharCte 0
-StringCte 4
-BoolCte 0
 IntTmp 5
 FloatTmp 0
 CharTmp 0
 StringTmp 0
 BoolTmp 7
-JTag 0
-
-$$$
 foo2
 IntTy 1
 FloatTy 0
@@ -112,50 +104,40 @@ CharTy 0
 StringTy 0
 BoolTy 0
 ClassTy 0
-IntCte 0
-FloatCte 0
-CharCte 0
-StringCte 0
-BoolCte 0
 IntTmp 2
 FloatTmp 0
 CharTmp 0
 StringTmp 0
 BoolTmp 0
-JTag 0
 
 $$$$ 
 ints 12
-2 10001
-7 10008
-0 10004
-13 10005
-9 10009
-11 10006
-3 10002
-1 10000
-12 10011
-15 10010
-4 10003
-18 10007
-
+10001 2
+10008 7
+10004 0
+10005 13
+10009 9
+10006 11
+10002 3
+10000 1
+10011 12
+10010 15
+10003 4
+10007 18
 float 2
-1.200000 11000
-2.500000 11001
-
+11000 1.200000
+11001 2.500000
 string 9
-"maybe we can leave it as runtime error" 12003
-"f" 12007
-"this shouldn't work" 12002
-"as" 12006
-"todo bien" 12005
-"string" 12008
-"como estas" 12001
-"hola " 12000
-" " 12004
-
+12003 "maybe we can leave it as runtime error"
+12007 "f"
+12002 "this shouldn't work"
+12006 "as"
+12005 "todo bien"
+12008 "string"
+12001 "como estas"
+12000 "hola "
+12004 " "
 chars 0
-
 bools 2
-false 14000
-true 14001
+14000 false
+14001 true

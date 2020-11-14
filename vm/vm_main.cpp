@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include "Memory.h"
+#include "Reader.h"
 
 Memory& readQuads(std::string filename) {
     std::ifstream clo(filename);
@@ -14,6 +15,7 @@ Memory& readQuads(std::string filename) {
     int i=0, f=0, s=0, b=0, c=0;
     while(clo >> e1 >> e2) {
         if(e1 == "IntTy" || e1 == "IntCte" || e1 == "IntTmp") {
+            std::cout << i;
             i+=std::stoi(e2);
         }
         if(e1 == "FloatTy" || e1 == "FloatCte" || e1 == "FloatTmp") {
@@ -36,7 +38,9 @@ int main(int argc, char** argv) {
         std::cout << "Must only include filename.\n";
         return -1;
     }
-    readQuads(argv[1]);
+
+    Reader reader_(argv[1]);
+    //readQuads(argv[1]);
     // Memory current_mem(10, 5, 2, 4);
     // current_mem.strings[0] = "hola";
     // current_mem.strings[1] = "soy goku";

@@ -29,7 +29,6 @@ let initialize_count tbl =
   Hashtbl.add tbl ClassTy {count=0; base=30000};;
 
 let print_counts oc k var_count =
-  fprintf oc "\n$$$\n";
   fprintf oc "%s\n" k;
   fprintf oc "IntTy %d\n" (Hashtbl.find var_count IntTy).count;
   fprintf oc "FloatTy %d\n" (Hashtbl.find var_count FloatTy).count;
@@ -37,44 +36,38 @@ let print_counts oc k var_count =
   fprintf oc "StringTy %d\n" (Hashtbl.find var_count StringTy).count;
   fprintf oc "BoolTy %d\n" (Hashtbl.find var_count BoolTy).count;
   fprintf oc "ClassTy %d\n" (Hashtbl.find var_count ClassTy).count;
-  fprintf oc "IntCte %d\n" (Hashtbl.find var_count IntCte).count;
-  fprintf oc "FloatCte %d\n" (Hashtbl.find var_count FloatCte).count;
-  fprintf oc "CharCte %d\n" (Hashtbl.find var_count CharCte).count;
-  fprintf oc "StringCte %d\n" (Hashtbl.find var_count StringCte).count;
-  fprintf oc "BoolCte %d\n" (Hashtbl.find var_count BoolCte).count;
   fprintf oc "IntTmp %d\n" (Hashtbl.find var_count IntTmp).count;
   fprintf oc "FloatTmp %d\n" (Hashtbl.find var_count FloatTmp).count;
   fprintf oc "CharTmp %d\n" (Hashtbl.find var_count CharTmp).count;
   fprintf oc "StringTmp %d\n" (Hashtbl.find var_count StringTmp).count;
-  fprintf oc "BoolTmp %d\n" (Hashtbl.find var_count BoolTmp).count;
-  fprintf oc "JTag %d\n" (Hashtbl.find var_count JTag).count
+  fprintf oc "BoolTmp %d\n" (Hashtbl.find var_count BoolTmp).count
 
 let print_floating oc key value = 
-  fprintf oc "%f %d\n" key value
+  fprintf oc "%d %f\n" value key
 
 let print_integers oc key value = 
-  fprintf oc "%d %d\n" key value
+  fprintf oc "%d %d\n" value key
 
 let print_strings oc key value = 
-  fprintf oc "%s %d\n" key value
+  fprintf oc "%d %s\n" value key
 
 let print_chars oc key value = 
-  fprintf oc "%c %d\n" key value
+  fprintf oc "%d %c\n" value key
 
 let print_bools oc key value = 
-  fprintf oc "%b %d\n" key value
+  fprintf oc "%d %b\n" value key
 
 let print_constants oc cte_table = 
   fprintf oc "\n$$$$ \n";
   fprintf oc "ints %d\n" (Hashtbl.length cte_table.integer);
   Hashtbl.iter (print_integers oc) cte_table.integer;
-  fprintf oc "\nfloat %d\n" (Hashtbl.length cte_table.floating);
+  fprintf oc "float %d\n" (Hashtbl.length cte_table.floating);
   Hashtbl.iter (print_floating oc) cte_table.floating;
-  fprintf oc "\nstring %d\n" (Hashtbl.length cte_table.strings);
+  fprintf oc "string %d\n" (Hashtbl.length cte_table.strings);
   Hashtbl.iter (print_strings oc) cte_table.strings;
-  fprintf oc "\nchars %d\n" (Hashtbl.length cte_table.characters);
+  fprintf oc "chars %d\n" (Hashtbl.length cte_table.characters);
   Hashtbl.iter (print_chars oc) cte_table.characters;
-  fprintf oc "\nbools %d\n" (Hashtbl.length cte_table.booleans);
+  fprintf oc "bools %d\n" (Hashtbl.length cte_table.booleans);
   Hashtbl.iter (print_bools oc) cte_table.booleans
 
 let get_next_tag var_count = 
@@ -218,7 +211,8 @@ and process_for_loop floop tbl var_count cte_tbl ft jmp_count oc=
 (* FALTA INICIALIZAR EL VARCOUNT DE LA FUNCION *)
 let add_inner_fucs_of_class elem class_tbl tbl var_count cte_tbl jmp_count oc=
   match elem, class_tbl with
-  | Fun f, ClaseT ct -> add_func_elems_to_tbl_rec f.fbloque { function_tbl=FuncTbl({variables=getFunctionTblInClass f.fname class_tbl; var_count=Hashtbl.create 0;}); class_tbl=ClassTbl (getClaseTbl class_tbl); global_tbl=tbl} var_count cte_tbl f.tipo jmp_count oc; ();
+  | Fun f, ClaseT ct -> fprintf oc "ftag %s.%s\n" f.fname ct.name;
+  add_func_elems_to_tbl_rec f.fbloque { function_tbl=FuncTbl({variables=getFunctionTblInClass f.fname class_tbl; var_count=Hashtbl.create 0;}); class_tbl=ClassTbl (getClaseTbl class_tbl); global_tbl=tbl} var_count cte_tbl f.tipo jmp_count oc; ();
   | CVar cv, ClaseT ct -> ();
   | _, _ -> assert false;;
 
@@ -234,7 +228,8 @@ let rec add_inner_fucs_of_class_rec bloque class_tbl tbl var_count cte_tbl jmp_c
 let add_inner_func_to_tbl elem tbl var_count cte_tbl jmp_count mem oc = 
   match elem with
   | Func f -> let fun_var_count = Hashtbl.create 1234 in 
-                initialize_count fun_var_count; 
+                initialize_count fun_var_count;
+                fprintf oc "ftag %s\n" f.fname;
                 add_func_elems_to_tbl_rec f.fbloque { function_tbl=FuncTbl({variables=getFunctionTbl f.fname tbl; var_count=fun_var_count}); class_tbl=Nil; global_tbl=tbl} fun_var_count cte_tbl f.tipo jmp_count oc;
                 (* add_func_elems_to_tbl_rec f.fbloque { function_tbl=FuncTbl(getFunctionTbl f.fname tbl); class_tbl=Nil; global_tbl=tbl} var_count cte_tbl f.tipo oc; *)
                 fprintf oc "%s\n" "endFunc -1 -1 -1";
@@ -287,9 +282,11 @@ let semantic_start tree oc =
       let cte_table = {integer=Hashtbl.create 123; floating=Hashtbl.create 123; strings=Hashtbl.create 123; characters=Hashtbl.create 123; booleans=Hashtbl.create 123} in
         let jmp_count = Hashtbl.create 123 in
           let mem = Hashtbl.create 123 in
+            fprintf oc "goSub main\n";
             initialize_count var_count;
             initialize_jmp jmp_count;
             semantic_main tree main_table var_count cte_table jmp_count mem oc;
+            fprintf oc "\n$$$\n";
             Hashtbl.iter (print_counts oc) mem;
             print_constants oc cte_table
             (* print_counts oc var_count *)
