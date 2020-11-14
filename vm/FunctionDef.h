@@ -1,5 +1,5 @@
 #ifndef FUNCTIONDEF_H
-#define MEMORY_H
+#define FUNCTIONDEF_H
 
 struct FunctionDef {
   int intTy, intTmp;
@@ -7,6 +7,7 @@ struct FunctionDef {
   int charTy, charTmp;
   int floatTy, floatTmp;
   int boolTy, boolTmp;
+  int classTy; //TODO: hceck how this works
 };
 
 #endif

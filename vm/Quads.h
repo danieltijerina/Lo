@@ -1,34 +1,39 @@
 #ifndef QUADS_H
 #define QUADS_H
 
-enum QuadType {
-  goSub,
-  ftag,
-  tag,
-  era,
-  param,
-  print,
-  gotoUnc,
-  gotoF,
-  endFunc,
-  asign,
-  equal,
-  notEqual,
-  greater,
-  greaterEqual,
-  lesser,
-  lesserEqual,
-  orOp,
-  andOp,
-  plus,
-  minus,
-  div,
-  mult
-};
+namespace Quads {
 
-struct Quad {
-  QuadType type_;
-  int first_, second_, third_; 
+  enum QuadType {
+    goSub = 1,
+    ftag,
+    tag,
+    era,
+    param,
+    print,
+    gotoUnc,
+    gotoF,
+    endFunc,
+    asign,
+    equal,
+    notEqual,
+    greater,
+    greaterEqual,
+    lesser,
+    lesserEqual,
+    orOp,
+    andOp,
+    plus,
+    minus,
+    div,
+    mult
+  };
+
+  struct Quad {
+    public:
+      QuadType type_;
+      int first_, second_, third_;
+  };
+
 }
 
 #endif 
