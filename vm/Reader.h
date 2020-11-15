@@ -27,6 +27,28 @@ namespace Reader {
         break;
       }
 
+      case gotoF:
+      {
+        std::string fname;
+        stream >> current_quad.second_ >> fname;
+        auto tags_it = tags_->find(fname);
+        if(tags_it != tags_->end()){
+          current_quad.first_ = tags_it->second;
+        }else{
+          auto ptags_it = pending_tags_->find(fname);
+          if(ptags_it != pending_tags_->end()){
+            ptags_it->second.push_back(index);
+          }
+          else{
+            std::vector<int> pending_tag({index});
+            pending_tags_ -> insert({{fname, pending_tag}});
+          }
+          current_quad.first_ = -1;
+        }
+        break;
+      }
+
+      case gotoUnc:
       case goSub:
       {
         std::string fname;
@@ -47,6 +69,7 @@ namespace Reader {
         }
         break;
       }
+
       case ftag:
       case tag:
       {
@@ -89,7 +112,7 @@ namespace Reader {
       {"goto", QuadType::gotoUnc},
       {"gotoF", QuadType::gotoF},
       {"endFunc", QuadType::endFunc},
-      {"=", QuadType::asign},
+      {"=", QuadType::assign},
       {"==", QuadType::equal},
       {"!=", QuadType::notEqual},
       {"<=", QuadType::lesserEqual},
@@ -156,7 +179,9 @@ namespace Reader {
     constant_mem -> strings = new std::string[cst_amount];
     for(int i = 0; i < cst_amount; i++){
       quad_stream >> cst_location;
-      std::getline(quad_stream, constant_mem->strings[cst_location % 12000]);
+      string s;
+      std::getline(quad_stream, s);
+      constant_mem->strings[cst_location % 12000] = s.substr(2, s.length()-3);
     }
 
     quad_stream >> trash >> cst_amount;

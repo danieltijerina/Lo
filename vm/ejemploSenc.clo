@@ -1,26 +1,58 @@
 goSub main
 ftag main
 print 12000 -1 -1
+= 1000 10000 -1
+= 1001 1000 -1
+- 1000 10001 20000
+= 1000 20000 -1
+tag 0
+>= 1000 10001 24000
+gotoF 24000 1
+* 1001 1000 20001
+= 1001 20001 -1
+- 1000 10001 20002
+= 1000 20002 -1
+goto 0
+tag 1
+print 1001 -1 -1
+print 12001 -1 -1
+= 1002 10001 -1
+= 1000 10002 -1
+tag 2
+< 1000 10000 24001
+gotoF 24001 3
+print 1002 -1 -1
+* 1002 10003 20003
+= 1002 20003 -1
++ 1000 10001 20004
+= 1000 20004 -1
+goto 2
+tag 3
 endFunc -1 -1 -1
 
 $$$
 main
-IntTy 0
+IntTy 3
 FloatTy 0
 CharTy 0
 StringTy 0
 BoolTy 0
 ClassTy 0
-IntTmp 0
+IntTmp 5
 FloatTmp 0
 CharTmp 0
 StringTmp 0
-BoolTmp 0
+BoolTmp 2
 
 $$$$ 
-ints 0
+ints 4
+10003 2
+10002 0
+10000 10
+10001 1
 float 0
-string 1
-12000 "test"
+string 2
+12001 "duplicando 1 5 veces"
+12000 "Factorial de 10"
 chars 0
 bools 0

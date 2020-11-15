@@ -13,7 +13,7 @@ namespace Quads {
     gotoUnc,
     gotoF,
     endFunc,
-    asign,
+    assign,
     equal,
     notEqual,
     greater,
