@@ -115,6 +115,8 @@ let process_print exp tbl var_count cte_tbl oc=
     match tmp.rtipo with
     | CharTy -> fprintf oc "%s %d %d %d\n" "print" tmp.address (-1) (-1)
     | StringTy -> fprintf oc "%s %d %d %d\n" "print" tmp.address (-1) (-1)
+    | IntTy -> fprintf oc "%s %d %d %d\n" "print" tmp.address (-1) (-1)
+    | FloatTy -> fprintf oc "%s %d %d %d\n" "print" tmp.address (-1) (-1)
     | _ -> failwith "Non-printable type"
 
 let rec process_print_rec exps tbl var_count cte_tbl oc=
@@ -158,29 +160,29 @@ let rec add_func_elems_to_tbl elem tbls var_count cte_tbl ft jmp_count oc=
   | Asigna a -> process_asignacion a.izq a.der tbls var_count cte_tbl oc; 
   | CondIf cif -> (let cond = process_condition cif.cond tbls var_count cte_tbl oc in
                     let next_tag = get_next_tag jmp_count in 
-                      fprintf oc "%s %d %d %d\n" "gotoF" cond.address (-1) next_tag;
+                      fprintf oc "%s %d %d\n" "gotoF" cond.address next_tag;
                       process_block cif.true_block tbls var_count cte_tbl ft jmp_count oc;
                       let else_block = check_else_block cif.false_block in 
                         match else_block with
                         | true -> ( let final_tag = get_next_tag jmp_count in 
-                                      fprintf oc "%s %d %d %d\n" "goto" final_tag (-1) (-1);
-                                      fprintf oc "%s %d %d %d\n" "tag" next_tag (-1) (-1);
+                                      fprintf oc "%s %d\n" "goto" final_tag;
+                                      fprintf oc "%s %d\n" "tag" next_tag;
                                       process_block cif.false_block tbls var_count cte_tbl ft jmp_count oc;
-                                      fprintf oc "%s %d %d %d\n" "tag" final_tag (-1) (-1);
+                                      fprintf oc "%s %d\n" "tag" final_tag;
                                       )
-                        | false -> ( fprintf oc "%s %d %d %d\n" "tag" next_tag (-1) (-1); );
+                        | false -> ( fprintf oc "%s %d\n" "tag" next_tag; );
                     )
   | Escritura e -> process_print_rec e tbls var_count cte_tbl oc;
   | EVar evar -> add_vars_to_func_tbl_rec evar.tipo evar.vars evar.id_class tbls var_count cte_tbl oc;
   | ForLoop floop -> process_for_loop floop tbls var_count cte_tbl ft jmp_count oc;
   | WhileLoop wloop -> (let starter_tag = get_next_tag jmp_count in
-                          fprintf oc "%s %d %d %d\n" "tag" starter_tag (-1) (-1); 
+                          fprintf oc "%s %d\n" "tag" starter_tag; 
                           let cond = process_condition wloop.cond tbls var_count cte_tbl oc in
                             let end_tag = get_next_tag jmp_count in
-                              fprintf oc "%s %d %d %d\n" "gotoF" cond.address (-1) end_tag;
+                              fprintf oc "%s %d %d\n" "gotoF" cond.address end_tag;
                               process_block wloop.bloque tbls var_count cte_tbl ft jmp_count oc;
-                              fprintf oc "%s %d %d %d\n" "goto" starter_tag (-1) (-1);
-                              fprintf oc "%s %d %d %d\n" "tag" end_tag (-1) (-1); 
+                              fprintf oc "%s %d\n" "goto" starter_tag;
+                              fprintf oc "%s %d\n" "tag" end_tag; 
                               )
   | Return r -> assert_equal ft (process_expression r tbls var_count cte_tbl oc).rtipo; ();
   | Expresion ex -> assert_equal VoidTy (process_expression ex tbls var_count cte_tbl oc).rtipo; ();
@@ -197,15 +199,15 @@ and process_block bloque tbl var_count cte_tbl ft jmp_count oc=
 and process_for_loop floop tbl var_count cte_tbl ft jmp_count oc= 
   variableLookup floop.init tbl;
   let starter_tag = get_next_tag jmp_count in
-    fprintf oc "%s %d %d %d\n" "tag" starter_tag (-1) (-1); 
+    fprintf oc "%s %d\n" "tag" starter_tag; 
     let cond = process_expression floop.cond tbl var_count cte_tbl oc in
       let end_tag = get_next_tag jmp_count in
         assert_equal BoolTy cond.rtipo;
-        fprintf oc "%s %d %d %d\n" "gotoF" cond.address (-1) end_tag;
+        fprintf oc "%s %d %d\n" "gotoF" cond.address end_tag;
         process_block floop.bloque tbl var_count cte_tbl ft jmp_count oc;
         add_func_elems_to_tbl (Asigna floop.post) tbl var_count cte_tbl ft jmp_count oc;
-        fprintf oc "%s %d %d %d\n" "goto" starter_tag (-1) (-1);
-        fprintf oc "%s %d %d %d\n" "tag" end_tag (-1) (-1);;
+        fprintf oc "%s %d\n" "goto" starter_tag;
+        fprintf oc "%s %d\n" "tag" end_tag;;
         
 (* Match the element of a class to a function and add the function elements to tbl *)
 (* FALTA INICIALIZAR EL VARCOUNT DE LA FUNCION *)
