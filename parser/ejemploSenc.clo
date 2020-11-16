@@ -1,24 +1,37 @@
 ftag main
 = 1000 10000 -1
-tag 0
-< 1000 10001 24000
-gotoF 24000 1
 era test
 param 1000 1000 -1
 goSub test
-+ 1000 10000 20000
-= 1000 20000 -1
-goto 0
-tag 1
 endFunc -1 -1 -1
 ftag test
-* 1000 10002 20000
-* 1000 20000 20001
-print 20001 -1 -1
+<= 1000 10001 24000
+gotoF 24000 0
+print 12000 -1 -1
+goto 1
+tag 0
+print 1000 -1 -1
+era test
+- 1000 10002 20000
+param 20000 1000 -1
+goSub test
+tag 1
 endFunc -1 -1 -1
 
 $$$
 main
+IntTy 1
+FloatTy 0
+CharTy 0
+StringTy 0
+BoolTy 0
+ClassTy 0
+IntTmp 0
+FloatTmp 0
+CharTmp 0
+StringTmp 0
+BoolTmp 0
+test
 IntTy 1
 FloatTy 0
 CharTy 0
@@ -30,25 +43,14 @@ FloatTmp 0
 CharTmp 0
 StringTmp 0
 BoolTmp 1
-test
-IntTy 1
-FloatTy 0
-CharTy 0
-StringTy 0
-BoolTy 0
-ClassTy 0
-IntTmp 2
-FloatTmp 0
-CharTmp 0
-StringTmp 0
-BoolTmp 0
 
 $$$$ 
 ints 3
-10002 2
-10001 5
-10000 1
+10001 0
+10000 5
+10002 1
 float 0
-string 0
+string 1
+12000 "done"
 chars 0
 bools 0

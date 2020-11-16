@@ -21,6 +21,7 @@ class Processor {
   int current_index;
 
   FunctionMemory* current_mem;
+  FunctionMemory* next_mem;
   std::stack<previous_mem> mem_stack_;
 
   //Getters
@@ -282,8 +283,7 @@ class Processor {
         auto fun_def = function_def_ -> find(current_quad.name_);
         if(fun_def != function_def_ -> end()){
           //TODO: push previous memory to stack;
-          mem_stack_.push(previous_mem(current_index, current_mem));
-          current_mem = new FunctionMemory(fun_def->second);
+          next_mem = new FunctionMemory(fun_def->second);
         }
         else{
           assert(false);
@@ -293,7 +293,10 @@ class Processor {
 
       case QuadType::goSub:
       {
-        mem_stack_.top().first = current_index;
+        mem_stack_.push(previous_mem(current_index, current_mem));
+        current_mem = next_mem;
+        next_mem = nullptr;
+
         current_index = current_quad.first_ - 1;
         break;
       }
@@ -387,17 +390,16 @@ void Processor::setIntFromPosition(int leftPos, int rightPos){
 
 void Processor::setIntParamFromPosition(int leftPos, int rightPos){
     int area = rightPos / 1000;
-    FunctionMemory* prev_mem = mem_stack_.top().second;
     // TODO: not sure if this is the best way to do things
     if(area == 1){
-      current_mem->variables_.integers[leftPos % 1000] = prev_mem->variables_.integers[rightPos % 1000];
+      next_mem->variables_.integers[leftPos % 1000] = current_mem->variables_.integers[rightPos % 1000];
     }
     if(area == 10){
-      current_mem->variables_.integers[leftPos % 1000] = constant_memory->integers[rightPos % 10000];
+      next_mem->variables_.integers[leftPos % 1000] = constant_memory->integers[rightPos % 10000];
     }
     
     if(area == 20){
-      current_mem->variables_.integers[leftPos % 1000] = prev_mem->temporals_.integers[rightPos % 20000];
+      next_mem->variables_.integers[leftPos % 1000] = current_mem->temporals_.integers[rightPos % 20000];
     }
 }
 
