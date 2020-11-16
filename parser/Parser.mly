@@ -59,12 +59,12 @@ funcType:
 ;
 
 funcParamsRec:
-  t=tipo id=ID LBRACK d1=INT RBRACK LBRACK d2=INT RBRACK COMMA r=funcParamsRec { {param_id=VDVar2Array {name=id; dim1=d1; dim2=d2;}; tipo=t} :: r}
-  | t=tipo id=ID LBRACK d1=INT RBRACK COMMA r=funcParamsRec { {param_id=VDVarArray {name=id; dim=d1;}; tipo=t} :: r }
-  | t=tipo id=ID COMMA r=funcParamsRec { {param_id=VDVarID {name=id}; tipo=t} :: r}
-  | t=tipo id=ID LBRACK d1=INT RBRACK LBRACK d2=INT RBRACK { {param_id=VDVar2Array {name=id; dim1=d1; dim2=d2;}; tipo=t} :: []}
-  | t=tipo id=ID LBRACK d1=INT RBRACK { {param_id=VDVarArray {name=id; dim=d1;}; tipo=t}:: [] }
-  | t=tipo id=ID { {param_id=VDVarID {name=id}; tipo=t} :: []}
+  t=tipo id=ID LBRACK d1=INT RBRACK LBRACK d2=INT RBRACK COMMA r=funcParamsRec { {param_id=VDVar2Array {name=id; dim1=d1; dim2=d2;}; ptipo=t} :: r}
+  | t=tipo id=ID LBRACK d1=INT RBRACK COMMA r=funcParamsRec { {param_id=VDVarArray {name=id; dim=d1;}; ptipo=t} :: r }
+  | t=tipo id=ID COMMA r=funcParamsRec { {param_id=VDVarID {name=id}; ptipo=t} :: r}
+  | t=tipo id=ID LBRACK d1=INT RBRACK LBRACK d2=INT RBRACK { {param_id=VDVar2Array {name=id; dim1=d1; dim2=d2;}; ptipo=t} :: []}
+  | t=tipo id=ID LBRACK d1=INT RBRACK { {param_id=VDVarArray {name=id; dim=d1;}; ptipo=t}:: [] }
+  | t=tipo id=ID { {param_id=VDVarID {name=id}; ptipo=t} :: []}
 
 constructor:
   CONSTRUCTOR id=ID LPAREN param=funcParamsRec RPAREN blo=bloque { {fname=id; tipo=VoidTy; fbloque=blo; params=param} }

@@ -9,25 +9,6 @@ let process_expression exp tbls var_count cte_tbl oc =
 
 (* Semantics *)
 
-let initialize_count tbl =
-  Hashtbl.add tbl JTag {count=0; base=0};
-  Hashtbl.add tbl IntTy {count=0; base=1000};
-  Hashtbl.add tbl FloatTy {count=0; base=2000};
-  Hashtbl.add tbl StringTy {count=0; base=3000};
-  Hashtbl.add tbl CharTy {count=0; base=4000};
-  Hashtbl.add tbl BoolTy {count=0; base=5000};
-  Hashtbl.add tbl IntCte {count=0; base=10000};
-  Hashtbl.add tbl FloatCte {count=0; base=11000};
-  Hashtbl.add tbl StringCte {count=0; base=12000};
-  Hashtbl.add tbl CharCte {count=0; base=13000};
-  Hashtbl.add tbl BoolCte {count=0; base=14000};
-  Hashtbl.add tbl IntTmp {count=0; base=20000};
-  Hashtbl.add tbl FloatTmp {count=0; base=21000};
-  Hashtbl.add tbl StringTmp {count=0; base=22000};
-  Hashtbl.add tbl CharTmp {count=0; base=23000};
-  Hashtbl.add tbl BoolTmp {count=0; base=24000};
-  Hashtbl.add tbl ClassTy {count=0; base=30000};;
-
 let print_counts oc k var_count =
   fprintf oc "%s\n" k;
   fprintf oc "IntTy %d\n" (Hashtbl.find var_count IntTy).count;
@@ -229,8 +210,7 @@ let rec add_inner_fucs_of_class_rec bloque class_tbl tbl var_count cte_tbl jmp_c
 (* Check elem to match class of function, then add all variables in functions to table*)
 let add_inner_func_to_tbl elem tbl var_count cte_tbl jmp_count mem oc = 
   match elem with
-  | Func f -> let fun_var_count = Hashtbl.create 1234 in 
-                initialize_count fun_var_count;
+  | Func f -> let fun_var_count = Hashtbl.find mem f.fname in 
                 fprintf oc "ftag %s\n" f.fname;
                 add_func_elems_to_tbl_rec f.fbloque { function_tbl=FuncTbl({variables=getFunctionTbl f.fname tbl; var_count=fun_var_count}); class_tbl=Nil; global_tbl=tbl} fun_var_count cte_tbl f.tipo jmp_count oc;
                 (* add_func_elems_to_tbl_rec f.fbloque { function_tbl=FuncTbl(getFunctionTbl f.fname tbl); class_tbl=Nil; global_tbl=tbl} var_count cte_tbl f.tipo oc; *)
@@ -238,13 +218,12 @@ let add_inner_func_to_tbl elem tbl var_count cte_tbl jmp_count mem oc =
                 (* fprintf oc "AHI TE VAN LOS DE LA FUNCION %s \n\n" f.fname; *)
                 (* print_counts fun_var_count oc; *)
                 (* fprintf oc "\nESOS FUERON TODOS LOS DE LA FUNCION \n\n"; *)
-                Hashtbl.add mem f.fname fun_var_count;
   | Clase c -> add_inner_fucs_of_class_rec c.bloque (Hashtbl.find tbl c.name) tbl var_count cte_tbl jmp_count oc;;
 
 (* Processing a single element of each class *)
 let add_class_att_to_table_inner elem class_tbl var_count cte_tbl = 
   match elem, class_tbl with
-  | Fun f, ClaseT ctbl -> add_func class_tbl f.fname {name=f.fname; ftipo=f.tipo; variables=Hashtbl.create 0; params=(getVariablesFromParamsRec f.params);}; [];
+  | Fun f, ClaseT ctbl -> (* add_func class_tbl f.fname {name=f.fname; ftipo=f.tipo; variables=Hashtbl.create 0; params=(getVariablesFromParamsRec f.params);}; *) [];
   | CVar cv, ClaseT ctbl -> add_vars_to_class_tbl_rec cv.tipo cv.vars cv.id_class ctbl var_count cte_tbl; [];; (*If type is class, validate class type *)
 
 (* Iterating through all the class variables and funcs *)
@@ -256,17 +235,17 @@ let rec add_class_att_to_table bloque class_tbl var_count cte_tbl =
       add_class_att_to_table fs class_tbl var_count cte_tbl;;
 
 (* Processes single element of high order *)
-let add_upper_prog_to_table elem table var_count cte_tbl = 
+let add_upper_prog_to_table elem table var_count cte_tbl mem = 
   match elem with
-  | Func f -> add_high_level_element table elem
-  | Clase c -> let class_tbl = add_high_level_element table elem in add_class_att_to_table c.bloque class_tbl var_count cte_tbl;;
+  | Func f -> add_high_level_element table elem mem
+  | Clase c -> let class_tbl = add_high_level_element table elem mem in add_class_att_to_table c.bloque class_tbl var_count cte_tbl;;
 
 (* Iterating through all the elemnts in tree *)
 let rec semantic_main tree table var_count cte_tbl jmp_count mem oc = 
   match tree with 
   | Program [] -> table
   | Program (i :: j) ->
-      add_upper_prog_to_table i table var_count cte_tbl; (* Adds high level funcs and classes to main table, including vars and funcs of class *)
+      add_upper_prog_to_table i table var_count cte_tbl mem; (* Adds high level funcs and classes to main table, including vars and funcs of class *)
       semantic_main (Program j) table var_count cte_tbl jmp_count mem oc; (* Iterate *)
       add_inner_func_to_tbl i table var_count cte_tbl jmp_count mem oc; (* Process functions of classes or funcs *)
       table;;
@@ -284,7 +263,6 @@ let semantic_start tree oc =
       let cte_table = {integer=Hashtbl.create 123; floating=Hashtbl.create 123; strings=Hashtbl.create 123; characters=Hashtbl.create 123; booleans=Hashtbl.create 123} in
         let jmp_count = Hashtbl.create 123 in
           let mem = Hashtbl.create 123 in
-            fprintf oc "goSub main\n";
             initialize_count var_count;
             initialize_jmp jmp_count;
             semantic_main tree main_table var_count cte_table jmp_count mem oc;

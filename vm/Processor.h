@@ -3,11 +3,15 @@
 
 #include <iostream>
 #include <unordered_map>
+#include <stack>
+#include <assert.h>
+#include <utility>
 #include "Quads.h"
 #include "Memory.h"
 #include "FunctionDef.h"
 
 using namespace Quads;
+typedef std::pair<int, FunctionMemory*> previous_mem;
 
 class Processor {
   private: 
@@ -17,6 +21,7 @@ class Processor {
   int current_index;
 
   FunctionMemory* current_mem;
+  std::stack<previous_mem> mem_stack_;
 
   //Getters
   int getIntFromPosition(int position);
@@ -26,6 +31,7 @@ class Processor {
   bool getBoolFromPosition(int position);
   //Setters
   void setIntFromPosition(int leftPos, int rightPos);
+  void setIntParamFromPosition(int leftPos, int rightPos);
   void setIntFromValue(int pos, int value);
   void setFloatFromPosition(int leftPos, int rightPos);
   void setFloatFromValue(int pos, float value);
@@ -55,13 +61,12 @@ class Processor {
 
   void startProcessing(){
     current_mem = new FunctionMemory(function_def_->find("main")->second);
-    while(current_index < quads_->size()){
-      executeQuad(((*quads_)[current_index]));
+    while(current_index < quads_->size() && executeQuad(((*quads_)[current_index]))){
       current_index++;
     }
   }
 
-  void executeQuad(Quad& current_quad) {
+  bool executeQuad(Quad& current_quad) {
     switch (current_quad.type_) {
       case QuadType::gotoF:
       {
@@ -277,7 +282,54 @@ class Processor {
         auto fun_def = function_def_ -> find(current_quad.name_);
         if(fun_def != function_def_ -> end()){
           //TODO: push previous memory to stack;
+          mem_stack_.push(previous_mem(current_index, current_mem));
           current_mem = new FunctionMemory(fun_def->second);
+        }
+        else{
+          assert(false);
+        }
+        break;
+      }
+
+      case QuadType::goSub:
+      {
+        mem_stack_.top().first = current_index;
+        current_index = current_quad.first_ - 1;
+        break;
+      }
+
+      case QuadType::param:
+      {
+        switch (current_quad.second_ / 1000) {
+        case 1:
+          setIntParamFromPosition(current_quad.second_, current_quad.first_);
+          break;
+        case 2:
+          setFloatFromPosition(current_quad.second_, current_quad.first_);
+          break;
+        case 3:
+          setStringFromPosition(current_quad.second_, current_quad.first_);
+          break;
+        case 4:
+          setCharFromPosition(current_quad.second_, current_quad.first_);
+          break;
+        case 5:
+          setBoolFromPosition(current_quad.second_, current_quad.first_);
+          break;
+        }
+        break;
+      }
+
+      case QuadType::endFunc:
+      {
+        if(!mem_stack_.empty()){
+          delete current_mem;
+          previous_mem m = mem_stack_.top();
+          current_mem = m.second;
+          current_index = m.first;
+          mem_stack_.pop();
+        }else{
+          return false;
         }
         break;
       }
@@ -296,6 +348,7 @@ class Processor {
       default:
         break;
     }
+    return true;
   }
 };
 
@@ -332,6 +385,22 @@ void Processor::setIntFromPosition(int leftPos, int rightPos){
     }
 }
 
+void Processor::setIntParamFromPosition(int leftPos, int rightPos){
+    int area = rightPos / 1000;
+    FunctionMemory* prev_mem = mem_stack_.top().second;
+    // TODO: not sure if this is the best way to do things
+    if(area == 1){
+      current_mem->variables_.integers[leftPos % 1000] = prev_mem->variables_.integers[rightPos % 1000];
+    }
+    if(area == 10){
+      current_mem->variables_.integers[leftPos % 1000] = constant_memory->integers[rightPos % 10000];
+    }
+    
+    if(area == 20){
+      current_mem->variables_.integers[leftPos % 1000] = prev_mem->temporals_.integers[rightPos % 20000];
+    }
+}
+
 void Processor::setIntFromValue(int pos, int value) {
   int area = pos / 1000;
     // TODO: not sure if this is the best way to do things
@@ -342,6 +411,8 @@ void Processor::setIntFromValue(int pos, int value) {
       current_mem->temporals_.integers[pos % 20000] = value;
     }
 }
+
+
 
 float Processor::getFloatFromPosition(int position){
     int area = position / 1000;

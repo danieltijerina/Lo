@@ -182,8 +182,8 @@ and checkFuncParamsRec fparams vfparams current_tbls var_count const_tbl oc coun
                           checkFuncParamsRec fs xs current_tbls var_count const_tbl oc (count+1);
 and checkFuncParams fparam vfparam current_tbls var_count const_tbl oc count= 
   let ex = (process_or_expression vfparam current_tbls var_count const_tbl oc) in
-    assert_equal ex.rtipo fparam.tipo; 
-    fprintf oc "%s %d %d %d\n" "param" ex.address count (-1); (* Put the param in quads *)
+    assert_equal ex.rtipo fparam.tipo;
+    fprintf oc "%s %d %d %d\n" "param" ex.address fparam.address (-1);
 
 and variableLookupVarID var current_tbls= 
   match current_tbls.function_tbl with 
@@ -202,12 +202,12 @@ and functionLookup f current_tbls var_count const_tbl oc=
                         | ClassTbl ct -> (try let fres = (Hashtbl.find ct.funcs vf.func) in 
                         fprintf oc "era %s\n" vf.func;
                         checkFuncParamsRec fres.params vf.params current_tbls var_count const_tbl oc 1;
-                        fprintf oc "%s %s %d %d\n" "goSub" vf.func (-1) (-1); (* Check initial address *) 
+                        fprintf oc "%s %s\n" "goSub" vf.func; (* Check initial address *) 
                         {rtipo=fres.ftipo; address=0} with Not_found -> (
                                 try let tbl = (Hashtbl.find current_tbls.global_tbl vf.func) in match tbl  with 
                                                       | FuncT funct -> fprintf oc "era %s\n" vf.func;
                                                       checkFuncParamsRec funct.params vf.params current_tbls var_count const_tbl oc 1;
-                                                      fprintf oc "%s %s %d %d\n" "goSub" vf.func (-1) (-1); (* Check initial address *)
+                                                      fprintf oc "%s %s\n" "goSub" vf.func; (* Check initial address *)
                                                       {rtipo=funct.ftipo; address=0}; 
                                                       | _ -> failwith "No function found"
                                 with Not_found -> failwith "No function found"
@@ -215,7 +215,7 @@ and functionLookup f current_tbls var_count const_tbl oc=
                         | Nil -> (try let tbl = (Hashtbl.find current_tbls.global_tbl vf.func) in match tbl  with 
                                                         | FuncT funct -> fprintf oc "era %s\n" vf.func;
                                                         checkFuncParamsRec funct.params vf.params current_tbls var_count const_tbl oc 1;
-                                                        fprintf oc "%s %s %d %d\n" "goSub" vf.func (-1) (-1); (* Check initial address *) 
+                                                        fprintf oc "%s %s\n" "goSub" vf.func ; (* Check initial address *) 
                                                         {rtipo=funct.ftipo; address=0}; 
                                                         | _ -> failwith "No function found"
                                   with Not_found -> failwith "No function found") )
@@ -226,7 +226,7 @@ and variableInClassLookup var_id class_tbl var_count const_tbl oc global_tbl=
   | VarFuncCall vfunc -> (try let res = (Hashtbl.find class_tbl.funcs vfunc.func) in 
   fprintf oc "era %s\n" vfunc.func;
   checkFuncParamsRec res.params vfunc.params {function_tbl=FNil; class_tbl=ClassTbl class_tbl; global_tbl=global_tbl} var_count const_tbl oc 1;
-  fprintf oc "%s %s %d %d\n" "goSub" vfunc.func (-1) (-1); (* Check initial address *)
+  fprintf oc "%s %s\n" "goSub" vfunc.func; (* Check initial address *)
   {rtipo=res.ftipo; address=0} with Not_found -> failwith "No function found in class");
   | VarArray varr ->  (try let res = (Hashtbl.find class_tbl.vars varr.name) in {rtipo=res.tipo; address=res.address} with Not_found -> failwith "No Variable found in class"); (* Need to implement arrays *)
   | Var2Array v2arr -> (try let res = (Hashtbl.find class_tbl.vars v2arr.name) in {rtipo=res.tipo; address=res.address} with Not_found -> failwith "No Variable found in class"); (* Need to implement arrays *)

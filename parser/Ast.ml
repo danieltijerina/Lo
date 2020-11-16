@@ -133,7 +133,7 @@ and whileLoopDef = {
 
 type functionParams = {
   param_id: varDeclID;
-  tipo: type_def;
+  ptipo: type_def;
 }
 
 type funcionDef = {
