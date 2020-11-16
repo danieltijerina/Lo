@@ -25,10 +25,13 @@ public:
 
 class FunctionMemory {
   public:
+    std::string fname_;
     Memory variables_;
     Memory temporals_;
 
-    FunctionMemory(FunctionDef& func_def) {
+    FunctionMemory(FunctionDef& func_def, std::string name) {
+      fname_ = name;
+      
       variables_.integers = new int[func_def.intTy];
       variables_.floats = new float[func_def.floatTy];
       variables_.strings = new std::string[func_def.stringTy];

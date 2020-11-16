@@ -61,7 +61,7 @@ class Processor {
   }
 
   void startProcessing(){
-    current_mem = new FunctionMemory(function_def_->find("main")->second);
+    current_mem = new FunctionMemory(function_def_->find("main")->second, "main");
     while(current_index < quads_->size() && executeQuad(((*quads_)[current_index]))){
       current_index++;
     }
@@ -256,23 +256,18 @@ class Processor {
         switch (current_quad.first_ / 1000) {
         case 1:
           setIntFromPosition(current_quad.first_, current_quad.second_);
-          // std::cout << "Assigned position: " << current_quad.first_ << " to value: " << getIntFromPosition(current_quad.first_) << "\n";
           break;
         case 2:
           setFloatFromPosition(current_quad.first_, current_quad.second_);
-          // std::cout << "Assigned position: " << current_quad.first_ << " to value: " << getFloatFromPosition(current_quad.first_) << "\n";
           break;
         case 3:
           setStringFromPosition(current_quad.first_, current_quad.second_);
-          // std::cout << "Assigned position: " << current_quad.first_ << " to value: " << getStringFromPosition(current_quad.first_) << "\n";
           break;
         case 4:
           setCharFromPosition(current_quad.first_, current_quad.second_);
-          // std::cout << "Assigned position: " << current_quad.first_ << " to value: " << getCharFromPosition(current_quad.first_) << "\n";
           break;
         case 5:
           setBoolFromPosition(current_quad.first_, current_quad.second_);
-          // std::cout << "Assigned position: " << current_quad.first_ << " to value: " << getBoolFromPosition(current_quad.first_) << "\n";
           break;
         }
         break;
@@ -283,7 +278,7 @@ class Processor {
         auto fun_def = function_def_ -> find(current_quad.name_);
         if(fun_def != function_def_ -> end()){
           //TODO: push previous memory to stack;
-          next_mem = new FunctionMemory(fun_def->second);
+          next_mem = new FunctionMemory(fun_def->second, current_quad.name_);
         }
         else{
           assert(false);
@@ -323,6 +318,43 @@ class Processor {
         break;
       }
 
+      case QuadType::ret:
+      {
+        auto fun_def = function_def_ -> find(current_mem->fname_);
+        if(fun_def != function_def_ -> end()) {
+          switch (current_quad.first_ / 1000) {
+            case 1:
+            case 10:
+            case 20:
+              fun_def->second.intRet = getIntFromPosition(current_quad.first_);
+              break;
+            case 2:
+            case 11:
+            case 21:
+              fun_def->second.floatRet = getFloatFromPosition(current_quad.first_);
+              break;
+            case 3:
+            case 12:
+            case 22:
+              fun_def->second.stringRet = getStringFromPosition(current_quad.first_);
+              break;
+            case 4:
+            case 13:
+            case 23:
+              fun_def->second.charRet = getCharFromPosition(current_quad.first_);
+              break;
+            case 5:
+            case 14:
+            case 24:
+              fun_def->second.boolRet = getBoolFromPosition(current_quad.first_);
+              break;
+          }
+        }
+        else{
+          assert(false);
+        }
+      }
+
       case QuadType::endFunc:
       {
         if(!mem_stack_.empty()){
@@ -333,6 +365,44 @@ class Processor {
           mem_stack_.pop();
         }else{
           return false;
+        }
+        break;
+      }
+
+      case QuadType::retVal:
+      {
+        auto fun_def = function_def_ -> find(current_quad.name_/*CHANGE THIS TO READ FROM FUNCTION CALLED*/);
+        if(fun_def != function_def_ -> end()) {
+          switch (current_quad.first_ / 1000) {
+            case 1:
+            case 10:
+            case 20:
+              setIntFromValue(current_quad.first_, fun_def->second.intRet);
+              break;
+            case 2:
+            case 11:
+            case 21:
+              fun_def->second.floatRet = getFloatFromPosition(current_quad.first_);
+              break;
+            case 3:
+            case 12:
+            case 22:
+              fun_def->second.stringRet = getStringFromPosition(current_quad.first_);
+              break;
+            case 4:
+            case 13:
+            case 23:
+              fun_def->second.charRet = getCharFromPosition(current_quad.first_);
+              break;
+            case 5:
+            case 14:
+            case 24:
+              fun_def->second.boolRet = getBoolFromPosition(current_quad.first_);
+              break;
+          }
+        }
+        else{
+          assert(false);
         }
         break;
       }

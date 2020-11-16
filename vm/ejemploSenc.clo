@@ -1,51 +1,115 @@
-goSub main
 ftag main
 = 1000 10000 -1
-print 1000 -1 -1
-tag 0
-< 1000 10001 24000
-gotoF 24000 1
-* 1000 1000 20000
+= 1001 10001 -1
+era factorial
+param 10002 1000 -1
+goSub factorial
+retVal factorial 20000
 print 20000 -1 -1
-+ 1000 10002 20001
-= 1000 20001 -1
-goto 0
-tag 1
+era addTwo
+param 1000 1000 -1
+goSub addTwo
+retVal addTwo 20001
+era addTwo
+param 1001 1000 -1
+goSub addTwo
+retVal addTwo 20002
++ 20001 20002 20003
+print 20003 -1 -1
 endFunc -1 -1 -1
-ftag test
+ftag factorial
+<= 1000 10003 24000
+gotoF 24000 0
+return 1000
+tag 0
+era factorial
+- 1000 10003 20000
+param 20000 1000 -1
+goSub factorial
+retVal factorial 20001
+* 1000 20001 20002
+return 20002
+endFunc -1 -1 -1
+ftag addTwo
++ 1000 10004 20000
+return 20000
+endFunc -1 -1 -1
+ftag foo2
+- 1000 10003 20000
+= 1001 20000 -1
+tag 1
+> 1001 10003 24000
+gotoF 24000 2
+* 1000 1001 20001
+= 1000 20001 -1
+- 1001 10003 20002
+= 1001 20002 -1
+goto 1
+tag 2
+* 10005 10004 20003
+= 1002 20003 -1
++ 1000 10005 20004
+return 20004
 endFunc -1 -1 -1
 
 $$$
 main
+IntTy 2
+FloatTy 0
+CharTy 0
+StringTy 0
+BoolTy 0
+ClassTy 0
+IntTmp 4
+FloatTmp 0
+CharTmp 0
+StringTmp 0
+BoolTmp 0
+addTwo
 IntTy 1
 FloatTy 0
 CharTy 0
 StringTy 0
 BoolTy 0
 ClassTy 0
-IntTmp 2
+IntTmp 1
 FloatTmp 0
 CharTmp 0
 StringTmp 0
-BoolTmp 1
-test
-IntTy 0
+BoolTmp 0
+foo2
+IntTy 3
 FloatTy 0
 CharTy 0
 StringTy 0
 BoolTy 0
 ClassTy 0
-IntTmp 0
+IntTmp 5
 FloatTmp 0
 CharTmp 0
 StringTmp 0
-BoolTmp 0
+BoolTmp 1
+factorial
+IntTy 1
+FloatTy 0
+CharTy 0
+StringTy 0
+BoolTy 0
+ClassTy 0
+IntTmp 3
+FloatTmp 0
+CharTmp 0
+StringTmp 0
+BoolTmp 1
 
 $$$$ 
-ints 3
+ints 6
+10004 2
 10000 0
-10001 10
-10002 1
+10002 10
+10001 5
+10003 1
+10005 12
 float 0
 string 0
 chars 0

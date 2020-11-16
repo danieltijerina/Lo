@@ -8,7 +8,13 @@ struct FunctionDef {
     int charTy, charTmp;
     int floatTy, floatTmp;
     int boolTy, boolTmp;
-    int classTy; //TODO: hceck how this works
+    int classTy; //TODO: check how this works
+    // return values
+    int intRet;
+    float floatRet;
+    std::string stringRet;
+    char charRet;
+    bool boolRet;
 };
 
 #endif

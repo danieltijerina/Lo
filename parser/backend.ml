@@ -165,7 +165,7 @@ let rec add_func_elems_to_tbl elem tbls var_count cte_tbl ft jmp_count oc=
                               fprintf oc "%s %d\n" "goto" starter_tag;
                               fprintf oc "%s %d\n" "tag" end_tag; 
                               )
-  | Return r -> assert_equal ft (process_expression r tbls var_count cte_tbl oc).rtipo; ();
+  | Return r -> let ret_val = process_expression r tbls var_count cte_tbl oc in assert_equal ft ret_val.rtipo; fprintf oc "return %d\n" ret_val.address; ();
   | Expresion ex -> assert_equal VoidTy (process_expression ex tbls var_count cte_tbl oc).rtipo; ();
 (* Iterate through the function elements to add variables to the tbl *)
 and add_func_elems_to_tbl_rec bloque tbls var_count cte_tbl ft jmp_count oc=

@@ -88,6 +88,18 @@ namespace Reader {
         break;
       }
 
+      case ret:
+      {
+        stream >> current_quad.first_;
+        break;
+      }
+
+      case retVal:
+      {
+        stream >> current_quad.name_ >> current_quad.first_;
+        break;
+      }
+
       default:
         std::string temp1, temp2, temp3;
         stream >> temp1 >> temp2 >> temp3;
@@ -104,6 +116,8 @@ namespace Reader {
                    Memory* constant_mem){
     std::unordered_map<string, QuadType> quad_type_ref({
       {"goSub", QuadType::goSub},
+      {"return", QuadType::ret},
+      {"retVal", QuadType::retVal},
       {"ftag", QuadType::ftag},
       {"tag", QuadType::tag},
       {"era", QuadType::era},

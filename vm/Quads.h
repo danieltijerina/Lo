@@ -5,6 +5,8 @@ namespace Quads {
 
   enum QuadType {
     goSub = 1,
+    ret,
+    retVal,
     ftag,
     tag,
     era,
