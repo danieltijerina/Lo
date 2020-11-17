@@ -23,11 +23,27 @@ public:
     Memory(){}
 };
 
+class PointerMemory {
+public:
+  int *integers, *floats, *strings, *chars, *booleans;
+
+  PointerMemory(int i, int f, int s, int c, int b) {
+    integers = new int[i];
+    floats = new int[f];
+    strings = new int[s];
+    chars = new int[c];
+    booleans = new int[b];
+  }
+
+  PointerMemory() {}
+};
+
 class FunctionMemory {
   public:
     std::string fname_;
     Memory variables_;
     Memory temporals_;
+    PointerMemory pointers_;
 
     FunctionMemory(FunctionDef& func_def, std::string name) {
       fname_ = name;
@@ -43,6 +59,12 @@ class FunctionMemory {
       temporals_.strings = new std::string[func_def.stringTmp];
       temporals_.chars = new char[func_def.charTmp];
       temporals_.booleans = new bool[func_def.boolTmp];
+
+      pointers_.integers = new int[func_def.intPtr];
+      pointers_.floats = new int[func_def.floatPtr];
+      pointers_.strings = new int[func_def.stringPtr];
+      pointers_.chars = new int[func_def.charPtr];
+      pointers_.booleans = new int[func_def.boolPtr];
     }
 };
 

@@ -126,6 +126,7 @@ namespace Reader {
       {"goto", QuadType::gotoUnc},
       {"gotoF", QuadType::gotoF},
       {"endFunc", QuadType::endFunc},
+      {"val", QuadType::val},
       {"=", QuadType::assign},
       {"==", QuadType::equal},
       {"!=", QuadType::notEqual},
@@ -169,6 +170,11 @@ namespace Reader {
       quad_stream >> trash >> func.charTmp;
       quad_stream >> trash >> func.stringTmp;
       quad_stream >> trash >> func.boolTmp;
+      quad_stream >> trash >> func.intPtr;
+      quad_stream >> trash >> func.floatPtr;
+      quad_stream >> trash >> func.charPtr;
+      quad_stream >> trash >> func.stringPtr;
+      quad_stream >> trash >> func.boolPtr;
 
       function_def->insert({{quad_type, func}});
       quad_stream >> quad_type;

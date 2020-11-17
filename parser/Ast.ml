@@ -24,6 +24,11 @@ type type_def =
   | VoidTy
   | ClassTy
   | JTag
+  | IntPtr
+  | FloatPtr
+  | CharPtr
+  | StringPtr
+  | BoolPtr
 
 type quad = {
   operator: string;

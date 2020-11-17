@@ -53,9 +53,23 @@ let get_temp_type ty =
   | StringTy -> StringTmp
   | BoolTy -> BoolTmp
 
+let get_ptr_type ty =
+  match ty with
+  | IntTy -> IntPtr
+  | FloatTy -> FloatPtr
+  | CharTy -> CharPtr
+  | StringTy -> StringPtr
+  | BoolTy -> BoolPtr
+
 let get_next_temporal var_count ty =
   let tmpty = get_temp_type ty in 
     let tmp = Hashtbl.find var_count tmpty in 
+      update_count var_count tmpty;
+      tmp.base + tmp.count
+
+let get_next_pointer var_count ty =
+  let tmpty = get_ptr_type ty in
+    let tmp = Hashtbl.find var_count tmpty in
       update_count var_count tmpty;
       tmp.base + tmp.count
 
@@ -264,6 +278,25 @@ and variableLookup var_id current_tbls var_count const_tbl oc=
   match var_id with
   | VarID v -> let res = (variableLookupVarID v.name current_tbls) in {rtipo=res.tipo; address=res.address};
   | VarFuncCall vfunc -> (functionLookup (VarFuncCall vfunc) current_tbls var_count const_tbl oc);
-  | VarArray varr ->  let res = (variableLookupVarID varr.name current_tbls) in {rtipo=res.tipo; address=res.address}; (* Need to implement arrays *)
-  | Var2Array v2arr -> let res = (variableLookupVarID v2arr.name current_tbls) in {rtipo=res.tipo; address=res.address}; (* Need to implement arrays *)
+  | VarArray varr -> let index = process_pm_expression varr.expresion current_tbls var_count const_tbl oc in
+                        if index.rtipo != IntTy then failwith "Array index must be int";
+                        let base = variableLookupVarID varr.name current_tbls in
+                          let next_ptr = get_next_pointer var_count base.tipo in
+                            fprintf oc "val %d %d -1\n" index.address base.dimension1;
+                            fprintf oc "+ %d %d %d\n" (find_or_add_int_cte var_count const_tbl base.address) index.address next_ptr;
+                            {rtipo=base.tipo; address=next_ptr}
+  | Var2Array v2arr ->  let index1 = process_pm_expression v2arr.expresion1 current_tbls var_count const_tbl oc in
+                          if index1.rtipo != IntTy then failwith "Matrix first index must be int";
+                          let index2 = process_pm_expression v2arr.expresion2 current_tbls var_count const_tbl oc in
+                            if index2.rtipo != IntTy then failwith "Matrix second index must be int";
+                            let base = variableLookupVarID v2arr.name current_tbls in
+                              let next_ptr = get_next_pointer var_count base.tipo in
+                                fprintf oc "val %d %d -1\n" index1.address base.dimension1;
+                                fprintf oc "val %d %d -1\n" index2.address base.dimension2;
+                                fprintf oc "+ %d %d %d\n" (find_or_add_int_cte var_count const_tbl base.address) index1.address next_ptr; 
+                                let next_tmp = get_next_temporal var_count IntTy in
+                                  fprintf oc "* %d %d %d\n" index2.address (find_or_add_int_cte var_count const_tbl base.dimension1) next_tmp;
+                                  fprintf oc "+ %d %d %d\n" next_tmp next_ptr next_ptr;
+                                  {rtipo=base.tipo; address=next_ptr}
+
   | VarPoint vpoint -> (pointVarLookup (VarPoint vpoint) current_tbls var_count const_tbl oc);;

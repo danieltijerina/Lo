@@ -21,7 +21,12 @@ let print_counts oc k var_count =
   fprintf oc "FloatTmp %d\n" (Hashtbl.find var_count FloatTmp).count;
   fprintf oc "CharTmp %d\n" (Hashtbl.find var_count CharTmp).count;
   fprintf oc "StringTmp %d\n" (Hashtbl.find var_count StringTmp).count;
-  fprintf oc "BoolTmp %d\n" (Hashtbl.find var_count BoolTmp).count
+  fprintf oc "BoolTmp %d\n" (Hashtbl.find var_count BoolTmp).count;
+  fprintf oc "IntPtr %d\n" (Hashtbl.find var_count IntPtr).count;
+  fprintf oc "FloatPtr %d\n" (Hashtbl.find var_count FloatPtr).count;
+  fprintf oc "CharPtr %d\n" (Hashtbl.find var_count CharPtr).count;
+  fprintf oc "StringPtr %d\n" (Hashtbl.find var_count StringPtr).count;
+  fprintf oc "BoolPtr %d\n" (Hashtbl.find var_count BoolPtr).count
 
 let print_floating oc key value = 
   fprintf oc "%d %f\n" value key
@@ -59,9 +64,16 @@ let get_next_tag var_count =
 (* Match the variable declaration to add it to the table*)
 let add_vars_to_tbl t var class_id tbl var_count cte_tbl =
   match var.id with
-  | VDVarID v -> update_count var_count t; add_element tbl v.name {name=v.name; tipo=t; id_class=class_id; address= let tmp = Hashtbl.find var_count t in tmp.base + tmp.count - 1};
-  | VDVarArray v -> add_element tbl v.name {name=v.name; tipo=t; id_class=class_id; address=0} (* Need to add array part *)
-  | VDVar2Array v -> add_element tbl v.name {name=v.name; tipo=t; id_class=class_id; address=0};; (* Need to add array part *)
+  | VDVarID v -> update_count var_count t; 
+                 add_element tbl v.name {name=v.name; tipo=t; dimension1=1; dimension2=1; id_class=class_id; address = let tmp = Hashtbl.find var_count t in tmp.base + tmp.count - 1}
+  | VDVarArray v -> update_n_count var_count t v.dim;
+                    let tmp = Hashtbl.find var_count t in
+                      find_or_add_int_cte var_count cte_tbl (tmp.base + tmp.count - v.dim);
+                      add_element tbl v.name {name=v.name; tipo=t; dimension1=v.dim; dimension2=1; id_class=class_id; address = tmp.base + tmp.count - v.dim}
+  | VDVar2Array v ->  update_n_count var_count t (v.dim1 * v.dim2);
+                      let tmp = Hashtbl.find var_count t in
+                        find_or_add_int_cte var_count cte_tbl (tmp.base + tmp.count - (v.dim1 * v.dim2));
+                        add_element tbl v.name {name=v.name; tipo=t; dimension1=v.dim1; dimension2=v.dim2; id_class=class_id; address=tmp.base + tmp.count - (v.dim1 * v.dim2)} (* Need to add array part *)
 
 let process_asignacion left right tbls var_count cte_tbl oc = 
   let leftVar = variableLookup left tbls var_count cte_tbl oc in

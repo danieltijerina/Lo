@@ -30,6 +30,7 @@ class Processor {
   std::string getStringFromPosition(int position);
   char getCharFromPosition(int position);
   bool getBoolFromPosition(int position);
+  int getPointerFromPosition(int position);
   //Setters
   void setIntFromPosition(int leftPos, int rightPos);
   void setIntParamFromPosition(int leftPos, int rightPos);
@@ -40,14 +41,15 @@ class Processor {
   void setCharFromPosition(int leftPos, int rightPos);
   void setBoolFromPosition(int leftPos, int rightPos);
   void setBoolFromValue(int pos, bool value);
+  void setPointerFromPosition(int pos, int value);
   //Type Checkers
   bool isInt(int pos) {
     int tmp = pos / 1000;
-    return tmp == 1 || tmp == 10 || tmp == 20;
+    return tmp == 1 || tmp == 10 || tmp == 20 || tmp == 40;
   }
   bool isFloat(int pos) {
     int tmp = pos / 1000;
-    return tmp == 2 || tmp == 11 || tmp == 21;
+    return tmp == 2 || tmp == 11 || tmp == 21 || tmp == 41;
   }
 
   public:
@@ -71,8 +73,6 @@ class Processor {
     switch (current_quad.type_) {
       case QuadType::gotoF:
       {
-        // std::cout << "first: " << current_quad.first_ << "\nsecond: " << current_quad.second_ << "\nthird: " << current_quad.third_ << "\n";
-        // std::cout << getBoolFromPosition(current_quad.second_) << std::endl;
         if(!getBoolFromPosition(current_quad.second_)) {
           current_index = current_quad.first_ - 1;
         }
@@ -182,7 +182,10 @@ class Processor {
 
       case QuadType::plus:
       {
-        if(isInt(current_quad.third_)) {
+        if(current_quad.third_ / 10000 == 4) {
+          setPointerFromPosition(current_quad.third_, getIntFromPosition(current_quad.first_) + getIntFromPosition(current_quad.second_));
+        }
+        else if(isInt(current_quad.third_)) {
           // Result of addition is int so both first_ and second_ must be int
           setIntFromValue(current_quad.third_, getIntFromPosition(current_quad.first_) + getIntFromPosition(current_quad.second_));
         } else {
@@ -268,6 +271,21 @@ class Processor {
           break;
         case 5:
           setBoolFromPosition(current_quad.first_, current_quad.second_);
+          break;
+        case 40:
+          setIntFromPosition(getPointerFromPosition(current_quad.first_), current_quad.second_);
+          break;
+        case 41:
+          setFloatFromPosition(getPointerFromPosition(current_quad.first_), current_quad.second_);
+          break;
+        case 42:
+          setStringFromPosition(getPointerFromPosition(current_quad.first_), current_quad.second_);
+          break;
+        case 43:
+          setCharFromPosition(getPointerFromPosition(current_quad.first_), current_quad.second_);
+          break;
+        case 44:
+          setBoolFromPosition(getPointerFromPosition(current_quad.first_), current_quad.second_);
           break;
         }
         break;
@@ -407,6 +425,19 @@ class Processor {
         break;
       }
 
+      case QuadType::val:
+      {
+        // This is only used to validate array indices, so it should always be int
+        if(!isInt(current_quad.first_)) {
+          abort();
+        }
+        int index = getIntFromPosition(current_quad.first_);
+        if(index < 0 || index >= current_quad.second_) {
+          abort();
+        }
+        break;
+      }
+
       case QuadType::print:
       {
         if(isInt(current_quad.first_))
@@ -427,16 +458,17 @@ class Processor {
 
 int Processor::getIntFromPosition(int position){
     int area = position / 1000;
-    // TODO: not sure if this is the best way to do things
     if(area == 1){
       return current_mem->variables_.integers[position % 1000];
     }
     if(area == 10){
       return constant_memory->integers[position % 10000];
     }
-    
     if(area == 20){
       return current_mem->temporals_.integers[position % 20000];
+    }
+    if(area == 40) {
+      return getIntFromPosition(current_mem->pointers_.integers[position % 40000]);
     }
 
     // None: Error
@@ -445,22 +477,22 @@ int Processor::getIntFromPosition(int position){
 
 void Processor::setIntFromPosition(int leftPos, int rightPos){
     int area = rightPos / 1000;
-    // TODO: not sure if this is the best way to do things
     if(area == 1){
       current_mem->variables_.integers[leftPos % 1000] = current_mem->variables_.integers[rightPos % 1000];
     }
     if(area == 10){
       current_mem->variables_.integers[leftPos % 1000] = constant_memory->integers[rightPos % 10000];
     }
-    
     if(area == 20){
       current_mem->variables_.integers[leftPos % 1000] = current_mem->temporals_.integers[rightPos % 20000];
+    }
+    if(area==40){
+      current_mem->variables_.integers[leftPos % 1000] = getIntFromPosition(current_mem->pointers_.integers[rightPos % 40000]);
     }
 }
 
 void Processor::setIntParamFromPosition(int leftPos, int rightPos){
     int area = rightPos / 1000;
-    // TODO: not sure if this is the best way to do things
     if(area == 1){
       next_mem->variables_.integers[leftPos % 1000] = current_mem->variables_.integers[rightPos % 1000];
     }
@@ -475,7 +507,6 @@ void Processor::setIntParamFromPosition(int leftPos, int rightPos){
 
 void Processor::setIntFromValue(int pos, int value) {
   int area = pos / 1000;
-    // TODO: not sure if this is the best way to do things
     if(area == 1){
       current_mem->variables_.integers[pos % 1000] = value;
     }
@@ -488,40 +519,40 @@ void Processor::setIntFromValue(int pos, int value) {
 
 float Processor::getFloatFromPosition(int position){
     int area = position / 1000;
-    // TODO: not sure if this is the best way to do things
     if(area == 2){
       return current_mem->variables_.floats[position % 2000];
     }
     if(area == 11){
       return constant_memory->floats[position % 11000];
     }
-    
     if(area == 21){
       return current_mem->temporals_.floats[position % 21000];
     }
-
+    if(area == 41){
+      return getFloatFromPosition(current_mem->pointers_.floats[position % 41000]);
+    }
     // None: Error
     return -1;
 }
 
 void Processor::setFloatFromPosition(int leftPos, int rightPos){
     int area = rightPos / 1000;
-    // TODO: not sure if this is the best way to do things
     if(area == 2){
       current_mem->variables_.floats[leftPos % 2000] = current_mem->variables_.floats[rightPos % 2000];
     }
     if(area == 11){
       current_mem->variables_.floats[leftPos % 2000] = constant_memory->floats[rightPos % 11000];
     }
-    
     if(area == 21){
       current_mem->variables_.floats[leftPos % 2000] = current_mem->temporals_.floats[rightPos % 21000];
+    }
+    if(area == 41){
+      current_mem->variables_.floats[leftPos % 2000] = getFloatFromPosition(current_mem->pointers_.floats[rightPos % 41000]);
     }
 }
 
 void Processor::setFloatFromValue(int pos, float value){
     int area = pos / 1000;
-    // TODO: not sure if this is the best way to do things
     if(area == 2){
       current_mem->variables_.floats[pos % 2000] = value;
     }
@@ -532,113 +563,160 @@ void Processor::setFloatFromValue(int pos, float value){
 
 std::string Processor::getStringFromPosition(int position){
     int area = position / 1000;
-    // TODO: not sure if this is the best way to do things
     if(area == 3){
       return current_mem->variables_.strings[position % 3000];
     }
     if(area == 12){
       return constant_memory->strings[position % 12000];
     }
-    
     if(area == 22){
       return current_mem->temporals_.strings[position % 22000];
     }
-
+    if(area == 42){
+      return getStringFromPosition(current_mem->pointers_.strings[position % 42000]);
+    }
     // None: Error
     return "";
 }
 
 void Processor::setStringFromPosition(int leftPos, int rightPos){
     int area = rightPos / 1000;
-    // TODO: not sure if this is the best way to do things
     if(area == 3){
       current_mem->variables_.strings[leftPos % 3000] = current_mem->variables_.strings[rightPos % 3000];
     }
     if(area == 12){
       current_mem->variables_.strings[leftPos % 3000] = constant_memory->strings[rightPos % 12000];
     }
-    
     if(area == 22){
       current_mem->variables_.strings[leftPos % 3000] = current_mem->temporals_.strings[rightPos % 22000];
+    }
+    if(area == 42){
+      current_mem->variables_.strings[leftPos % 3000] = getStringFromPosition(current_mem->pointers_.strings[rightPos % 42000]);
     }
 }
 
 char Processor::getCharFromPosition(int position){
     int area = position / 1000;
-    // TODO: not sure if this is the best way to do things
     if(area == 4){
       return current_mem->variables_.chars[position % 4000];
     }
     if(area == 13){
       return constant_memory->chars[position % 13000];
     }
-    
     if(area == 23){
       return current_mem->temporals_.chars[position % 23000];
     }
-
+    if(area == 43){
+      return getCharFromPosition(current_mem->pointers_.chars[position % 43000]);
+    }
     // None: Error
     return -1;
 }
 
 void Processor::setCharFromPosition(int leftPos, int rightPos){
     int area = rightPos / 1000;
-    // TODO: not sure if this is the best way to do things
     if(area == 4){
       current_mem->variables_.chars[leftPos % 4000] = current_mem->variables_.chars[rightPos % 4000];
     }
     if(area == 13){
       current_mem->variables_.chars[leftPos % 4000] = constant_memory->chars[rightPos % 13000];
     }
-    
     if(area == 23){
       current_mem->variables_.chars[leftPos % 4000] = current_mem->temporals_.chars[rightPos % 23000];
+    }
+    if(area == 43){
+      current_mem->variables_.chars[leftPos % 4000] = getCharFromPosition(current_mem->pointers_.chars[rightPos % 43000]);
     }
 }
 
 bool Processor::getBoolFromPosition(int position){
     int area = position / 1000;
-    // TODO: not sure if this is the best way to do things
     if(area == 5){
       return current_mem->variables_.booleans[position % 5000];
     }
     if(area == 14){
       return constant_memory->booleans[position % 14000];
     }
-    
     if(area == 24){
       return current_mem->temporals_.booleans[position % 24000];
     }
-
+    if(area == 44){
+      return getBoolFromPosition(current_mem->pointers_.booleans[position % 44000]);
+    }
     // None: Error
     return -1;
 }
 
 void Processor::setBoolFromPosition(int leftPos, int rightPos){
     int area = rightPos / 1000;
-    // TODO: not sure if this is the best way to do things
     if(area == 5){
       current_mem->variables_.booleans[leftPos % 5000] = current_mem->variables_.booleans[rightPos % 5000];
     }
     if(area == 14){
       current_mem->variables_.booleans[leftPos % 5000] = constant_memory->booleans[rightPos % 14000];
     }
-    
     if(area == 24){
       current_mem->variables_.booleans[leftPos % 5000] = current_mem->temporals_.booleans[rightPos % 24000];
+    }
+    if(area == 44){
+      current_mem->variables_.booleans[leftPos % 5000] = getBoolFromPosition(current_mem->pointers_.booleans[rightPos % 44000]);
     }
 }
 
 void Processor::setBoolFromValue(int pos, bool value){
     int area = pos / 1000;
-    // TODO: not sure if this is the best way to do things
     if(area == 5){
-      std::cout << value << std::endl;
       current_mem->variables_.booleans[pos % 5000] = value;
     }   
     if(area == 24){
       current_mem->temporals_.booleans[pos % 24000] = value;
     }
+}
+
+int Processor::getPointerFromPosition(int position) {
+  int area = position / 1000, res;
+  switch(area)
+  {
+    case 40:
+      res = current_mem->pointers_.integers[position % 40000];
+      break;
+    case 41:
+      res = current_mem->pointers_.floats[position % 41000];
+      break;
+    case 42:
+      res = current_mem->pointers_.strings[position % 42000];
+      break;
+    case 43:
+      res = current_mem->pointers_.chars[position % 43000];
+      break;
+    case 44:
+      res = current_mem->pointers_.booleans[position % 44000];
+      break;
+  }
+  return res;
+}
+
+void Processor::setPointerFromPosition(int position, int value) {
+  int area = position / 1000;
+  switch(area) {
+    case 40:
+      // setIntFromValue(position, value);
+      current_mem->pointers_.integers[position % 40000] = value;
+      break;
+    case 41:
+      // setFloatFromValue(position, value);
+      current_mem->pointers_.floats[position % 41000] = value;
+      break;
+    case 42:
+      current_mem->pointers_.strings[position % 42000] = value;
+      break;
+    case 43:
+      current_mem->pointers_.chars[position % 43000] = value;
+      break;
+    case 44:
+      current_mem->pointers_.booleans[position % 44000] = value;
+      break;
+  }
 }
 
 #endif

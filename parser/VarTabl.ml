@@ -3,6 +3,8 @@ open Ast
 type variable = {
   name : string;
   tipo : type_def;
+  dimension1 : int;
+  dimension2 : int;
   id_class: string;
   address : int;
 }
@@ -42,10 +44,18 @@ let initialize_count tbl =
   Hashtbl.add tbl StringTmp {count=0; base=22000};
   Hashtbl.add tbl CharTmp {count=0; base=23000};
   Hashtbl.add tbl BoolTmp {count=0; base=24000};
-  Hashtbl.add tbl ClassTy {count=0; base=30000};;
+  Hashtbl.add tbl ClassTy {count=0; base=30000};
+  Hashtbl.add tbl IntPtr {count=0; base=40000};
+  Hashtbl.add tbl FloatPtr {count=0; base=41000};
+  Hashtbl.add tbl StringPtr {count=0; base=42000};
+  Hashtbl.add tbl CharPtr {count=0; base=43000};
+  Hashtbl.add tbl BoolPtr {count=0; base=44000};;
 
 let update_count tbl key = 
   Hashtbl.replace tbl key {count=(Hashtbl.find tbl key).count + 1; base=(Hashtbl.find tbl key).base};;
+
+let update_n_count tbl key n =
+  Hashtbl.replace tbl key {count=(Hashtbl.find tbl key).count + n; base=(Hashtbl.find tbl key).base}
 
 let add_element tbl key value = 
   try 
@@ -64,9 +74,9 @@ and getVariablesFromParams param fun_var_count vars_tbl=
     let addr_int = new_addr.base + new_addr.count in 
       update_count fun_var_count param.ptipo;
       let variable_ = begin match param.param_id with
-      | VDVarID vid -> ({name=vid.name; tipo=param.ptipo; id_class=""; address=addr_int;};)
-      | VDVarArray vid -> ({name=vid.name; tipo=param.ptipo; id_class=""; address=addr_int;};)
-      | VDVar2Array vid -> ({name=vid.name; tipo=param.ptipo; id_class=""; address=addr_int;};)
+      | VDVarID vid -> ({name=vid.name; tipo=param.ptipo; dimension1=1; dimension2=1; id_class=""; address=addr_int;};)
+      | VDVarArray vid -> ({name=vid.name; tipo=param.ptipo; dimension1=vid.dim; dimension2=1; id_class=""; address=addr_int;};)
+      | VDVar2Array vid -> ({name=vid.name; tipo=param.ptipo; dimension1=vid.dim1; dimension2=vid.dim2; id_class=""; address=addr_int;};)
       end in 
       Hashtbl.add vars_tbl variable_.name variable_;
       variable_;;

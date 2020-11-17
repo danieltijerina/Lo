@@ -3,11 +3,11 @@
 
 struct FunctionDef {
   public:
-    int intTy, intTmp;
-    int stringTy, stringTmp;
-    int charTy, charTmp;
-    int floatTy, floatTmp;
-    int boolTy, boolTmp;
+    int intTy, intTmp, intPtr;
+    int stringTy, stringTmp, stringPtr;
+    int charTy, charTmp, charPtr;
+    int floatTy, floatTmp, floatPtr;
+    int boolTy, boolTmp, boolPtr;
     int classTy; //TODO: check how this works
     // return values
     int intRet;

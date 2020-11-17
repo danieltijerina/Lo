@@ -27,7 +27,8 @@ namespace Quads {
     plus,
     minus,
     div,
-    mult
+    mult,
+    val,
   };
 
   struct Quad {
