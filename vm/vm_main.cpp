@@ -6,6 +6,7 @@
 #include "Quads.h"
 #include "FunctionDef.h"
 #include "Processor.h"
+#include "ClassDef.h"
 
 using namespace Quads;
 
@@ -17,10 +18,11 @@ int main(int argc, char** argv) {
 
     std::vector<Quad> quads_;
     std::unordered_map<string, FunctionDef> function_def_;
+    std::unordered_map<string, ClassDef> class_def_;
     Memory constant_memory;
 
-    Reader::processFile(argv[1], &quads_, &function_def_, &constant_memory);
-    Processor processor(&quads_, &function_def_, &constant_memory);
+    Reader::processFile(argv[1], &quads_, &function_def_, &class_def_, &constant_memory);
+    Processor processor(&quads_, &function_def_, &class_def_, &constant_memory);
     processor.startProcessing();
 
     // Testing purposes only! 

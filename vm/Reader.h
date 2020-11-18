@@ -7,6 +7,7 @@
 #include "Quads.h"
 #include "Memory.h"
 #include "FunctionDef.h"
+#include "ClassDef.h"
 
 using namespace Quads;
 using std::string;
@@ -100,6 +101,18 @@ namespace Reader {
         break;
       }
 
+      case classMark:
+      {
+        stream >> current_quad.first_;
+        break;
+      }
+
+      case classInit:
+      {
+        stream >> current_quad.name_ >> current_quad.first_;
+        break;
+      }
+
       default:
         std::string temp1, temp2, temp3;
         stream >> temp1 >> temp2 >> temp3;
@@ -113,6 +126,7 @@ namespace Reader {
 
   void processFile(const std::string& filename, std::vector<Quad>* quads_, 
                    std::unordered_map<string, FunctionDef>* function_def,
+                   std::unordered_map<string, ClassDef>* class_def,
                    Memory* constant_mem){
     std::unordered_map<string, QuadType> quad_type_ref({
       {"goSub", QuadType::goSub},
@@ -126,6 +140,8 @@ namespace Reader {
       {"goto", QuadType::gotoUnc},
       {"gotoF", QuadType::gotoF},
       {"endFunc", QuadType::endFunc},
+      {"class", QuadType::classMark},
+      {"classInit", QuadType::classInit},
       {"val", QuadType::val},
       {"=", QuadType::assign},
       {"==", QuadType::equal},
@@ -148,15 +164,28 @@ namespace Reader {
 
     string quad_type;
     quad_stream >> quad_type;
-    while(quad_type != "$$$"){
+    while(quad_type != "$$"){
       Quad quad = processNextQuad((quad_type_ref.find(quad_type))->second, 
           quad_stream, quads_->size(), &tags_, &pending_tags_, quads_);
       quads_->push_back(quad);
       quad_stream >> quad_type;
     }
 
-    quad_stream >> quad_type;
     string trash; // TODO: Delete this (needed since the type e.g IntTy is printed in clo)
+    quad_stream >> quad_type;
+    while(quad_type != "$$$"){
+      ClassDef cl;
+      quad_stream >> trash >> cl.intTy;
+      quad_stream >> trash >> cl.floatTy;
+      quad_stream >> trash >> cl.charTy;
+      quad_stream >> trash >> cl.stringTy;
+      quad_stream >> trash >> cl.boolTy;
+      class_def->insert({quad_type, cl});
+
+      quad_stream >> quad_type;
+    }
+
+    quad_stream >> quad_type;
     while(quad_type != "$$$$"){
       FunctionDef func;
       quad_stream >> trash >> func.intTy;

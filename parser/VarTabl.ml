@@ -51,6 +51,13 @@ let initialize_count tbl =
   Hashtbl.add tbl CharPtr {count=0; base=43000};
   Hashtbl.add tbl BoolPtr {count=0; base=44000};;
 
+let initialize_count_class tbl = 
+  Hashtbl.add tbl IntTy {count=0; base=1000};
+  Hashtbl.add tbl FloatTy {count=0; base=2000};
+  Hashtbl.add tbl StringTy {count=0; base=3000};
+  Hashtbl.add tbl CharTy {count=0; base=4000};
+  Hashtbl.add tbl BoolTy {count=0; base=5000};;
+
 let update_count tbl key = 
   Hashtbl.replace tbl key {count=(Hashtbl.find tbl key).count + 1; base=(Hashtbl.find tbl key).base};;
 
@@ -93,7 +100,7 @@ and addParamsToVartblRec params table =
 and addParamsToVartbl param table =
   Hashtbl.add table param.name param;;
 
-let add_high_level_element tbl value mem =
+let add_high_level_element tbl value mem class_mem =
   match value with
   | Func f -> let fun_var_count = Hashtbl.create 0 in 
                 initialize_count fun_var_count;
@@ -102,7 +109,11 @@ let add_high_level_element tbl value mem =
                 Hashtbl.add mem f.fname fun_var_count;
                 new_element
   (* | Func f -> add_element tbl f.fname (FuncT {name=f.fname; ftipo=f.tipo; variables=Hashtbl.create 0; params=(getVariablesFromParamsRec f.params);}) *)
-  | Clase c -> add_element tbl c.name (ClaseT {name=c.name; funcs=Hashtbl.create 0; vars=Hashtbl.create 0});;
+  | Clase c -> let class_var_count = Hashtbl.create 0 in
+                initialize_count_class class_var_count;
+                let new_class = add_element tbl c.name (ClaseT {name=c.name; funcs=Hashtbl.create 0; vars=Hashtbl.create 0}) in
+                Hashtbl.add class_mem c.name class_var_count;
+                new_class;;
 
 let get_element x =
   match x with

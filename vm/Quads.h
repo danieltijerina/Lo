@@ -29,6 +29,8 @@ namespace Quads {
     div,
     mult,
     val,
+    classMark,
+    classInit
   };
 
   struct Quad {

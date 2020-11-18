@@ -1,28 +1,49 @@
-func test(int i) {
-  if(i <= 0){
-    print("done");
-  }else{
-    print(i);
-    test(i - 1);
+class Shape {
+    int size;
+  int length;
+
+  func calc() {
+    int i = 0;
+    for(i; i < 5; i = i + 1){
+      print(i);
+    }
+  }
+
+  func printLength() {
+    int i = 0;
+    print(length);
   }
 }
 
-func factorial(int x): int {
-  if(x <= 1) {
-    return x;
+class Foo {
+  int test1;
+  int length;
+
+  func printTest() {
+    print(test1);
   }
-  return x * factorial(x - 1);
+}
+
+func test1() {
+  Shape new_s;
+  new_s.size = 10;
+
+  print(new_s.size);
 }
 
 func main(): int {
-  int i = factorial(5), j=0;
-  int arr[5];
+  Shape s, t;
+  s.length = 10 * 3 * 50;
+  t.length = s.length;
+  s.length = 2;
+  s.size = 10;
+  s.calc();
+  print(" ");
 
-  for(j; j<5; j=j+1) {
-    arr[j] = factorial(j);
-  }
-  j=0;
-  for(j; j<5; j=j+1) {
-    print(arr[j]);
-  }
+  Foo x;
+  x.test1 = 100000000;
+  x.printTest();
+
+  s.printLength();
+  t.printLength();
 }

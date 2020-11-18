@@ -204,7 +204,8 @@ and variableLookupVarID var current_tbls=
   | FuncTbl f -> (try (Hashtbl.find f.variables var)
                     with e -> 
                       match current_tbls.class_tbl with
-                      | ClassTbl ct -> (try (Hashtbl.find ct.vars var) with Not_found -> (failwith (String.concat var ["Variable "; " not found"] )));
+                      | ClassTbl ct -> (try let var = (Hashtbl.find ct.vars var) in 
+                      {name=var.name; tipo=var.tipo; address=(var.address - 50000); dimension1=var.dimension1; dimension2=var.dimension2; id_class=var.id_class} with Not_found -> (failwith (String.concat var ["Variable "; " not found"] )));
                       | Nil -> raise e;)
   | FNil -> (match current_tbls.class_tbl with
             | ClassTbl ct -> (try (Hashtbl.find ct.vars var) with Not_found -> (failwith (String.concat var ["Variable "; " not found"] )));
@@ -245,30 +246,31 @@ and functionLookup f current_tbls var_count const_tbl oc=
             | _ -> failwith "No function found"
         with Not_found -> failwith "No function found") )
 
-and variableInClassLookup var_id class_tbl var_count const_tbl oc global_tbl=
+and variableInClassLookup var_id class_tbl var_count const_tbl oc global_tbl class_idx=
   match var_id with
-  | VarID v -> (try let res = (Hashtbl.find class_tbl.vars v.name) in {rtipo=res.tipo; address=res.address} with Not_found -> failwith "No Variable found in class");
+  | VarID v -> (try let res = (Hashtbl.find class_tbl.vars v.name) in {rtipo=res.tipo; address=res.address + 50000 + class_idx * 10000 } with Not_found -> failwith "No Variable found in class");
   | VarFuncCall vfunc -> (
     try let res = (Hashtbl.find class_tbl.funcs vfunc.func) in 
-      fprintf oc "era %s\n" vfunc.func;
+      fprintf oc "era %s.%s\n" class_tbl.name vfunc.func;
       checkFuncParamsRec res.params vfunc.params {function_tbl=FNil; class_tbl=ClassTbl class_tbl; global_tbl=global_tbl} var_count const_tbl oc 1;
-      fprintf oc "%s %s\n" "goSub" vfunc.func; (* Check initial address *)
+      fprintf oc "%s %s.%s\n" "goSub" class_tbl.name vfunc.func; (* Check initial address *)
       match res.ftipo with
         | VoidTy -> {rtipo=res.ftipo; address=0}
         | _ -> let addr = get_next_temporal var_count res.ftipo in fprintf oc "retVal %s %d\n" vfunc.func addr; {rtipo=res.ftipo; address=0}
     with Not_found -> failwith "No function found in class");
-  | VarArray varr ->  (try let res = (Hashtbl.find class_tbl.vars varr.name) in {rtipo=res.tipo; address=res.address} with Not_found -> failwith "No Variable found in class"); (* Need to implement arrays *)
-  | Var2Array v2arr -> (try let res = (Hashtbl.find class_tbl.vars v2arr.name) in {rtipo=res.tipo; address=res.address} with Not_found -> failwith "No Variable found in class"); (* Need to implement arrays *)
+  | VarArray varr ->  (try let res = (Hashtbl.find class_tbl.vars varr.name) in {rtipo=res.tipo; address=res.address + 50000 + class_idx * 10000} with Not_found -> failwith "No Variable found in class"); (* Need to implement arrays *)
+  | Var2Array v2arr -> (try let res = (Hashtbl.find class_tbl.vars v2arr.name) in {rtipo=res.tipo; address=res.address + 50000 + class_idx * 10000} with Not_found -> failwith "No Variable found in class"); (* Need to implement arrays *)
   | VarPoint vpoint -> failwith "class in class not supported yet"; (* Need to do class in class *)
 
 and pointVarLookup vp current_tbls var_count const_tbl oc = 
   match vp with
   | VarPoint vpoint -> (let v = variableLookupVarID vpoint.name current_tbls in
+                        fprintf oc "class %d\n" v.address;
                         match v.tipo with 
                         | ClassTy -> (
                             try let tbl = (Hashtbl.find current_tbls.global_tbl v.id_class) in
                               ( match tbl with 
-                              | ClaseT ct -> variableInClassLookup vpoint.inner ct var_count const_tbl oc current_tbls.global_tbl;
+                              | ClaseT ct -> variableInClassLookup vpoint.inner ct var_count const_tbl oc current_tbls.global_tbl (v.address - 30000);
                               | _ -> failwith "element not part of class" )
                             with Not_found -> failwith "element not found");
                         | _ -> failwith "variable is not a class");

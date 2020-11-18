@@ -1,110 +1,155 @@
 ftag main
-era factorial
-param 10000 1000 -1
-goSub factorial
-retVal factorial 20000
-= 1000 20000 -1
-= 1001 10001 -1
+classInit Shape 30000
+classInit Shape 30001
+* 10001 10002 20000
+* 10000 20000 20001
+class 30000
+= 51001 20001 -1
+class 30000
+class 30001
+= 61001 51001 -1
+class 30000
+= 51001 10003 -1
+class 30000
+= 51000 10000 -1
+class 30000
+era Shape.calc
+goSub Shape.calc
+print 12000 -1 -1
+classInit Foo 30002
+class 30002
+= 71000 10004 -1
+class 30002
+era Foo.printTest
+goSub Foo.printTest
+class 30000
+era Shape.printLength
+goSub Shape.printLength
+class 30001
+era Shape.printLength
+goSub Shape.printLength
+endFunc -1 -1 -1
+ftag test1
+classInit Shape 30000
+class 30000
+= 51000 10000 -1
+class 30000
+print 51000 -1 -1
+endFunc -1 -1 -1
+ftag Foo.printTest
+print -49000 -1 -1
+endFunc -1 -1 -1
+ftag Shape.calc
+= 1000 10005 -1
 tag 0
-< 1001 10000 24000
+< 1000 10006 24000
 gotoF 24000 1
-val 1001 5 -1
-+ 10002 1001 40000
-era factorial
-param 1001 1000 -1
-goSub factorial
-retVal factorial 20001
-= 40000 20001 -1
-+ 1001 10003 20002
-= 1001 20002 -1
+print 1000 -1 -1
++ 1000 10007 20000
+= 1000 20000 -1
 goto 0
 tag 1
-= 1001 10001 -1
-tag 2
-< 1001 10000 24001
-gotoF 24001 3
-val 1001 5 -1
-+ 10002 1001 40001
-print 40001 -1 -1
-+ 1001 10003 20003
-= 1001 20003 -1
-goto 2
-tag 3
 endFunc -1 -1 -1
-ftag factorial
-<= 1000 10003 24000
-gotoF 24000 4
-return 1000
-tag 4
-era factorial
-- 1000 10003 20000
-param 20000 1000 -1
-goSub factorial
-retVal factorial 20001
-* 1000 20001 20002
-return 20002
+ftag Shape.printLength
+= 1000 10005 -1
+print -48999 -1 -1
 endFunc -1 -1 -1
-ftag test
-<= 1000 10001 24000
-gotoF 24000 5
-print 12000 -1 -1
-goto 6
-tag 5
-print 1000 -1 -1
-era test
-- 1000 10003 20000
-param 20000 1000 -1
-goSub test
-tag 6
-endFunc -1 -1 -1
+
+$$
+Foo
+IntTy 2
+FloatTy 0
+CharTy 0
+StringTy 0
+BoolTy 0
+Shape
+IntTy 2
+FloatTy 0
+CharTy 0
+StringTy 0
+BoolTy 0
 
 $$$
 main
-IntTy 7
+IntTy 0
 FloatTy 0
 CharTy 0
 StringTy 0
 BoolTy 0
-ClassTy 0
-IntTmp 4
+ClassTy 3
+IntTmp 2
 FloatTmp 0
 CharTmp 0
 StringTmp 0
-BoolTmp 2
-IntPtr 2
-FloatPtr 0
-CharPtr 0
-StringPtr 0
-BoolPtr 0
-test
-IntTy 1
-FloatTy 0
-CharTy 0
-StringTy 0
-BoolTy 0
-ClassTy 0
-IntTmp 1
-FloatTmp 0
-CharTmp 0
-StringTmp 0
-BoolTmp 1
+BoolTmp 0
 IntPtr 0
 FloatPtr 0
 CharPtr 0
 StringPtr 0
 BoolPtr 0
-factorial
+test1
+IntTy 0
+FloatTy 0
+CharTy 0
+StringTy 0
+BoolTy 0
+ClassTy 1
+IntTmp 0
+FloatTmp 0
+CharTmp 0
+StringTmp 0
+BoolTmp 0
+IntPtr 0
+FloatPtr 0
+CharPtr 0
+StringPtr 0
+BoolPtr 0
+Shape.calc
 IntTy 1
 FloatTy 0
 CharTy 0
 StringTy 0
 BoolTy 0
 ClassTy 0
-IntTmp 3
+IntTmp 0
 FloatTmp 0
 CharTmp 0
 StringTmp 0
-BoolTmp 1
+BoolTmp 0
+IntPtr 0
+FloatPtr 0
+CharPtr 0
+StringPtr 0
+BoolPtr 0
+Shape.printLength
+IntTy 1
+FloatTy 0
+CharTy 0
+StringTy 0
+BoolTy 0
+ClassTy 0
+IntTmp 0
+FloatTmp 0
+CharTmp 0
+StringTmp 0
+BoolTmp 0
+IntPtr 0
+FloatPtr 0
+CharPtr 0
+StringPtr 0
+BoolPtr 0
+Foo.printTest
+IntTy 0
+FloatTy 0
+CharTy 0
+StringTy 0
+BoolTy 0
+ClassTy 0
+IntTmp 0
+FloatTmp 0
+CharTmp 0
+StringTmp 0
+BoolTmp 0
 IntPtr 0
 FloatPtr 0
 CharPtr 0
@@ -112,13 +157,17 @@ StringPtr 0
 BoolPtr 0
 
 $$$$ 
-ints 4
-10001 0
-10000 5
-10002 1002
-10003 1
+ints 8
+10003 2
+10005 0
+10000 10
+10006 5
+10001 3
+10007 1
+10004 100000000
+10002 50
 float 0
 string 1
-12000 "done"
+12000 " "
 chars 0
 bools 0

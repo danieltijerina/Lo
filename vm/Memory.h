@@ -3,6 +3,7 @@
 #define MEMORY_H
 #include <string>
 #include "FunctionDef.h"
+#include "ClassMem.h"
 
 class Memory {
 public:
@@ -44,6 +45,7 @@ class FunctionMemory {
     Memory variables_;
     Memory temporals_;
     PointerMemory pointers_;
+    ClassMemory* classes_;
 
     FunctionMemory(FunctionDef& func_def, std::string name) {
       fname_ = name;
@@ -65,6 +67,8 @@ class FunctionMemory {
       pointers_.strings = new int[func_def.stringPtr];
       pointers_.chars = new int[func_def.charPtr];
       pointers_.booleans = new int[func_def.boolPtr];
+
+      classes_ = new ClassMemory[func_def.classTy];
     }
 };
 

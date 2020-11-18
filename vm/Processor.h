@@ -9,6 +9,7 @@
 #include "Quads.h"
 #include "Memory.h"
 #include "FunctionDef.h"
+#include "ClassDef.h"
 
 using namespace Quads;
 typedef std::pair<int, FunctionMemory*> previous_mem;
@@ -18,10 +19,12 @@ class Processor {
   Memory* constant_memory;
   std::vector<Quad>* quads_;
   std::unordered_map<std::string, FunctionDef>* function_def_;
+  std::unordered_map<std::string, ClassDef>* class_def_;
   int current_index;
 
   FunctionMemory* current_mem;
   FunctionMemory* next_mem;
+  ClassMemory* current_class_mem;
   std::stack<previous_mem> mem_stack_;
 
   //Getters
@@ -45,7 +48,7 @@ class Processor {
   //Type Checkers
   bool isInt(int pos) {
     int tmp = pos / 1000;
-    return tmp == 1 || tmp == 10 || tmp == 20 || tmp == 40;
+    return tmp == 1 || tmp == 10 || tmp == 20 || tmp == 40 || (tmp > 50 && tmp % 10 == 1) || (tmp < 0 && (pos + 50000) / 1000 == 1);
   }
   bool isFloat(int pos) {
     int tmp = pos / 1000;
@@ -55,10 +58,12 @@ class Processor {
   public:
   Processor(std::vector<Quad>* quads, 
             std::unordered_map<std::string, FunctionDef>* functions, 
+            std::unordered_map<std::string, ClassDef>* class_def,
             Memory* constant_mem){
     constant_memory = constant_mem;
     quads_ = quads;
     function_def_ = functions;
+    class_def_ = class_def;
     current_index = 0;
   }
 
@@ -256,6 +261,11 @@ class Processor {
 
       case QuadType::assign:
       {
+        if(current_quad.first_ > 50000){
+          //TODO: Remove, only for testing.
+          setIntFromPosition(current_quad.first_, current_quad.second_);
+          return true;
+        }
         switch (current_quad.first_ / 1000) {
         case 1:
           setIntFromPosition(current_quad.first_, current_quad.second_);
@@ -449,6 +459,18 @@ class Processor {
         break;
       }
 
+      case QuadType::classInit:
+      {
+        current_mem->classes_[current_quad.first_ % 30000].init(class_def_->find(current_quad.name_)->second, current_quad.name_);
+        break;
+      }
+
+      case QuadType::classMark:
+      {
+        current_class_mem = &(current_mem->classes_[current_quad.first_ % 30000]);
+        break;
+      }
+
       default:
         break;
     }
@@ -470,6 +492,13 @@ int Processor::getIntFromPosition(int position){
     if(area == 40) {
       return getIntFromPosition(current_mem->pointers_.integers[position % 40000]);
     }
+    if(area > 50){
+      int mem_index = (position - 50000) / 10000;
+      return current_mem->classes_[mem_index].integers[position % 1000];
+    }
+    if(area < 0){
+      return current_class_mem->integers[(position + 50000) % 1000];
+    }
 
     // None: Error
     return -1;
@@ -477,17 +506,37 @@ int Processor::getIntFromPosition(int position){
 
 void Processor::setIntFromPosition(int leftPos, int rightPos){
     int area = rightPos / 1000;
-    if(area == 1){
-      current_mem->variables_.integers[leftPos % 1000] = current_mem->variables_.integers[rightPos % 1000];
-    }
-    if(area == 10){
-      current_mem->variables_.integers[leftPos % 1000] = constant_memory->integers[rightPos % 10000];
-    }
-    if(area == 20){
-      current_mem->variables_.integers[leftPos % 1000] = current_mem->temporals_.integers[rightPos % 20000];
-    }
-    if(area==40){
-      current_mem->variables_.integers[leftPos % 1000] = getIntFromPosition(current_mem->pointers_.integers[rightPos % 40000]);
+    if(leftPos < 50000){
+      if(area == 1){
+        current_mem->variables_.integers[leftPos % 1000] = current_mem->variables_.integers[rightPos % 1000];
+      }
+      if(area == 10){
+        current_mem->variables_.integers[leftPos % 1000] = constant_memory->integers[rightPos % 10000];
+      }
+      if(area == 20){
+        current_mem->variables_.integers[leftPos % 1000] = current_mem->temporals_.integers[rightPos % 20000];
+      }
+      if(area==40){
+        current_mem->variables_.integers[leftPos % 1000] = getIntFromPosition(current_mem->pointers_.integers[rightPos % 40000]);
+      }
+    } else{
+      int mem_index = (leftPos - 50000) / 10000;
+      if(area == 1){
+        current_mem->classes_[mem_index].integers[leftPos % 1000] = current_mem->variables_.integers[rightPos % 1000];
+      }
+      if(area == 10){
+        current_mem->classes_[mem_index].integers[leftPos % 1000] = constant_memory->integers[rightPos % 10000];
+      }
+      if(area == 20){
+        current_mem->classes_[mem_index].integers[leftPos % 1000] = current_mem->temporals_.integers[rightPos % 20000];
+      }
+      if(area==40){
+        current_mem->classes_[mem_index].integers[leftPos % 1000] = getIntFromPosition(current_mem->pointers_.integers[rightPos % 40000]);
+      }
+      if(area > 50){
+        int right_mem_index = (rightPos - 50000) / 10000;
+        current_mem->classes_[mem_index].integers[leftPos % 1000] = current_mem->classes_[right_mem_index].integers[rightPos % 1000];
+      }
     }
 }
 
