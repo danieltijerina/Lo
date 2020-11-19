@@ -6,6 +6,7 @@
 #include <stack>
 #include <assert.h>
 #include <utility>
+#include <iomanip>
 #include "Quads.h"
 #include "Memory.h"
 #include "FunctionDef.h"
@@ -52,7 +53,7 @@ class Processor {
   }
   bool isFloat(int pos) {
     int tmp = pos / 1000;
-    return tmp == 2 || tmp == 11 || tmp == 21 || tmp == 41;
+    return tmp == 2 || tmp == 11 || tmp == 21 || tmp == 41 || (tmp > 50 && tmp % 10 == 2) || (tmp < 0 && (pos + 50000) / 1000 == 2);
   }
 
   public:
@@ -262,8 +263,33 @@ class Processor {
       case QuadType::assign:
       {
         if(current_quad.first_ > 50000){
-          //TODO: Remove, only for testing.
-          setIntFromPosition(current_quad.first_, current_quad.second_);
+          int type_num = ((current_quad.first_ - 50000) % 10000) / 1000;
+          switch (type_num)
+          {
+          case 1:
+            setIntFromPosition(current_quad.first_, current_quad.second_);
+            break;
+  
+          case 2:
+            setFloatFromPosition(current_quad.first_, current_quad.second_);
+            break;
+
+          case 3:
+            setStringFromPosition(current_quad.first_, current_quad.second_);
+            break;
+
+          case 4:
+            setCharFromPosition(current_quad.first_, current_quad.second_);
+            break;
+
+          case 5:
+            setBoolFromPosition(current_quad.first_, current_quad.second_);
+            break;
+          
+          default:
+            break;
+          }
+          
           return true;
         }
         switch (current_quad.first_ / 1000) {
@@ -519,6 +545,10 @@ void Processor::setIntFromPosition(int leftPos, int rightPos){
       if(area==40){
         current_mem->variables_.integers[leftPos % 1000] = getIntFromPosition(current_mem->pointers_.integers[rightPos % 40000]);
       }
+      if(area > 50){
+        int right_mem_index = (rightPos - 50000) / 10000;
+        current_mem->variables_.integers[leftPos % 1000] = current_mem->classes_[right_mem_index].integers[rightPos % 1000];
+      }
     } else{
       int mem_index = (leftPos - 50000) / 10000;
       if(area == 1){
@@ -580,24 +610,57 @@ float Processor::getFloatFromPosition(int position){
     if(area == 41){
       return getFloatFromPosition(current_mem->pointers_.floats[position % 41000]);
     }
+    if(area > 50){
+      int mem_index = (position - 50000) / 10000;
+      return current_mem->classes_[mem_index].floats[position % 2000];
+    }
+    if(area < 0){
+      return current_class_mem->floats[(position + 50000) % 2000];
+    }
     // None: Error
     return -1;
 }
 
 void Processor::setFloatFromPosition(int leftPos, int rightPos){
     int area = rightPos / 1000;
-    if(area == 2){
-      current_mem->variables_.floats[leftPos % 2000] = current_mem->variables_.floats[rightPos % 2000];
+    if(leftPos < 50000){
+      if(area == 2){
+        current_mem->variables_.floats[leftPos % 2000] = current_mem->variables_.floats[rightPos % 2000];
+      }
+      if(area == 11){
+        current_mem->variables_.floats[leftPos % 2000] = constant_memory->floats[rightPos % 11000];
+      }
+      if(area == 21){
+        current_mem->variables_.floats[leftPos % 2000] = current_mem->temporals_.floats[rightPos % 21000];
+      }
+      if(area == 41){
+        current_mem->variables_.floats[leftPos % 2000] = getFloatFromPosition(current_mem->pointers_.floats[rightPos % 41000]);
+      }
+      if(area > 50){
+        int right_mem_index = (rightPos - 50000) / 10000;
+        current_mem->variables_.floats[leftPos % 2000] = current_mem->classes_[right_mem_index].floats[rightPos % 2000];
+      }
     }
-    if(area == 11){
-      current_mem->variables_.floats[leftPos % 2000] = constant_memory->floats[rightPos % 11000];
+    else{
+      int mem_index = (leftPos - 50000) / 10000;
+      if(area == 2){
+        current_mem->classes_[mem_index].floats[leftPos % 2000] = current_mem->variables_.floats[rightPos % 2000];
+      }
+      if(area == 11){
+        current_mem->classes_[mem_index].floats[leftPos % 2000] = constant_memory->floats[rightPos % 11000];
+      }
+      if(area == 21){
+        current_mem->classes_[mem_index].floats[leftPos % 2000] = current_mem->temporals_.floats[rightPos % 21000];
+      }
+      if(area == 41){
+        current_mem->classes_[mem_index].floats[leftPos % 2000] = getFloatFromPosition(current_mem->pointers_.floats[rightPos % 41000]);
+      }
+      if(area > 50){
+        int right_mem_index = (rightPos - 50000) / 10000;
+        current_mem->classes_[mem_index].floats[leftPos % 2000] = current_mem->classes_[right_mem_index].floats[rightPos % 2000];
+      }
     }
-    if(area == 21){
-      current_mem->variables_.floats[leftPos % 2000] = current_mem->temporals_.floats[rightPos % 21000];
-    }
-    if(area == 41){
-      current_mem->variables_.floats[leftPos % 2000] = getFloatFromPosition(current_mem->pointers_.floats[rightPos % 41000]);
-    }
+
 }
 
 void Processor::setFloatFromValue(int pos, float value){
@@ -624,23 +687,57 @@ std::string Processor::getStringFromPosition(int position){
     if(area == 42){
       return getStringFromPosition(current_mem->pointers_.strings[position % 42000]);
     }
+    if(area > 50){
+      int mem_index = (position - 50000) / 10000;
+      int pos_index = ((position - 50000) % 10000) % 3000;
+      return current_mem->classes_[mem_index].strings[pos_index];
+    }
+    if(area < 0){
+      return current_class_mem->strings[(position + 50000) % 3000];
+    }
     // None: Error
     return "";
 }
 
 void Processor::setStringFromPosition(int leftPos, int rightPos){
     int area = rightPos / 1000;
-    if(area == 3){
-      current_mem->variables_.strings[leftPos % 3000] = current_mem->variables_.strings[rightPos % 3000];
-    }
-    if(area == 12){
-      current_mem->variables_.strings[leftPos % 3000] = constant_memory->strings[rightPos % 12000];
-    }
-    if(area == 22){
-      current_mem->variables_.strings[leftPos % 3000] = current_mem->temporals_.strings[rightPos % 22000];
-    }
-    if(area == 42){
-      current_mem->variables_.strings[leftPos % 3000] = getStringFromPosition(current_mem->pointers_.strings[rightPos % 42000]);
+    if(leftPos < 50000){
+      if(area == 3){
+        current_mem->variables_.strings[leftPos % 3000] = current_mem->variables_.strings[rightPos % 3000];
+      }
+      if(area == 12){
+        current_mem->variables_.strings[leftPos % 3000] = constant_memory->strings[rightPos % 12000];
+      }
+      if(area == 22){
+        current_mem->variables_.strings[leftPos % 3000] = current_mem->temporals_.strings[rightPos % 22000];
+      }
+      if(area == 42){
+        current_mem->variables_.strings[leftPos % 3000] = getStringFromPosition(current_mem->pointers_.strings[rightPos % 42000]);
+      }
+      if(area > 50){
+        int right_mem_index = (rightPos - 50000) / 10000;
+        current_mem->variables_.strings[leftPos % 3000] = current_mem->classes_[right_mem_index].integers[rightPos % 1000];
+      }
+    }else{
+      int mem_index = (leftPos - 50000) / 10000;
+      int left_pos_index = ((leftPos - 50000) % 10000) % 3000;
+      if(area == 3){
+        current_mem->classes_[mem_index].strings[left_pos_index] = current_mem->variables_.strings[rightPos % 3000];
+      }
+      if(area == 12){
+        current_mem->classes_[mem_index].strings[left_pos_index] = constant_memory->strings[rightPos % 12000];
+      }
+      if(area == 22){
+        current_mem->classes_[mem_index].strings[left_pos_index] = current_mem->temporals_.strings[rightPos % 22000];
+      }
+      if(area==42){
+        current_mem->classes_[mem_index].strings[left_pos_index] = getStringFromPosition(current_mem->pointers_.strings[rightPos % 42000]);
+      }
+      if(area > 50){
+        int right_mem_index = (rightPos - 50000) / 10000;
+        int right_pos_index = ((rightPos - 50000) % 10000) % 3000;
+        current_mem->classes_[mem_index].integers[left_pos_index] = current_mem->classes_[right_mem_index].integers[right_pos_index];
+      }
     }
 }
 
@@ -658,23 +755,59 @@ char Processor::getCharFromPosition(int position){
     if(area == 43){
       return getCharFromPosition(current_mem->pointers_.chars[position % 43000]);
     }
+    if(area > 50){
+      int mem_index = (position - 50000) / 10000;
+      int pos_index = ((position - 50000) % 10000) % 4000;
+      return current_mem->classes_[mem_index].chars[pos_index];
+    }
+    if(area < 0){
+      return current_class_mem->chars[(position + 50000) % 4000];
+    }
     // None: Error
     return -1;
 }
 
 void Processor::setCharFromPosition(int leftPos, int rightPos){
     int area = rightPos / 1000;
-    if(area == 4){
-      current_mem->variables_.chars[leftPos % 4000] = current_mem->variables_.chars[rightPos % 4000];
+    if(leftPos < 50000){
+      if(area == 4){
+        current_mem->variables_.chars[leftPos % 4000] = current_mem->variables_.chars[rightPos % 4000];
+      }
+      if(area == 13){
+        current_mem->variables_.chars[leftPos % 4000] = constant_memory->chars[rightPos % 13000];
+      }
+      if(area == 23){
+        current_mem->variables_.chars[leftPos % 4000] = current_mem->temporals_.chars[rightPos % 23000];
+      }
+      if(area == 43){
+        current_mem->variables_.chars[leftPos % 4000] = getCharFromPosition(current_mem->pointers_.chars[rightPos % 43000]);
+      }
+      if(area > 50){
+        int right_mem_index = (rightPos - 50000) / 10000;
+        int right_pos_index = ((rightPos - 50000) % 10000) % 4000;
+        current_mem->variables_.chars[leftPos % 4000] = current_mem->classes_[right_mem_index].chars[right_pos_index];
+      }
     }
-    if(area == 13){
-      current_mem->variables_.chars[leftPos % 4000] = constant_memory->chars[rightPos % 13000];
-    }
-    if(area == 23){
-      current_mem->variables_.chars[leftPos % 4000] = current_mem->temporals_.chars[rightPos % 23000];
-    }
-    if(area == 43){
-      current_mem->variables_.chars[leftPos % 4000] = getCharFromPosition(current_mem->pointers_.chars[rightPos % 43000]);
+    else{
+      int mem_index = (leftPos - 50000) / 10000;
+      int left_pos_index = ((leftPos - 50000) % 10000) % 4000;
+      if(area == 3){
+        current_mem->classes_[mem_index].chars[left_pos_index] = current_mem->variables_.chars[rightPos % 4000];
+      }
+      if(area == 12){
+        current_mem->classes_[mem_index].chars[left_pos_index] = constant_memory->chars[rightPos % 13000];
+      }
+      if(area == 22){
+        current_mem->classes_[mem_index].chars[left_pos_index] = current_mem->temporals_.chars[rightPos % 23000];
+      }
+      if(area==42){
+        current_mem->classes_[mem_index].chars[left_pos_index] = getCharFromPosition(current_mem->pointers_.chars[rightPos % 43000]);
+      }
+      if(area > 50){
+        int right_mem_index = (rightPos - 50000) / 10000;
+        int right_pos_index = ((rightPos - 50000) % 10000) % 3000;
+        current_mem->classes_[mem_index].chars[left_pos_index] = current_mem->classes_[right_mem_index].chars[right_pos_index];
+      }
     }
 }
 
@@ -692,23 +825,59 @@ bool Processor::getBoolFromPosition(int position){
     if(area == 44){
       return getBoolFromPosition(current_mem->pointers_.booleans[position % 44000]);
     }
+    if(area > 50){
+      int mem_index = (position - 50000) / 10000;
+      int pos_index = ((position - 50000) % 10000) % 5000;
+      return current_mem->classes_[mem_index].booleans[pos_index];
+    }
+    if(area < 0){
+      return current_class_mem->booleans[(position + 50000) % 5000];
+    }
     // None: Error
     return -1;
 }
 
 void Processor::setBoolFromPosition(int leftPos, int rightPos){
     int area = rightPos / 1000;
-    if(area == 5){
-      current_mem->variables_.booleans[leftPos % 5000] = current_mem->variables_.booleans[rightPos % 5000];
+    if(leftPos < 50000){
+      if(area == 5){
+        current_mem->variables_.booleans[leftPos % 5000] = current_mem->variables_.booleans[rightPos % 5000];
+      }
+      if(area == 14){
+        current_mem->variables_.booleans[leftPos % 5000] = constant_memory->booleans[rightPos % 14000];
+      }
+      if(area == 24){
+        current_mem->variables_.booleans[leftPos % 5000] = current_mem->temporals_.booleans[rightPos % 24000];
+      }
+      if(area == 44){
+        current_mem->variables_.booleans[leftPos % 5000] = getBoolFromPosition(current_mem->pointers_.booleans[rightPos % 44000]);
+      }
+      if(area > 50){
+        int right_mem_index = (rightPos - 50000) / 10000;
+        int right_pos_index = ((rightPos - 50000) % 10000) % 5000;
+        current_mem->variables_.booleans[leftPos % 5000] = current_mem->classes_[right_mem_index].booleans[right_pos_index];
+      }
     }
-    if(area == 14){
-      current_mem->variables_.booleans[leftPos % 5000] = constant_memory->booleans[rightPos % 14000];
-    }
-    if(area == 24){
-      current_mem->variables_.booleans[leftPos % 5000] = current_mem->temporals_.booleans[rightPos % 24000];
-    }
-    if(area == 44){
-      current_mem->variables_.booleans[leftPos % 5000] = getBoolFromPosition(current_mem->pointers_.booleans[rightPos % 44000]);
+    else{
+      int mem_index = (leftPos - 50000) / 10000;
+      int left_pos_index = ((leftPos - 50000) % 10000) % 5000;
+      if(area == 5){
+        current_mem->classes_[mem_index].booleans[left_pos_index] = current_mem->variables_.booleans[rightPos % 5000];
+      }
+      if(area == 14){
+        current_mem->classes_[mem_index].booleans[left_pos_index] = constant_memory->booleans[rightPos % 14000];
+      }
+      if(area == 24){
+        current_mem->classes_[mem_index].booleans[left_pos_index] = current_mem->temporals_.booleans[rightPos % 24000];
+      }
+      if(area == 44){
+        current_mem->classes_[mem_index].booleans[left_pos_index] = getBoolFromPosition(current_mem->pointers_.booleans[rightPos % 44000]);
+      }
+      if(area > 50){
+        int right_mem_index = (rightPos - 50000) / 10000;
+        int right_pos_index = ((rightPos - 50000) % 10000) % 5000;
+        current_mem->classes_[mem_index].booleans[left_pos_index] = current_mem->classes_[right_mem_index].booleans[right_pos_index];
+      }
     }
 }
 
