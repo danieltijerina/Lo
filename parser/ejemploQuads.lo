@@ -1,17 +1,29 @@
 class Shape {
     int size;
-  int length;
+    int length;
+    int width;
+    string test_string;
+    bool active;
+    float curr_val;
 
   func calc() {
-    int i = 0;
-    for(i; i < 5; i = i + 1){
-      print(i);
+    if(active){
+      print(test_string);
+    }
+    else {
+      length = length * 2;
+      print(length);
     }
   }
 
   func printLength() {
     int i = 0;
     print(length);
+  }
+
+  func printCurrval(){
+    curr_val = curr_val * length;
+    print(curr_val);
   }
 }
 
@@ -26,24 +38,29 @@ class Foo {
 
 func test1() {
   Shape new_s;
-  new_s.size = 10;
+  new_s.length = 10;
+  new_s.active = false;
 
-  print(new_s.size);
+  new_s.calc();
 }
 
 func main(): int {
   Shape s, t;
-  s.length = 10 * 3 * 50;
+  s.length = 10 * 3;
+  s.test_string = "hi";
+  s.active = false;
+  s.width = 5;
+  s.curr_val = 2.5;
+
   t.length = s.length;
-  s.length = 2;
-  s.size = 10;
+  t.test_string = "this is t speaking";
+  t.active = true;
+  t.curr_val = 1.5;
+
   s.calc();
-  print(" ");
+  t.calc();
 
-  Foo x;
-  x.test1 = 100000000;
-  x.printTest();
+  s.printCurrval();
 
-  s.printLength();
-  t.printLength();
+  test1();
 }

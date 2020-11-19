@@ -256,7 +256,7 @@ and variableInClassLookup var_id class_tbl var_count const_tbl oc global_tbl cla
       fprintf oc "%s %s.%s\n" "goSub" class_tbl.name vfunc.func; (* Check initial address *)
       match res.ftipo with
         | VoidTy -> {rtipo=res.ftipo; address=0}
-        | _ -> let addr = get_next_temporal var_count res.ftipo in fprintf oc "retVal %s %d\n" vfunc.func addr; {rtipo=res.ftipo; address=0}
+        | _ -> let addr = get_next_temporal var_count res.ftipo in fprintf oc "retVal %s.%s %d\n" class_tbl.name vfunc.func addr; {rtipo=res.ftipo; address=0}
     with Not_found -> failwith "No function found in class");
   | VarArray varr ->  (try let res = (Hashtbl.find class_tbl.vars varr.name) in {rtipo=res.tipo; address=res.address + 50000 + class_idx * 10000} with Not_found -> failwith "No Variable found in class"); (* Need to implement arrays *)
   | Var2Array v2arr -> (try let res = (Hashtbl.find class_tbl.vars v2arr.name) in {rtipo=res.tipo; address=res.address + 50000 + class_idx * 10000} with Not_found -> failwith "No Variable found in class"); (* Need to implement arrays *)
