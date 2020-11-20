@@ -44,8 +44,10 @@ class Processor {
   void setFloatFromValue(int pos, float value);
   void setStringFromPosition(int leftPos, int rightPos);
   void setStringParamFromPosition(int leftPos, int rightPos);
+  void setStringFromValue(int pos, std::string value);
   void setCharFromPosition(int leftPos, int rightPos);
   void setCharParamFromPosition(int leftPos, int rightPos);
+  void setCharFromValue(int pos, char value);
   void setBoolFromPosition(int leftPos, int rightPos);
   void setBoolParamFromPosition(int leftPos, int rightPos);
   void setBoolFromValue(int pos, bool value);
@@ -361,7 +363,13 @@ class Processor {
       {
         auto fun_def = function_def_ -> find(current_mem->fname_);
         if(fun_def != function_def_ -> end()) {
-          switch (current_quad.first_ / 1000) {
+          int type_int = current_quad.first_ / 1000;
+          if(current_quad.first_ > 50000){
+            type_int = ((current_quad.first_ - 50000) % 10000) / 1000;
+          }else if(current_quad.first_ < 0){
+            type_int = (current_quad.first_ + 50000) / 1000;
+          }
+          switch (type_int) {
             case 1:
             case 10:
             case 20:
@@ -421,22 +429,22 @@ class Processor {
             case 2:
             case 11:
             case 21:
-              fun_def->second.floatRet = getFloatFromPosition(current_quad.first_);
+              setFloatFromValue(current_quad.first_, fun_def->second.floatRet);
               break;
             case 3:
             case 12:
             case 22:
-              fun_def->second.stringRet = getStringFromPosition(current_quad.first_);
+              setStringFromValue(current_quad.first_, fun_def->second.stringRet);
               break;
             case 4:
             case 13:
             case 23:
-              fun_def->second.charRet = getCharFromPosition(current_quad.first_);
+              setCharFromValue(current_quad.first_, fun_def->second.charRet);
               break;
             case 5:
             case 14:
             case 24:
-              fun_def->second.boolRet = getBoolFromPosition(current_quad.first_);
+              setBoolFromValue(current_quad.first_, fun_def->second.boolRet);
               break;
           }
         }
@@ -811,6 +819,16 @@ void Processor::setStringParamFromPosition(int leftPos, int rightPos){
     }
 }
 
+void Processor::setStringFromValue(int pos, std::string value) {
+  int area = pos / 1000;
+    if(area == 3){
+      current_mem->variables_.strings[pos % 3000] = value;
+    }
+    if(area == 22){
+      current_mem->temporals_.strings[pos % 22000] = value;
+    }
+}
+
 char Processor::getCharFromPosition(int position){
     int area = position / 1000;
     if(area == 4){
@@ -894,6 +912,16 @@ void Processor::setCharParamFromPosition(int leftPos, int rightPos){
     }
     if(area == 43){
       next_mem->variables_.chars[leftPos % 4000] = getCharFromPosition(current_mem->pointers_.chars[rightPos % 43000]);
+    }
+}
+
+void Processor::setCharFromValue(int pos, char value){
+    int area = pos / 1000;
+    if(area == 4){
+      current_mem->variables_.chars[pos % 4000] = value;
+    }   
+    if(area == 23){
+      current_mem->temporals_.chars[pos % 23000] = value;
     }
 }
 

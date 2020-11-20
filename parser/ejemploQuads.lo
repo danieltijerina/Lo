@@ -47,6 +47,14 @@ class Person {
   func printName(){
     print(name);
   }
+
+  func getDoubleAge() : int {
+    return age * 2;
+  }
+
+  func getName() : string {
+    return name;
+  }
 }
 
 class Doctor : Person {
@@ -54,6 +62,10 @@ class Doctor : Person {
 
   func printDoctorName(){
     print(doctor_name);
+  }
+  
+  func getDoctorName() : string {
+    return doctor_name;
   }
 }
 
@@ -90,30 +102,58 @@ func printArray(int arr[15]) {
   }
 }
 
+func returnPie() : float {
+  return 3.14;
+}
+
+func returnTrue() : bool {
+  return true;
+}
+
+func returnHi() : string {
+  return "hi";
+}
+
 func main(): int {
   int arr[15], i=0;
   for(i; i<15; i=i+1) {
     arr[i] = 40 - i;
   }
-  printArray(arr);
+
+  print(returnPie());
+  bool t = returnTrue();
+  if(t){
+    print("it is true");
+  }
+
+  print(returnHi());
 
   Person p;
   p.name = "Only a person";
+  p.age = 12;
   p.known_names[0] = "P Name 1";
   p.known_names[1] = "P Name 2";
   p.known_names[2] = "P Name 3";
   p.printName();
   p.printKnownNames();
+  int x = p.getDoubleAge();
+  print(x);
+  print(p.getName());
 
   Doctor d;
   d.name = "Testing Person Name";
   d.doctor_name = "Testing Doc Name";
+  d.age = 35;
   d.known_names[0] = "D Name 1";
   d.known_names[1] = "D Name 2";
   d.known_names[2] = "D Name 3";
   d.printName();
   d.printDoctorName();
   d.printKnownNames();
+  x = d.getDoubleAge();
+  print(x);
+  string s = d.getDoctorName();
+  print(s);
 
   SuperDoctor sp;
   sp.name = "Super Name";
@@ -126,4 +166,6 @@ func main(): int {
   sp.printDoctorName();
   sp.printSuperDoctor();
   sp.printKnownNames();
+  s = sp.getDoctorName();
+  print(s);
 }
