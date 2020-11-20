@@ -61,6 +61,10 @@ class Processor {
     int tmp = pos / 1000;
     return tmp == 2 || tmp == 11 || tmp == 21 || tmp == 41 || (tmp > 50 && tmp % 10 == 2) || (tmp < 0 && (pos + 50000) / 1000 == 2);
   }
+  bool isString(int pos) {
+    int tmp = pos / 1000;
+    return tmp == 3 || tmp == 12 || tmp == 22 || tmp == 42 || (tmp > 50 && tmp % 10 == 3) || (tmp < 0 && (pos + 50000) / 1000 == 4);
+  }
 
   public:
   Processor(std::vector<Quad>* quads, 
@@ -276,18 +280,21 @@ class Processor {
         }
         switch (type_num) {
           case 1:
+          case 40: // int pointers
             int temp_int;
             std::cin >> temp_int;
             setIntFromValue(current_quad.first_, temp_int);
             std::cin.ignore();
             break;
           case 2:
+          case 41: // float pointers
             float temp_float;
             std::cin >> temp_float;
             setFloatFromValue(current_quad.first_, temp_float);
             std::cin.ignore();
             break;
           case 3:
+          case 42: // string pointers
           {
             std::string temp_string; 
             std::getline(std::cin, temp_string);
@@ -295,12 +302,14 @@ class Processor {
             break;
           }
           case 4:
+          case 43: // char pointers
             char temp_char;
             std::cin >> temp_char;
             setCharFromValue(current_quad.first_, temp_char);
             std::cin.ignore();
             break;
           case 5:
+          case 44: // bool pointers
           {
             std::string temp_bool_s;
             std::cin >> temp_bool_s;
@@ -308,21 +317,6 @@ class Processor {
             std::cin.ignore();
             break;
           }
-          case 40:
-            setIntFromPosition(getPointerFromPosition(current_quad.first_), current_quad.second_);
-            break;
-          case 41:
-            setFloatFromPosition(getPointerFromPosition(current_quad.first_), current_quad.second_);
-            break;
-          case 42:
-            setStringFromPosition(getPointerFromPosition(current_quad.first_), current_quad.second_);
-            break;
-          case 43:
-            setCharFromPosition(getPointerFromPosition(current_quad.first_), current_quad.second_);
-            break;
-          case 44:
-            setBoolFromPosition(getPointerFromPosition(current_quad.first_), current_quad.second_);
-            break;
         }
         break;
       }
@@ -534,8 +528,10 @@ class Processor {
           std::cout << getIntFromPosition(current_quad.first_) << std::endl;
         else if(isFloat(current_quad.first_))
           std::cout << getFloatFromPosition(current_quad.first_) << std::endl;
-        else
+        else if(isString(current_quad.first_))
           std::cout << getStringFromPosition(current_quad.first_) << std::endl;
+        else
+          std::cout << getCharFromPosition(current_quad.first_) << std::endl;
         break;
       }
 
@@ -686,6 +682,9 @@ void Processor::setIntFromValue(int pos, int value) {
   if(area == 20){
     current_mem->temporals_.integers[pos % 20000] = value;
   }
+  if(area == 40){
+    setIntFromValue(current_mem->pointers_.integers[pos % 40000], value);
+  }
 }
 
 
@@ -813,6 +812,9 @@ void Processor::setFloatFromValue(int pos, float value){
     if(area == 21){
       current_mem->temporals_.floats[pos % 21000] = value;
     }
+    if(area == 41){
+      setFloatFromValue(current_mem->pointers_.floats[pos % 41000], value);
+    }
 }
 
 std::string Processor::getStringFromPosition(int position){
@@ -915,6 +917,9 @@ void Processor::setStringFromValue(int pos, std::string value) {
   }
   if(area == 22){
     current_mem->temporals_.strings[pos % 22000] = value;
+  }
+  if(area == 42){
+    setStringFromValue(current_mem->pointers_.strings[pos % 42000], value);
   }
 }
 
@@ -1021,6 +1026,9 @@ void Processor::setCharFromValue(int pos, char value){
   if(area == 23){
     current_mem->temporals_.chars[pos % 23000] = value;
   }
+  if(area == 43){
+    setCharFromValue(current_mem->pointers_.chars[pos % 43000], value);
+  }
 }
 
 bool Processor::getBoolFromPosition(int position){
@@ -1125,6 +1133,9 @@ void Processor::setBoolFromValue(int pos, bool value){
   }   
   if(area == 24){
     current_mem->temporals_.booleans[pos % 24000] = value;
+  }
+  if(area == 44){
+    setBoolFromValue(current_mem->pointers_.booleans[pos % 44000], value);
   }
 }
 
