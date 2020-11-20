@@ -12,7 +12,7 @@ open Ast
 %token PLUS MINUS TIMES DIV
 %token LBRACE RBRACE LPAREN RPAREN LBRACK RBRACK
 %token EOL EQ GT GE LT LE NE EE AND OR
-%token PRINT VAR IF ELSE
+%token PRINT VAR IF ELSE READ
 %token MAIN FOR WHILE RETURN IN
 %token FUNC CLASS CONSTRUCTOR
 %token COMMA COLON SEMICOLON POINT
@@ -100,6 +100,7 @@ estatuto:
   | w = whileloop { w } 
   | e = expresion SEMICOLON { Expresion e }
   | r = return { Return r }
+  | l = lectura { l }
 ;
 asignacion:
   var=asignavar EQ exp=expresion SEMICOLON { Asigna {izq=var; der=exp; } }
@@ -116,6 +117,11 @@ av1: POINT v=asignavar { v }
 escritura:
   PRINT LPAREN e1=e1 RPAREN SEMICOLON { Escritura e1 }
 ;
+
+lectura:
+  READ LPAREN id=asignavar RPAREN SEMICOLON { Lectura id }
+;
+
 e1:
   e=expresion COMMA rest=e1 {e :: rest}
   | e=expresion {e :: []}

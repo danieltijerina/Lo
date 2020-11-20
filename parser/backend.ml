@@ -195,6 +195,8 @@ let rec add_func_elems_to_tbl elem tbls var_count cte_tbl ft jmp_count oc=
                               )
   | Return r -> let ret_val = process_expression r tbls var_count cte_tbl oc in assert_equal ft ret_val.rtipo; fprintf oc "return %d\n" ret_val.address; ();
   | Expresion ex -> assert_equal VoidTy (process_expression ex tbls var_count cte_tbl oc).rtipo; ();
+  | Lectura lc -> let var_ = variableLookup lc tbls var_count cte_tbl oc in 
+                  fprintf oc "%s %d\n" "read" var_.address;
 (* Iterate through the function elements to add variables to the tbl *)
 and add_func_elems_to_tbl_rec bloque tbls var_count cte_tbl ft jmp_count oc=
   match bloque with

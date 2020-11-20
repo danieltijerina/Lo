@@ -49,5 +49,6 @@ rule token = parse
   | "while"        { WHILE }
   | "return"       { RETURN }
   | "in"           { IN }
+  | "read"         { READ }
   | ['a'-'z' 'A'-'Z'] ['a'-'z' 'A'-'Z' '0'-'9' '_' '-']* as ident { ID ident }
   | eof            { raise Eof }

@@ -116,6 +116,7 @@ type estatuto =
   | WhileLoop of whileLoopDef
   | Return of exp
   | Expresion of exp
+  | Lectura of var_id
 and asignacion = {
   izq: var_id;
   der: exp;

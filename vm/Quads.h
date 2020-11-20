@@ -30,7 +30,8 @@ namespace Quads {
     mult,
     val,
     classMark,
-    classInit
+    classInit,
+    read
   };
 
   struct Quad {

@@ -113,6 +113,12 @@ namespace Reader {
         break;
       }
 
+      case read:
+      {
+        stream >> current_quad.first_;
+        break;
+      }
+
       default:
         std::string temp1, temp2, temp3;
         stream >> temp1 >> temp2 >> temp3;
@@ -142,6 +148,7 @@ namespace Reader {
       {"endFunc", QuadType::endFunc},
       {"class", QuadType::classMark},
       {"classInit", QuadType::classInit},
+      {"read", QuadType::read},
       {"val", QuadType::val},
       {"=", QuadType::assign},
       {"==", QuadType::equal},
