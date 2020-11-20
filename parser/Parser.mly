@@ -38,8 +38,13 @@ main:
 ;
 
 clase:
-  CLASS id=ID LBRACE cb = class_bloque RBRACE { Clase {name=id; bloque=cb} }
+  CLASS id=ID cparent=clasePadre LBRACE cb = class_bloque RBRACE { Clase {name=id; bloque=cb; parent=cparent; } }
 ;
+
+clasePadre:
+  COLON id=ID { Parent id }
+  | /*  */    { NoParent }
+
 
 class_bloque:
   | f = funcion cb = class_bloque { (Fun f) :: cb}

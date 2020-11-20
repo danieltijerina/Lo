@@ -70,15 +70,13 @@ let get_next_tag var_count =
     tmp.base + tmp.count
 
 (* Match the variable declaration to add it to the table*)
-let add_vars_to_tbl t var class_id tbl var_count cte_tbl class_idx oc =
+let add_vars_to_tbl t var class_id tbl var_count cte_tbl oc =
   match var.id with
   | VDVarID v -> update_count var_count t; 
-                 (* fprintf oc "%s with class_idx = %d\n" v.name class_idx; *)
                  add_element tbl v.name {name=v.name; tipo=t; dimension1=1; dimension2=1; id_class=class_id; address = let tmp = Hashtbl.find var_count t in tmp.base + tmp.count - 1}
   | VDVarArray v -> update_n_count var_count t v.dim;
                     let tmp = Hashtbl.find var_count t in
-                      let cte = (*if class_idx != 0 then (tmp.base + tmp.count - v.dim) + 50000 + (class_idx - 1) * 10000 else*) tmp.base + tmp.count - v.dim in
-                      (* fprintf oc "%s with class_idx = %d and address = %d\n" v.name class_idx cte; *)
+                      let cte = tmp.base + tmp.count - v.dim in
                       find_or_add_int_cte var_count cte_tbl cte;
                       add_element tbl v.name {name=v.name; tipo=t; dimension1=v.dim; dimension2=1; id_class=class_id; address=cte}
   | VDVar2Array v ->  update_n_count var_count t (v.dim1 * v.dim2);
@@ -102,7 +100,7 @@ let rec add_vars_to_func_tbl_rec t vars class_id tbl var_count cte_tbl oc =
   | [] -> ();
   | (f::fs) -> 
       (* let new_var = add_vars_to_tbl t f class_id (match tbl.function_tbl with | FuncTbl f -> f.variables | FNil -> failwith "Not valid") var_count cte_tbl in *)
-      let new_var = add_vars_to_tbl t f class_id (match tbl.function_tbl with | FuncTbl f -> f.variables | FNil -> failwith "Not valid") (match tbl.function_tbl with | FuncTbl f -> f.var_count | FNil -> failwith "Not valid") cte_tbl 0 oc in
+      let new_var = add_vars_to_tbl t f class_id (match tbl.function_tbl with | FuncTbl f -> f.variables | FNil -> failwith "Not valid") (match tbl.function_tbl with | FuncTbl f -> f.var_count | FNil -> failwith "Not valid") cte_tbl oc in
         checkClassInitQuad t class_id new_var.address oc;
         let exp = f.right in
           match exp with
@@ -113,12 +111,12 @@ let rec add_vars_to_func_tbl_rec t vars class_id tbl var_count cte_tbl oc =
           | _ -> add_vars_to_func_tbl_rec t fs class_id tbl var_count cte_tbl oc
 
 (* Expresion validation in class variable declaration is STILL missing *)
-let rec add_vars_to_class_tbl_rec t vars class_id tbl var_count cte_tbl class_var_count oc class_idx = 
+let rec add_vars_to_class_tbl_rec t vars class_id tbl var_count cte_tbl class_var_count oc = 
   match vars with
   | [] -> ();
   | (f::fs) -> 
-      add_vars_to_tbl t f class_id tbl.vars class_var_count cte_tbl class_idx oc;
-      add_vars_to_class_tbl_rec t fs class_id tbl var_count cte_tbl class_var_count oc class_idx
+      add_vars_to_tbl t f class_id tbl.vars class_var_count cte_tbl oc;
+      add_vars_to_class_tbl_rec t fs class_id tbl var_count cte_tbl class_var_count oc
 
 let process_print exp tbl var_count cte_tbl oc=
   let tmp = process_expression exp tbl var_count cte_tbl oc in
@@ -254,7 +252,7 @@ let add_inner_func_to_tbl elem tbl var_count cte_tbl jmp_count mem oc =
   | Clase c -> add_inner_fucs_of_class_rec c.bloque (Hashtbl.find tbl c.name) tbl var_count cte_tbl jmp_count oc mem;;
 
 (* Processing a single element of each class *)
-let add_class_att_to_table_inner elem class_tbl var_count cte_tbl class_var_count mem oc class_idx = 
+let add_class_att_to_table_inner elem class_tbl var_count cte_tbl class_var_count mem oc = 
   match elem, class_tbl with
   | Fun f, ClaseT ctbl -> let fun_var_count = Hashtbl.create 0 in 
                             initialize_count fun_var_count;
@@ -262,30 +260,30 @@ let add_class_att_to_table_inner elem class_tbl var_count cte_tbl class_var_coun
                               add_func class_tbl f.fname {name=f.fname; ftipo=f.tipo; variables=vars_tbl; params=(getVariablesFromParamsRec f.params fun_var_count vars_tbl);}; 
                               Hashtbl.add mem (String.concat "." (ctbl.name :: f.fname :: [])) fun_var_count;
                               [];
-  | CVar cv, ClaseT ctbl -> add_vars_to_class_tbl_rec cv.tipo cv.vars cv.id_class ctbl var_count cte_tbl class_var_count oc class_idx; [];; (*If type is class, validate class type *)
+  | CVar cv, ClaseT ctbl -> add_vars_to_class_tbl_rec cv.tipo cv.vars cv.id_class ctbl var_count cte_tbl class_var_count oc; [];; (*If type is class, validate class type *)
 
 (* Iterating through all the class variables and funcs *)
-let rec add_class_att_to_table bloque class_tbl var_count cte_tbl class_var_count mem oc class_idx = 
+let rec add_class_att_to_table bloque class_tbl var_count cte_tbl class_var_count mem oc = 
   match bloque with 
   | [] -> class_tbl;
   | (f::fs) -> 
-      add_class_att_to_table_inner f class_tbl var_count cte_tbl class_var_count mem oc class_idx; 
-      add_class_att_to_table fs class_tbl var_count cte_tbl class_var_count mem oc class_idx;;
+      add_class_att_to_table_inner f class_tbl var_count cte_tbl class_var_count mem oc; 
+      add_class_att_to_table fs class_tbl var_count cte_tbl class_var_count mem oc;;
 
 (* Processes single element of high order *)
-let add_upper_prog_to_table elem table var_count cte_tbl mem class_mem oc class_idx= 
+let add_upper_prog_to_table elem table var_count cte_tbl mem class_mem oc= 
   match elem with
   | Func f -> add_high_level_element table elem mem class_mem; 0;
   | Clase c -> let class_tbl = add_high_level_element table elem mem class_mem in
-                let class_var_count = Hashtbl.find class_mem c.name in  add_class_att_to_table c.bloque class_tbl var_count cte_tbl class_var_count mem oc (class_idx + 1); 1;;
+                let class_var_count = Hashtbl.find class_mem c.name in  add_class_att_to_table c.bloque class_tbl var_count cte_tbl class_var_count mem oc; 1;;
 
 (* Iterating through all the elemnts in tree *)
-let rec semantic_main tree table var_count cte_tbl jmp_count mem class_mem oc class_idx = 
+let rec semantic_main tree table var_count cte_tbl jmp_count mem class_mem oc = 
   match tree with 
   | Program [] -> table
   | Program (i :: j) ->
-      let class_counter = add_upper_prog_to_table i table var_count cte_tbl mem class_mem oc class_idx in (* Adds high level funcs and classes to main table, including vars and funcs of class *)
-      semantic_main (Program j) table var_count cte_tbl jmp_count mem class_mem oc (class_counter + class_idx); (* Iterate *)
+      add_upper_prog_to_table i table var_count cte_tbl mem class_mem oc; (* Adds high level funcs and classes to main table, including vars and funcs of class *)
+      semantic_main (Program j) table var_count cte_tbl jmp_count mem class_mem oc; (* Iterate *)
       add_inner_func_to_tbl i table var_count cte_tbl jmp_count mem oc; (* Process functions of classes or funcs *)
       table;;
 
@@ -305,7 +303,7 @@ let semantic_start tree oc =
             let class_mem = Hashtbl.create 0 in 
               initialize_count var_count;
               initialize_jmp jmp_count;
-              semantic_main tree main_table var_count cte_table jmp_count mem class_mem oc 0;
+              semantic_main tree main_table var_count cte_table jmp_count mem class_mem oc;
               fprintf oc "\n$$\n";
               Hashtbl.iter (print_class_counts oc) class_mem;
               fprintf oc "\n$$$\n";

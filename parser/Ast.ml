@@ -152,9 +152,14 @@ type clase_bloque =
   | Fun of funcionDef
   | CVar of variableDef
 
+type claseParent = 
+  | NoParent
+  | Parent of string
+
 type claseDef = {
   name : string;
-  bloque : clase_bloque list
+  bloque : clase_bloque list;
+  parent: claseParent;
 }
 
 type high_level = 
