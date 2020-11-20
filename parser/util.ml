@@ -5,6 +5,8 @@ type quadInfo =
   {
     rtipo: type_def;
     address: int;
+    dim1: int;
+    dim2: int;
   }
 
 type funcInfo =

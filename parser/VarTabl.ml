@@ -84,11 +84,10 @@ let rec getVariablesFromParamsRec params fun_var_count vars_tbl=
 and getVariablesFromParams param fun_var_count vars_tbl=
   let new_addr = Hashtbl.find fun_var_count param.ptipo in 
     let addr_int = new_addr.base + new_addr.count in 
-      update_count fun_var_count param.ptipo;
       let variable_ = begin match param.param_id with
-      | VDVarID vid -> ({name=vid.name; tipo=param.ptipo; dimension1=1; dimension2=1; id_class=""; address=addr_int;};)
-      | VDVarArray vid -> ({name=vid.name; tipo=param.ptipo; dimension1=vid.dim; dimension2=1; id_class=""; address=addr_int;};)
-      | VDVar2Array vid -> ({name=vid.name; tipo=param.ptipo; dimension1=vid.dim1; dimension2=vid.dim2; id_class=""; address=addr_int;};)
+      | VDVarID vid -> (update_count fun_var_count param.ptipo; {name=vid.name; tipo=param.ptipo; dimension1=1; dimension2=1; id_class=""; address=addr_int;};)
+      | VDVarArray vid -> (update_n_count fun_var_count param.ptipo vid.dim; {name=vid.name; tipo=param.ptipo; dimension1=vid.dim; dimension2=1; id_class=""; address=addr_int;};)
+      | VDVar2Array vid -> (update_n_count fun_var_count param.ptipo (vid.dim1 * vid.dim2); {name=vid.name; tipo=param.ptipo; dimension1=vid.dim1; dimension2=vid.dim2; id_class=""; address=addr_int;};)
       end in 
       Hashtbl.add vars_tbl variable_.name variable_;
       variable_;;

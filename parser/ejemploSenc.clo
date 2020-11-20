@@ -1,91 +1,126 @@
 ftag main
-classInit Bar 30000
-classInit Bar 30001
-= 1000 10002 -1
+= 1015 10004 -1
 tag 0
-< 1000 10003 24000
+< 1015 10005 24000
 gotoF 24000 1
-- 10004 1000 20000
-class 30000
-val 1000 15 -1
-+ 10000 10005 20001
-+ 20001 1000 40000
+- 10006 1015 20000
+val 1015 15 -1
++ 10003 1015 40000
 = 40000 20000 -1
-+ 1000 10006 20002
-= 1000 20002 -1
++ 1015 10007 20001
+= 1015 20001 -1
 goto 0
 tag 1
+era printArray
+param 1000 1000 15
+goSub printArray
+classInit Bar 30000
 class 30000
-era Bar.printList
-goSub Bar.printList
-class 30001
-era Bar.initList
-goSub Bar.initList
-class 30001
-era Bar.printList
-goSub Bar.printList
-classInit Person 30002
-class 30002
-= 73000 12000 -1
-class 30002
-= 71000 10007 -1
-class 30002
-val 10002 10 -1
-+ 10001 10008 20003
-+ 20003 10002 41000
-= 41000 11000 -1
-class 30002
-val 10006 10 -1
-+ 10001 10008 20004
-+ 20004 10006 41001
-= 41001 11001 -1
-class 30002
-era Person.printAccounts
-goSub Person.printAccounts
+val 10004 15 -1
++ 10000 10009 20002
++ 20002 10004 40001
+= 40001 10008 -1
+class 30000
+val 10004 10 -1
++ 10001 10009 20003
++ 20003 10004 40002
+= 40002 10010 -1
+class 30000
+val 10004 10 -1
++ 10001 10009 20004
++ 20004 10004 40003
+print 40003 -1 -1
+class 30000
+val 10004 15 -1
++ 10000 10009 20005
++ 20005 10004 40004
+print 40004 -1 -1
 endFunc -1 -1 -1
-ftag Person.printAccounts
-= 1000 10002 -1
+ftag printArray
+= 1015 10004 -1
 tag 2
-< 1000 10009 24000
+< 1015 10005 24000
 gotoF 24000 3
-val 1000 10 -1
-+ 10010 1000 41000
-print 41000 -1 -1
-+ 1000 10006 20000
-= 1000 20000 -1
+val 1015 15 -1
++ 10003 1015 40000
+print 40000 -1 -1
++ 1015 10007 20000
+= 1015 20000 -1
 goto 2
 tag 3
 endFunc -1 -1 -1
-ftag Bar.initList
-= 1000 10002 -1
+ftag foobar
+gotoF 5000 4
+print 12000 -1 -1
+goto 5
 tag 4
-< 1000 10003 24001
-gotoF 24001 5
-val 1000 15 -1
-+ 10011 1000 40000
-= 40000 1000 -1
-+ 1000 10006 20001
-= 1000 20001 -1
-goto 4
+print 12001 -1 -1
 tag 5
 endFunc -1 -1 -1
-ftag Bar.printList
-= 1000 10002 -1
-tag 6
-< 1000 10003 24002
-gotoF 24002 7
-val 1000 15 -1
-+ 10011 1000 40001
+ftag addTwo
++ 2000 10011 21000
+return 21000
+endFunc -1 -1 -1
+ftag test
+= 1010 10012 -1
+val 10004 5 -1
++ 10013 10004 40000
+print 40000 -1 -1
+val 10007 5 -1
++ 10003 10007 40001
 print 40001 -1 -1
-+ 1000 10006 20002
-= 1000 20002 -1
+endFunc -1 -1 -1
+ftag Person.printAccounts
+= 1000 10004 -1
+tag 6
+< 1000 10014 24000
+gotoF 24000 7
+val 1000 10 -1
++ 10015 1000 41000
+print 41000 -1 -1
++ 1000 10007 20000
+= 1000 20000 -1
 goto 6
 tag 7
+endFunc -1 -1 -1
+ftag Bar.initList
+= 1001 10004 -1
+tag 8
+< 1001 10005 24001
+gotoF 24001 9
+val 1001 15 -1
++ 10016 1001 40000
+= 40000 1000 -1
++ 1001 10007 20001
+= 1001 20001 -1
+goto 8
+tag 9
+endFunc -1 -1 -1
+ftag Bar.initFooBar
+val 10004 2 -1
++ 10003 10004 40001
+= -49000 40001 -1
+val 10007 2 -1
++ 10003 10007 40002
+= -48974 40002 -1
+endFunc -1 -1 -1
+ftag Bar.printList
+= 1000 10004 -1
+tag 10
+< 1000 10005 24002
+gotoF 24002 11
+val 1000 15 -1
++ 10016 1000 40003
+print 40003 -1 -1
++ 1000 10007 20002
+= 1000 20002 -1
+goto 10
+tag 11
 endFunc -1 -1 -1
 
 $$
 Bar
-IntTy 17
+IntTy 27
 FloatTy 0
 CharTy 0
 StringTy 0
@@ -98,25 +133,8 @@ StringTy 1
 BoolTy 0
 
 $$$
-main
-IntTy 1
-FloatTy 0
-CharTy 0
-StringTy 0
-BoolTy 0
-ClassTy 3
-IntTmp 5
-FloatTmp 0
-CharTmp 0
-StringTmp 0
-BoolTmp 1
-IntPtr 1
-FloatPtr 2
-CharPtr 0
-StringPtr 0
-BoolPtr 0
-Bar.initList
-IntTy 1
+Bar.initFooBar
+IntTy 2
 FloatTy 0
 CharTy 0
 StringTy 0
@@ -128,6 +146,91 @@ CharTmp 0
 StringTmp 0
 BoolTmp 0
 IntPtr 0
+FloatPtr 0
+CharPtr 0
+StringPtr 0
+BoolPtr 0
+main
+IntTy 16
+FloatTy 0
+CharTy 0
+StringTy 0
+BoolTy 0
+ClassTy 1
+IntTmp 6
+FloatTmp 0
+CharTmp 0
+StringTmp 0
+BoolTmp 1
+IntPtr 5
+FloatPtr 0
+CharPtr 0
+StringPtr 0
+BoolPtr 0
+test
+IntTy 11
+FloatTy 0
+CharTy 0
+StringTy 0
+BoolTy 0
+ClassTy 0
+IntTmp 0
+FloatTmp 0
+CharTmp 0
+StringTmp 0
+BoolTmp 0
+IntPtr 2
+FloatPtr 0
+CharPtr 0
+StringPtr 0
+BoolPtr 0
+Bar.initList
+IntTy 2
+FloatTy 0
+CharTy 0
+StringTy 0
+BoolTy 0
+ClassTy 0
+IntTmp 0
+FloatTmp 0
+CharTmp 0
+StringTmp 0
+BoolTmp 0
+IntPtr 0
+FloatPtr 0
+CharPtr 0
+StringPtr 0
+BoolPtr 0
+addTwo
+IntTy 0
+FloatTy 1
+CharTy 0
+StringTy 0
+BoolTy 0
+ClassTy 0
+IntTmp 0
+FloatTmp 1
+CharTmp 0
+StringTmp 0
+BoolTmp 0
+IntPtr 0
+FloatPtr 0
+CharPtr 0
+StringPtr 0
+BoolPtr 0
+printArray
+IntTy 16
+FloatTy 0
+CharTy 0
+StringTy 0
+BoolTy 0
+ClassTy 0
+IntTmp 1
+FloatTmp 0
+CharTmp 0
+StringTmp 0
+BoolTmp 1
+IntPtr 1
 FloatPtr 0
 CharPtr 0
 StringPtr 0
@@ -166,25 +269,46 @@ FloatPtr 0
 CharPtr 0
 StringPtr 0
 BoolPtr 0
+foobar
+IntTy 0
+FloatTy 0
+CharTy 0
+StringTy 0
+BoolTy 1
+ClassTy 0
+IntTmp 0
+FloatTmp 0
+CharTmp 0
+StringTmp 0
+BoolTmp 0
+IntPtr 0
+FloatPtr 0
+CharPtr 0
+StringPtr 0
+BoolPtr 0
 
 $$$$ 
-ints 12
-10002 0
-10009 10
-10011 -48999
-10005 50000
+ints 17
+10011 2
+10004 0
+10014 10
+10013 1005
+10010 987
+10008 123
+10003 1000
+10016 -48999
+10006 40
+10001 1016
+10009 50000
 10000 1001
-10001 2000
-10007 23
-10006 1
-10008 70000
-10003 15
-10010 -48000
-10004 14
-float 2
-11001 99.990000
-11000 123.500000
-string 1
-12000 "Daniel"
+10002 2000
+10007 1
+10012 12
+10005 15
+10015 -48000
+float 0
+string 2
+12000 "true"
+12001 "false"
 chars 0
 bools 0

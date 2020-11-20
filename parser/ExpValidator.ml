@@ -79,15 +79,15 @@ let rec process_var_expression exp tbls var_count cte_tbl oc =
 and process_const_expression exp var_count cte_tbl oc = 
   match exp with 
   | Int e -> let addr = (find_or_add_int_cte var_count cte_tbl e) in 
-                { rtipo=IntTy; address=addr; }
+                { rtipo=IntTy; address=addr; dim1=1; dim2=1;}
   | Float e -> let addr = (find_or_add_float_cte var_count cte_tbl e) in 
-                  { rtipo=FloatTy; address=addr;}
+                  { rtipo=FloatTy; address=addr; dim1=1; dim2=1;}
   | Bool e -> let addr = (find_or_add_bool_cte var_count cte_tbl e) in 
-                {rtipo=BoolTy; address=addr; }
+                {rtipo=BoolTy; address=addr; dim1=1; dim2=1; }
   | String e -> let addr = (find_or_add_string_cte var_count cte_tbl e) in 
-                  {rtipo=StringTy; address=addr;}
+                  {rtipo=StringTy; address=addr; dim1=1; dim2=1;}
   | Char e -> let addr = (find_or_add_char_cte var_count cte_tbl e) in 
-                  {rtipo=CharTy; address=addr;}
+                  {rtipo=CharTy; address=addr; dim1=1; dim2=1;}
 
 and process_factor_expression exp tbls var_count cte_tbl oc =
   match exp with
@@ -102,13 +102,13 @@ and process_term_expression exp tbls var_count cte_tbl oc =
                   let t = times_type_check left_.rtipo right_.rtipo in 
                     let nxt_temp = get_next_temporal var_count t in
                       fprintf oc "%s %d %d %d\n" "*" left_.address right_.address nxt_temp; 
-                      {rtipo=t; address=nxt_temp};
+                      {rtipo=t; address=nxt_temp; dim1=1; dim2=1;};
   | Div e -> let left_ = (process_factor_expression e.left tbls var_count cte_tbl oc) in 
               let right_ = (process_term_expression e.right tbls var_count cte_tbl oc) in
                 let t = div_type_check left_.rtipo right_.rtipo in 
                   let nxt_temp = get_next_temporal var_count t in
                     fprintf oc "%s %d %d %d\n" "/" left_.address right_.address nxt_temp;
-                    {rtipo=t; address=nxt_temp};
+                    {rtipo=t; address=nxt_temp; dim1=1; dim2=1;};
   | Factor e -> process_factor_expression e tbls var_count cte_tbl oc;
 
 and process_pm_expression exp tbls var_count cte_tbl oc = 
@@ -118,13 +118,13 @@ and process_pm_expression exp tbls var_count cte_tbl oc =
                   let t = sum_type_check left_.rtipo right_.rtipo in 
                     let nxt_temp = get_next_temporal var_count t in
                       fprintf oc "%s %d %d %d\n" "+" left_.address right_.address nxt_temp;
-                      {rtipo=t; address=nxt_temp};   
+                      {rtipo=t; address=nxt_temp; dim1=1; dim2=1;};   
   | Mnius e -> let left_ = (process_term_expression e.left tbls var_count cte_tbl oc) in 
                 let right_ = (process_pm_expression e.right tbls var_count cte_tbl oc) in 
                   let t = sub_type_check left_.rtipo right_.rtipo in 
                     let nxt_temp = get_next_temporal var_count t in
                       fprintf oc "%s %d %d %d\n" "-" left_.address right_.address nxt_temp;
-                      {rtipo=t; address=nxt_temp};
+                      {rtipo=t; address=nxt_temp; dim1=1; dim2=1;};
   | Termino e -> process_term_expression e tbls var_count cte_tbl oc
 
 and process_logic_expression exp tbls var_count cte_tbl oc = 
@@ -134,37 +134,37 @@ and process_logic_expression exp tbls var_count cte_tbl oc =
                       let t = relational_type_check left_.rtipo right_.rtipo in
                         let nxt_temp = get_next_temporal var_count t in
                           fprintf oc "%s %d %d %d\n" ">" left_.address right_.address nxt_temp;
-                          {rtipo=t; address=nxt_temp};
+                          {rtipo=t; address=nxt_temp; dim1=1; dim2=1;};
   | LessT e -> let left_ = (process_pm_expression e.left tbls var_count cte_tbl oc) in 
                 let right_ = (process_pm_expression e.right tbls var_count cte_tbl oc) in 
                   let t = relational_type_check left_.rtipo right_.rtipo in
                     let nxt_temp = get_next_temporal var_count t in
                       fprintf oc "%s %d %d %d\n" "<" left_.address right_.address nxt_temp;
-                      {rtipo=t; address=nxt_temp};
+                      {rtipo=t; address=nxt_temp; dim1=1; dim2=1;};
   | GreaterE e -> let left_ = (process_pm_expression e.left tbls var_count cte_tbl oc) in 
                     let right_ = (process_pm_expression e.right tbls var_count cte_tbl oc) in 
                       let t = relational_type_check left_.rtipo right_.rtipo in 
                         let nxt_temp = get_next_temporal var_count t in
                           fprintf oc "%s %d %d %d\n" ">=" left_.address right_.address nxt_temp;
-                          {rtipo=t; address=nxt_temp};
+                          {rtipo=t; address=nxt_temp; dim1=1; dim2=1;};
   | LessE e -> let left_ = (process_pm_expression e.left tbls var_count cte_tbl oc) in 
                 let right_ = (process_pm_expression e.right tbls var_count cte_tbl oc) in 
                   let t = relational_type_check left_.rtipo right_.rtipo in 
                     let nxt_temp = get_next_temporal var_count t in
                       fprintf oc "%s %d %d %d\n" "<=" left_.address right_.address nxt_temp;
-                      {rtipo=t; address=nxt_temp};
+                      {rtipo=t; address=nxt_temp; dim1=1; dim2=1;};
   | Equal e -> let left_ = (process_pm_expression e.left tbls var_count cte_tbl oc) in 
                 let right_ = (process_pm_expression e.right tbls var_count cte_tbl oc) in 
                   let t = relational_type_check left_.rtipo right_.rtipo in
                     let nxt_temp = get_next_temporal var_count t in
                       fprintf oc "%s %d %d %d\n" "==" left_.address right_.address nxt_temp;
-                      {rtipo=t; address=nxt_temp};
+                      {rtipo=t; address=nxt_temp; dim1=1; dim2=1;};
   | NotEqual e -> let left_ = (process_pm_expression e.left tbls var_count cte_tbl oc) in 
                     let right_ = (process_pm_expression e.right tbls var_count cte_tbl oc) in 
                       let t = relational_type_check left_.rtipo right_.rtipo in
                         let nxt_temp = get_next_temporal var_count t in
                           fprintf oc "%s %d %d %d\n" "!=" left_.address right_.address nxt_temp;
-                          {rtipo=t; address=nxt_temp};
+                          {rtipo=t; address=nxt_temp; dim1=1; dim2=1;};
   | OExp e -> process_pm_expression e tbls var_count cte_tbl oc
 
 and process_and_expression exp tbls var_count cte_tbl oc = 
@@ -174,7 +174,7 @@ and process_and_expression exp tbls var_count cte_tbl oc =
                     let t = logical_type_check left_.rtipo right_.rtipo in
                       let nxt_temp = get_next_temporal var_count t in
                         fprintf oc "%s %d %d %d\n" "&&" left_.address right_.address nxt_temp;
-                        {rtipo=t; address=nxt_temp};
+                        {rtipo=t; address=nxt_temp; dim1=1; dim2=1;};
   | AExp e -> process_logic_expression e tbls var_count cte_tbl oc
 
 and process_or_expression exp tbls var_count cte_tbl oc =
@@ -184,7 +184,7 @@ and process_or_expression exp tbls var_count cte_tbl oc =
                     let t = logical_type_check left_.rtipo right_.rtipo in
                       let nxt_temp = get_next_temporal var_count t in
                         fprintf oc "%s %d %d %d\n" "||" left_.address right_.address nxt_temp;
-                        {rtipo=t; address=nxt_temp};
+                        {rtipo=t; address=nxt_temp; dim1=1; dim2=1;};
   | Exp e -> process_and_expression e tbls var_count cte_tbl oc
 
 and checkFuncParamsRec fparams vfparams current_tbls var_count const_tbl oc count= 
@@ -197,7 +197,8 @@ and checkFuncParamsRec fparams vfparams current_tbls var_count const_tbl oc coun
 and checkFuncParams fparam vfparam current_tbls var_count const_tbl oc count= 
   let ex = (process_or_expression vfparam current_tbls var_count const_tbl oc) in
     assert_equal ex.rtipo fparam.tipo;
-    fprintf oc "%s %d %d %d\n" "param" ex.address fparam.address (-1);
+    if fparam.dimension1 != ex.dim1 || fparam.dimension2 != ex.dim2 then fprintf oc "ERROR PARAMS %d %d %d %d\n" fparam.dimension1 ex.dim1 fparam.dimension2 ex.dim2; (*failwith "Parameter dimensions do not correspond";*)
+    fprintf oc "%s %d %d %d\n" "param" ex.address fparam.address (ex.dim1 * ex.dim2)
 
 and variableLookupVarID var current_tbls= 
   match current_tbls.function_tbl with 
@@ -221,16 +222,16 @@ and functionLookup f current_tbls var_count const_tbl oc=
           checkFuncParamsRec fres.params vf.params current_tbls var_count const_tbl oc 1;
           fprintf oc "%s %s\n" "goSub" vf.func; (* Check initial address *)
           match fres.ftipo with
-            | VoidTy -> {rtipo=fres.ftipo; address=0}
-            | _ -> let addr = get_next_temporal var_count fres.ftipo in fprintf oc "retVal %s %d\n" vf.func addr; {rtipo=fres.ftipo; address=0}
+            | VoidTy -> {rtipo=fres.ftipo; address=0; dim1=1; dim2=1;}
+            | _ -> let addr = get_next_temporal var_count fres.ftipo in fprintf oc "retVal %s %d\n" vf.func addr; {rtipo=fres.ftipo; address=0; dim1=1; dim2=1;}
         with Not_found -> (
               try let tbl = (Hashtbl.find current_tbls.global_tbl vf.func) in match tbl  with 
                                     | FuncT funct -> fprintf oc "era %s\n" vf.func;
                                       checkFuncParamsRec funct.params vf.params current_tbls var_count const_tbl oc 1;
                                       fprintf oc "%s %s\n" "goSub" vf.func; (* Check initial address *)
                                       match funct.ftipo with
-                                        | VoidTy -> {rtipo=funct.ftipo; address=0}
-                                        | _ -> let addr = get_next_temporal var_count funct.ftipo in fprintf oc "retVal %s %d\n" vf.func addr; {rtipo=funct.ftipo; address=addr}
+                                        | VoidTy -> {rtipo=funct.ftipo; address=0; dim1=1; dim2=1;}
+                                        | _ -> let addr = get_next_temporal var_count funct.ftipo in fprintf oc "retVal %s %d\n" vf.func addr; {rtipo=funct.ftipo; address=addr; dim1=1; dim2=1;}
                                     | _ -> failwith "No function found"
               with Not_found -> failwith "No function found"
             ))
@@ -241,22 +242,22 @@ and functionLookup f current_tbls var_count const_tbl oc=
               checkFuncParamsRec funct.params vf.params current_tbls var_count const_tbl oc 1;
               fprintf oc "%s %s\n" "goSub" vf.func ; (* Check initial address *) 
               match funct.ftipo with
-                | VoidTy -> {rtipo=funct.ftipo; address=0}
-                | _ -> let addr = get_next_temporal var_count funct.ftipo in fprintf oc "retVal %s %d\n" vf.func addr; {rtipo=funct.ftipo; address=addr}
+                | VoidTy -> {rtipo=funct.ftipo; address=0; dim1=1; dim2=1;}
+                | _ -> let addr = get_next_temporal var_count funct.ftipo in fprintf oc "retVal %s %d\n" vf.func addr; {rtipo=funct.ftipo; address=addr; dim1=1; dim2=1;}
             | _ -> failwith "No function found"
         with Not_found -> failwith "No function found") )
 
 and variableInClassLookup var_id class_tbl var_count const_tbl oc current_tbls global_tbl class_idx=
   match var_id with
-  | VarID v -> (try let res = (Hashtbl.find class_tbl.vars v.name) in {rtipo=res.tipo; address=res.address + 50000 + class_idx * 10000 } with Not_found -> failwith "No Variable found in class");
+  | VarID v -> (try let res = (Hashtbl.find class_tbl.vars v.name) in {rtipo=res.tipo; address=res.address + 50000 + class_idx * 10000; dim1=res.dimension1; dim2=res.dimension2; } with Not_found -> failwith "No Variable found in class");
   | VarFuncCall vfunc -> (
     try let res = (Hashtbl.find class_tbl.funcs vfunc.func) in 
       fprintf oc "era %s.%s\n" class_tbl.name vfunc.func;
       checkFuncParamsRec res.params vfunc.params {function_tbl=FNil; class_tbl=ClassTbl class_tbl; global_tbl=global_tbl} var_count const_tbl oc 1;
       fprintf oc "%s %s.%s\n" "goSub" class_tbl.name vfunc.func; (* Check initial address *)
       match res.ftipo with
-        | VoidTy -> {rtipo=res.ftipo; address=0}
-        | _ -> let addr = get_next_temporal var_count res.ftipo in fprintf oc "retVal %s.%s %d\n" class_tbl.name vfunc.func addr; {rtipo=res.ftipo; address=0}
+        | VoidTy -> {rtipo=res.ftipo; address=0; dim1=1; dim2=1;}
+        | _ -> let addr = get_next_temporal var_count res.ftipo in fprintf oc "retVal %s.%s %d\n" class_tbl.name vfunc.func addr; {rtipo=res.ftipo; address=0; dim1=1; dim2=1;}
     with Not_found -> failwith "No function found in class");
   (* | VarArray varr ->  (try let res = (Hashtbl.find class_tbl.vars varr.name) in {rtipo=res.tipo; address=res.address + 50000 + class_idx * 10000} with Not_found -> failwith "No Variable found in class"); Need to implement arrays *)
   | VarArray varr ->  let index = process_pm_expression varr.expresion current_tbls var_count const_tbl oc in
@@ -267,9 +268,9 @@ and variableInClassLookup var_id class_tbl var_count const_tbl oc current_tbls g
                               fprintf oc "val %d %d -1\n" index.address base.dimension1;
                               fprintf oc "+ %d %d %d\n" (find_or_add_int_cte var_count const_tbl base.address) (find_or_add_int_cte var_count const_tbl (50000 + class_idx * 10000)) next_tmp;
                               fprintf oc "+ %d %d %d\n" next_tmp index.address next_ptr;
-                              {rtipo=base.tipo; address=next_ptr}
+                              {rtipo=base.tipo; address=next_ptr; dim1=1; dim2=1;}
                         (* with Not_found -> failwith "No variable found in class" *)
-  | Var2Array v2arr -> (try let res = (Hashtbl.find class_tbl.vars v2arr.name) in {rtipo=res.tipo; address=res.address + 50000 + class_idx * 10000} with Not_found -> failwith "No Variable found in class"); (* Need to implement arrays *)
+  | Var2Array v2arr -> (try let res = (Hashtbl.find class_tbl.vars v2arr.name) in {rtipo=res.tipo; address=res.address + 50000 + class_idx * 10000; dim1=1; dim2=1;} with Not_found -> failwith "No Variable found in class"); (* Need to implement arrays *)
   | VarPoint vpoint -> failwith "class in class not supported yet"; (* Need to do class in class *)
 
 and pointVarLookup vp current_tbls var_count const_tbl oc = 
@@ -288,7 +289,7 @@ and pointVarLookup vp current_tbls var_count const_tbl oc =
 
 and variableLookup var_id current_tbls var_count const_tbl oc= 
   match var_id with
-  | VarID v -> let res = (variableLookupVarID v.name current_tbls) in {rtipo=res.tipo; address=res.address};
+  | VarID v -> let res = (variableLookupVarID v.name current_tbls) in {rtipo=res.tipo; address=res.address; dim1=res.dimension1; dim2=res.dimension2;};
   | VarFuncCall vfunc -> (functionLookup (VarFuncCall vfunc) current_tbls var_count const_tbl oc);
   | VarArray varr -> let index = process_pm_expression varr.expresion current_tbls var_count const_tbl oc in
                         if index.rtipo != IntTy then failwith "Array index must be int";
@@ -296,7 +297,7 @@ and variableLookup var_id current_tbls var_count const_tbl oc=
                           let next_ptr = get_next_pointer var_count base.tipo in
                             fprintf oc "val %d %d -1\n" index.address base.dimension1;
                             fprintf oc "+ %d %d %d\n" (find_or_add_int_cte var_count const_tbl base.address) index.address next_ptr;
-                            {rtipo=base.tipo; address=next_ptr}
+                            {rtipo=base.tipo; address=next_ptr; dim1=1; dim2=1;}
   | Var2Array v2arr ->  let index1 = process_pm_expression v2arr.expresion1 current_tbls var_count const_tbl oc in
                           if index1.rtipo != IntTy then failwith "Matrix first index must be int";
                           let index2 = process_pm_expression v2arr.expresion2 current_tbls var_count const_tbl oc in
@@ -309,6 +310,6 @@ and variableLookup var_id current_tbls var_count const_tbl oc=
                                 let next_tmp = get_next_temporal var_count IntTy in
                                   fprintf oc "* %d %d %d\n" index2.address (find_or_add_int_cte var_count const_tbl base.dimension1) next_tmp;
                                   fprintf oc "+ %d %d %d\n" next_tmp next_ptr next_ptr;
-                                  {rtipo=base.tipo; address=next_ptr}
+                                  {rtipo=base.tipo; address=next_ptr; dim1=base.dimension1; dim2=base.dimension2;}
 
   | VarPoint vpoint -> (pointVarLookup (VarPoint vpoint) current_tbls var_count const_tbl oc);;

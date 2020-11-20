@@ -1,13 +1,19 @@
 class Bar {
   int foo;
   int list[15];
+  int arr[10];
   int bar;
 
-  func initList() {
+  func initList(int n) {
     int i = 0;
     for(i; i<15; i=i+1) {
-      list[i] = i;
+      list[i] = n;
     }
+  }
+
+  func initFooBar(int arr[2]) {
+    foo = arr[0];
+    bar = arr[1];
   }
 
   func printList() {
@@ -31,22 +37,35 @@ class Person {
   }
 }
 
-func main(): int {
-  Bar x, y;
-  
-  int i = 0;
-  for(i; i<15; i=i+1) {
-    x.list[i] = 14 - i;
-  }
-  x.printList();
+func test(int arr[5], int a[5]) {
+  int x = 12;
+  print(arr[0]);
+  print(a[1]);
+}
 
-  y.initList();
-  y.printList();
-  
-  Person dan;
-  dan.name = "Daniel";
-  dan.age = 23;
-  dan.bank_accounts[0] = 123.50;
-  dan.bank_accounts[1] = 99.99;
-  dan.printAccounts();
+func addTwo(float n): float {
+  return n + 2;
+}
+
+func foobar(bool n) {
+  if(n) {
+    print("true");
+  } else {
+    print("false");
+  }
+}
+
+func printArray(int arr[15]) {
+  int i=0;
+  for(i; i<15; i=i+1) {
+    print(arr[i]);
+  }
+}
+
+func main(): int {
+  int arr[15], i=0;
+  for(i; i<15; i=i+1) {
+    arr[i] = 40 - i;
+  }
+  printArray(arr);
 }
