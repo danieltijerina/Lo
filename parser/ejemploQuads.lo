@@ -1,66 +1,52 @@
-class Shape {
-    int size;
-    int length;
-    int width;
-    string test_string;
-    bool active;
-    float curr_val;
+class Bar {
+  int foo;
+  int list[15];
+  int bar;
 
-  func calc() {
-    if(active){
-      print(test_string);
-    }
-    else {
-      length = length * 2;
-      print(length);
-    }
-  }
-
-  func printLength() {
+  func initList() {
     int i = 0;
-    print(length);
+    for(i; i<15; i=i+1) {
+      list[i] = i;
+    }
   }
 
-  func printCurrval(){
-    curr_val = curr_val * length;
-    print(curr_val);
-  }
-}
-
-class Foo {
-  int test1;
-  int length;
-
-  func printTest() {
-    print(test1);
+  func printList() {
+    int i = 0;
+    for(i; i<15; i=i+1) {
+      print(list[i]);
+    }
   }
 }
 
-func test1() {
-  Shape new_s;
-  new_s.length = 10;
-  new_s.active = false;
+class Person {
+  string name;
+  int age;
+  float bank_accounts[10];
 
-  new_s.calc();
+  func printAccounts() {
+    int i = 0;
+    for(i; i<10; i=i+1) {
+      print(bank_accounts[i]);
+    }
+  }
 }
 
 func main(): int {
-  Shape s, t;
-  s.length = 10 * 3;
-  s.test_string = "hi";
-  s.active = false;
-  s.width = 5;
-  s.curr_val = 2.5;
+  Bar x, y;
+  
+  int i = 0;
+  for(i; i<15; i=i+1) {
+    x.list[i] = 14 - i;
+  }
+  x.printList();
 
-  t.length = s.length;
-  t.test_string = "this is t speaking";
-  t.active = true;
-  t.curr_val = 1.5;
-
-  s.calc();
-  t.calc();
-
-  s.printCurrval();
-
-  test1();
+  y.initList();
+  y.printList();
+  
+  Person dan;
+  dan.name = "Daniel";
+  dan.age = 23;
+  dan.bank_accounts[0] = 123.50;
+  dan.bank_accounts[1] = 99.99;
+  dan.printAccounts();
 }

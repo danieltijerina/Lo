@@ -19,7 +19,7 @@ let find_or_add_int_cte var_count cte_tbl e =
   try 
     Hashtbl.find cte_tbl.integer e
   with Not_found -> 
-    Hashtbl.add cte_tbl.integer e (let tmp = Hashtbl.find var_count IntCte in tmp.base + Hashtbl.length cte_tbl.integer); update_count var_count IntCte; Hashtbl.find cte_tbl.integer e
+    Hashtbl.add cte_tbl.integer e (let tmp = try Hashtbl.find var_count IntCte with Not_found -> failwith "hola" in tmp.base + Hashtbl.length cte_tbl.integer); update_count var_count IntCte; Hashtbl.find cte_tbl.integer e
 
 let find_or_add_float_cte var_count cte_tbl e = 
   try 
@@ -246,7 +246,7 @@ and functionLookup f current_tbls var_count const_tbl oc=
             | _ -> failwith "No function found"
         with Not_found -> failwith "No function found") )
 
-and variableInClassLookup var_id class_tbl var_count const_tbl oc global_tbl class_idx=
+and variableInClassLookup var_id class_tbl var_count const_tbl oc current_tbls global_tbl class_idx=
   match var_id with
   | VarID v -> (try let res = (Hashtbl.find class_tbl.vars v.name) in {rtipo=res.tipo; address=res.address + 50000 + class_idx * 10000 } with Not_found -> failwith "No Variable found in class");
   | VarFuncCall vfunc -> (
@@ -258,7 +258,17 @@ and variableInClassLookup var_id class_tbl var_count const_tbl oc global_tbl cla
         | VoidTy -> {rtipo=res.ftipo; address=0}
         | _ -> let addr = get_next_temporal var_count res.ftipo in fprintf oc "retVal %s.%s %d\n" class_tbl.name vfunc.func addr; {rtipo=res.ftipo; address=0}
     with Not_found -> failwith "No function found in class");
-  | VarArray varr ->  (try let res = (Hashtbl.find class_tbl.vars varr.name) in {rtipo=res.tipo; address=res.address + 50000 + class_idx * 10000} with Not_found -> failwith "No Variable found in class"); (* Need to implement arrays *)
+  (* | VarArray varr ->  (try let res = (Hashtbl.find class_tbl.vars varr.name) in {rtipo=res.tipo; address=res.address + 50000 + class_idx * 10000} with Not_found -> failwith "No Variable found in class"); Need to implement arrays *)
+  | VarArray varr ->  let index = process_pm_expression varr.expresion current_tbls var_count const_tbl oc in
+                        if index.rtipo != IntTy then failwith "Array index must be int";
+                        (* try *)let base = (Hashtbl.find class_tbl.vars varr.name) in
+                          let next_ptr = get_next_pointer var_count base.tipo in
+                            let next_tmp = get_next_temporal var_count IntTy in
+                              fprintf oc "val %d %d -1\n" index.address base.dimension1;
+                              fprintf oc "+ %d %d %d\n" (find_or_add_int_cte var_count const_tbl base.address) (find_or_add_int_cte var_count const_tbl (50000 + class_idx * 10000)) next_tmp;
+                              fprintf oc "+ %d %d %d\n" next_tmp index.address next_ptr;
+                              {rtipo=base.tipo; address=next_ptr}
+                        (* with Not_found -> failwith "No variable found in class" *)
   | Var2Array v2arr -> (try let res = (Hashtbl.find class_tbl.vars v2arr.name) in {rtipo=res.tipo; address=res.address + 50000 + class_idx * 10000} with Not_found -> failwith "No Variable found in class"); (* Need to implement arrays *)
   | VarPoint vpoint -> failwith "class in class not supported yet"; (* Need to do class in class *)
 
@@ -270,7 +280,7 @@ and pointVarLookup vp current_tbls var_count const_tbl oc =
                         | ClassTy -> (
                             try let tbl = (Hashtbl.find current_tbls.global_tbl v.id_class) in
                               ( match tbl with 
-                              | ClaseT ct -> variableInClassLookup vpoint.inner ct var_count const_tbl oc current_tbls.global_tbl (v.address - 30000);
+                              | ClaseT ct -> variableInClassLookup vpoint.inner ct var_count const_tbl oc current_tbls current_tbls.global_tbl (v.address - 30000);
                               | _ -> failwith "element not part of class" )
                             with Not_found -> failwith "element not found");
                         | _ -> failwith "variable is not a class");

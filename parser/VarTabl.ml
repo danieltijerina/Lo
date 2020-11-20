@@ -56,7 +56,12 @@ let initialize_count_class tbl =
   Hashtbl.add tbl FloatTy {count=0; base=2000};
   Hashtbl.add tbl StringTy {count=0; base=3000};
   Hashtbl.add tbl CharTy {count=0; base=4000};
-  Hashtbl.add tbl BoolTy {count=0; base=5000};;
+  Hashtbl.add tbl BoolTy {count=0; base=5000};
+  Hashtbl.add tbl IntCte {count=0; base=10000};
+  Hashtbl.add tbl FloatCte {count=0; base=11000};
+  Hashtbl.add tbl StringCte {count=0; base=12000};
+  Hashtbl.add tbl CharCte {count=0; base=13000};
+  Hashtbl.add tbl BoolCte {count=0; base=14000};;
 
 let update_count tbl key = 
   Hashtbl.replace tbl key {count=(Hashtbl.find tbl key).count + 1; base=(Hashtbl.find tbl key).base};;
