@@ -1,124 +1,218 @@
 ftag main
-= 1015 10004 -1
+= 1015 10005 -1
 tag 0
-< 1015 10005 24000
+< 1015 10006 24000
 gotoF 24000 1
-- 10006 1015 20000
+- 10007 1015 20000
 val 1015 15 -1
-+ 10003 1015 40000
++ 10004 1015 40000
 = 40000 20000 -1
-+ 1015 10007 20001
++ 1015 10008 20001
 = 1015 20001 -1
 goto 0
 tag 1
 era printArray
 param 1000 1000 15
 goSub printArray
-classInit Bar 30000
+classInit Person 30000
 class 30000
-val 10004 15 -1
-+ 10000 10009 20002
-+ 20002 10004 40001
-= 40001 10008 -1
+= 53000 12000 -1
 class 30000
-val 10004 10 -1
-+ 10001 10009 20003
-+ 20003 10004 40002
-= 40002 10010 -1
+val 10005 3 -1
++ 10003 10009 20002
++ 20002 10005 42000
+= 42000 12001 -1
 class 30000
-val 10004 10 -1
-+ 10001 10009 20004
-+ 20004 10004 40003
-print 40003 -1 -1
+val 10008 3 -1
++ 10003 10009 20003
++ 20003 10008 42001
+= 42001 12002 -1
 class 30000
-val 10004 15 -1
-+ 10000 10009 20005
-+ 20005 10004 40004
-print 40004 -1 -1
+val 10010 3 -1
++ 10003 10009 20004
++ 20004 10010 42002
+= 42002 12003 -1
+class 30000
+era Person.printName
+goSub Person.printName
+class 30000
+era Person.printKnownNames
+goSub Person.printKnownNames
+classInit Doctor 30001
+class 30001
+= 63000 12004 -1
+class 30001
+= 63004 12005 -1
+class 30001
+val 10005 3 -1
++ 10003 10011 20005
++ 20005 10005 42003
+= 42003 12006 -1
+class 30001
+val 10008 3 -1
++ 10003 10011 20006
++ 20006 10008 42004
+= 42004 12007 -1
+class 30001
+val 10010 3 -1
++ 10003 10011 20007
++ 20007 10010 42005
+= 42005 12008 -1
+class 30001
+era Person.printName
+goSub Person.printName
+class 30001
+era Doctor.printDoctorName
+goSub Doctor.printDoctorName
+class 30001
+era Person.printKnownNames
+goSub Person.printKnownNames
+classInit SuperDoctor 30002
+class 30002
+= 73000 12009 -1
+class 30002
+= 73004 12010 -1
+class 30002
+= 73005 12011 -1
+class 30002
+val 10005 3 -1
++ 10003 10012 20008
++ 20008 10005 42006
+= 42006 12012 -1
+class 30002
+val 10008 3 -1
++ 10003 10012 20009
++ 20009 10008 42007
+= 42007 12013 -1
+class 30002
+val 10010 3 -1
++ 10003 10012 20010
++ 20010 10010 42008
+= 42008 12014 -1
+class 30002
+era Person.printName
+goSub Person.printName
+class 30002
+era Doctor.printDoctorName
+goSub Doctor.printDoctorName
+class 30002
+era SuperDoctor.printSuperDoctor
+goSub SuperDoctor.printSuperDoctor
+class 30002
+era Person.printKnownNames
+goSub Person.printKnownNames
 endFunc -1 -1 -1
 ftag printArray
-= 1015 10004 -1
+= 1015 10005 -1
 tag 2
-< 1015 10005 24000
+< 1015 10006 24000
 gotoF 24000 3
 val 1015 15 -1
-+ 10003 1015 40000
++ 10004 1015 40000
 print 40000 -1 -1
-+ 1015 10007 20000
++ 1015 10008 20000
 = 1015 20000 -1
 goto 2
 tag 3
 endFunc -1 -1 -1
 ftag foobar
 gotoF 5000 4
-print 12000 -1 -1
+print 12015 -1 -1
 goto 5
 tag 4
-print 12001 -1 -1
+print 12016 -1 -1
 tag 5
 endFunc -1 -1 -1
 ftag addTwo
-+ 2000 10011 21000
++ 2000 10010 21000
 return 21000
 endFunc -1 -1 -1
 ftag test
-= 1010 10012 -1
-val 10004 5 -1
-+ 10013 10004 40000
+= 1010 10013 -1
+val 10005 5 -1
++ 10014 10005 40000
 print 40000 -1 -1
-val 10007 5 -1
-+ 10003 10007 40001
+val 10008 5 -1
++ 10004 10008 40001
 print 40001 -1 -1
 endFunc -1 -1 -1
+ftag SuperDoctor.printSuperDoctor
+print -46995 -1 -1
+endFunc -1 -1 -1
+ftag Doctor.printDoctorName
+print -46996 -1 -1
+endFunc -1 -1 -1
 ftag Person.printAccounts
-= 1000 10004 -1
+= 1000 10005 -1
 tag 6
-< 1000 10014 24000
+< 1000 10015 24000
 gotoF 24000 7
 val 1000 10 -1
-+ 10015 1000 41000
++ 10016 1000 41000
 print 41000 -1 -1
-+ 1000 10007 20000
++ 1000 10008 20000
 = 1000 20000 -1
 goto 6
 tag 7
 endFunc -1 -1 -1
-ftag Bar.initList
-= 1001 10004 -1
+ftag Person.printKnownNames
+= 1000 10005 -1
 tag 8
-< 1001 10005 24001
+< 1000 10017 24001
 gotoF 24001 9
-val 1001 15 -1
-+ 10016 1001 40000
-= 40000 1000 -1
-+ 1001 10007 20001
-= 1001 20001 -1
+val 1000 3 -1
++ 10018 1000 42000
+print 42000 -1 -1
++ 1000 10008 20001
+= 1000 20001 -1
 goto 8
 tag 9
 endFunc -1 -1 -1
-ftag Bar.initFooBar
-val 10004 2 -1
-+ 10003 10004 40001
-= -49000 40001 -1
-val 10007 2 -1
-+ 10003 10007 40002
-= -48974 40002 -1
+ftag Person.printName
+print -47000 -1 -1
 endFunc -1 -1 -1
-ftag Bar.printList
-= 1000 10004 -1
+ftag Bar.initList
+= 1001 10005 -1
 tag 10
-< 1000 10005 24002
+< 1001 10006 24002
 gotoF 24002 11
-val 1000 15 -1
-+ 10016 1000 40003
-print 40003 -1 -1
-+ 1000 10007 20002
-= 1000 20002 -1
+val 1001 15 -1
++ 10019 1001 40000
+= 40000 1000 -1
++ 1001 10008 20002
+= 1001 20002 -1
 goto 10
 tag 11
 endFunc -1 -1 -1
+ftag Bar.initFooBar
+val 10005 2 -1
++ 10004 10005 40001
+= -49000 40001 -1
+val 10008 2 -1
++ 10004 10008 40002
+= -48974 40002 -1
+endFunc -1 -1 -1
+ftag Bar.printList
+= 1000 10005 -1
+tag 12
+< 1000 10006 24003
+gotoF 24003 13
+val 1000 15 -1
++ 10019 1000 40003
+print 40003 -1 -1
++ 1000 10008 20003
+= 1000 20003 -1
+goto 12
+tag 13
+endFunc -1 -1 -1
 
 $$
+SuperDoctor
+IntTy 1
+FloatTy 10
+CharTy 0
+StringTy 6
+BoolTy 0
 Bar
 IntTy 27
 FloatTy 0
@@ -129,10 +223,33 @@ Person
 IntTy 1
 FloatTy 10
 CharTy 0
-StringTy 1
+StringTy 4
+BoolTy 0
+Doctor
+IntTy 1
+FloatTy 10
+CharTy 0
+StringTy 5
 BoolTy 0
 
 $$$
+Person.printName
+IntTy 0
+FloatTy 0
+CharTy 0
+StringTy 0
+BoolTy 0
+ClassTy 0
+IntTmp 0
+FloatTmp 0
+CharTmp 0
+StringTmp 0
+BoolTmp 0
+IntPtr 0
+FloatPtr 0
+CharPtr 0
+StringPtr 0
+BoolPtr 0
 Bar.initFooBar
 IntTy 2
 FloatTy 0
@@ -156,16 +273,16 @@ FloatTy 0
 CharTy 0
 StringTy 0
 BoolTy 0
-ClassTy 1
-IntTmp 6
+ClassTy 3
+IntTmp 11
 FloatTmp 0
 CharTmp 0
 StringTmp 0
 BoolTmp 1
-IntPtr 5
+IntPtr 1
 FloatPtr 0
 CharPtr 0
-StringPtr 0
+StringPtr 9
 BoolPtr 0
 test
 IntTy 11
@@ -235,6 +352,23 @@ FloatPtr 0
 CharPtr 0
 StringPtr 0
 BoolPtr 0
+Person.printKnownNames
+IntTy 1
+FloatTy 0
+CharTy 0
+StringTy 0
+BoolTy 0
+ClassTy 0
+IntTmp 0
+FloatTmp 0
+CharTmp 0
+StringTmp 0
+BoolTmp 0
+IntPtr 0
+FloatPtr 0
+CharPtr 0
+StringPtr 0
+BoolPtr 0
 Bar.printList
 IntTy 1
 FloatTy 0
@@ -252,8 +386,42 @@ FloatPtr 0
 CharPtr 0
 StringPtr 0
 BoolPtr 0
+Doctor.printDoctorName
+IntTy 0
+FloatTy 0
+CharTy 0
+StringTy 0
+BoolTy 0
+ClassTy 0
+IntTmp 0
+FloatTmp 0
+CharTmp 0
+StringTmp 0
+BoolTmp 0
+IntPtr 0
+FloatPtr 0
+CharPtr 0
+StringPtr 0
+BoolPtr 0
 Person.printAccounts
 IntTy 1
+FloatTy 0
+CharTy 0
+StringTy 0
+BoolTy 0
+ClassTy 0
+IntTmp 0
+FloatTmp 0
+CharTmp 0
+StringTmp 0
+BoolTmp 0
+IntPtr 0
+FloatPtr 0
+CharPtr 0
+StringPtr 0
+BoolPtr 0
+SuperDoctor.printSuperDoctor
+IntTy 0
 FloatTy 0
 CharTy 0
 StringTy 0
@@ -288,27 +456,45 @@ StringPtr 0
 BoolPtr 0
 
 $$$$ 
-ints 17
-10011 2
-10004 0
-10014 10
-10013 1005
-10010 987
-10008 123
-10003 1000
-10016 -48999
-10006 40
+ints 20
+10010 2
+10018 -46999
+10005 0
+10015 10
+10014 1005
+10004 1000
+10019 -48999
+10007 40
+10003 3001
 10001 1016
 10009 50000
 10000 1001
 10002 2000
-10007 1
-10012 12
-10005 15
-10015 -48000
+10017 3
+10011 60000
+10008 1
+10012 70000
+10013 12
+10006 15
+10016 -48000
 float 0
-string 2
-12000 "true"
-12001 "false"
+string 17
+12001 "P Name 1"
+12015 "true"
+12011 "Super Super doc name"
+12008 "D Name 3"
+12004 "Testing Person Name"
+12010 "Super Doc Name"
+12003 "P Name 3"
+12014 "SP Name 3"
+12006 "D Name 1"
+12005 "Testing Doc Name"
+12002 "P Name 2"
+12007 "D Name 2"
+12000 "Only a person"
+12012 "SP Name 1"
+12016 "false"
+12009 "Super Name"
+12013 "SP Name 2"
 chars 0
 bools 0

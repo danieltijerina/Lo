@@ -28,12 +28,40 @@ class Person {
   string name;
   int age;
   float bank_accounts[10];
+  string known_names[3];
 
   func printAccounts() {
     int i = 0;
     for(i; i<10; i=i+1) {
       print(bank_accounts[i]);
     }
+  }
+
+  func printKnownNames(){
+    int i = 0;
+    for(i; i < 3; i = i+1){
+      print(known_names[i]);
+    }
+  }
+
+  func printName(){
+    print(name);
+  }
+}
+
+class Doctor : Person {
+  string doctor_name;
+
+  func printDoctorName(){
+    print(doctor_name);
+  }
+}
+
+class SuperDoctor : Doctor {
+  string super_doctor_name;
+
+  func printSuperDoctor(){
+    print(super_doctor_name);
   }
 }
 
@@ -68,4 +96,34 @@ func main(): int {
     arr[i] = 40 - i;
   }
   printArray(arr);
+
+  Person p;
+  p.name = "Only a person";
+  p.known_names[0] = "P Name 1";
+  p.known_names[1] = "P Name 2";
+  p.known_names[2] = "P Name 3";
+  p.printName();
+  p.printKnownNames();
+
+  Doctor d;
+  d.name = "Testing Person Name";
+  d.doctor_name = "Testing Doc Name";
+  d.known_names[0] = "D Name 1";
+  d.known_names[1] = "D Name 2";
+  d.known_names[2] = "D Name 3";
+  d.printName();
+  d.printDoctorName();
+  d.printKnownNames();
+
+  SuperDoctor sp;
+  sp.name = "Super Name";
+  sp.doctor_name = "Super Doc Name";
+  sp.super_doctor_name = "Super Super doc name";
+  sp.known_names[0] = "SP Name 1";
+  sp.known_names[1] = "SP Name 2";
+  sp.known_names[2] = "SP Name 3";
+  sp.printName();
+  sp.printDoctorName();
+  sp.printSuperDoctor();
+  sp.printKnownNames();
 }

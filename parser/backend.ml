@@ -257,7 +257,7 @@ let add_class_att_to_table_inner elem class_tbl var_count cte_tbl class_var_coun
   | Fun f, ClaseT ctbl -> let fun_var_count = Hashtbl.create 0 in 
                             initialize_count fun_var_count;
                             let vars_tbl = Hashtbl.create 0 in 
-                              add_func class_tbl f.fname {name=f.fname; ftipo=f.tipo; variables=vars_tbl; params=(getVariablesFromParamsRec f.params fun_var_count vars_tbl);}; 
+                              add_func class_tbl f.fname {name=f.fname; ftipo=f.tipo; variables=vars_tbl; params=(getVariablesFromParamsRec f.params fun_var_count vars_tbl); classInit=ctbl.name;}; 
                               Hashtbl.add mem (String.concat "." (ctbl.name :: f.fname :: [])) fun_var_count;
                               [];
   | CVar cv, ClaseT ctbl -> add_vars_to_class_tbl_rec cv.tipo cv.vars cv.id_class ctbl var_count cte_tbl class_var_count oc; [];; (*If type is class, validate class type *)

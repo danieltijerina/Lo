@@ -252,9 +252,9 @@ and variableInClassLookup var_id class_tbl var_count const_tbl oc current_tbls g
   | VarID v -> (try let res = (Hashtbl.find class_tbl.vars v.name) in {rtipo=res.tipo; address=res.address + 50000 + class_idx * 10000; dim1=res.dimension1; dim2=res.dimension2; } with Not_found -> failwith "No Variable found in class");
   | VarFuncCall vfunc -> (
     try let res = (Hashtbl.find class_tbl.funcs vfunc.func) in 
-      fprintf oc "era %s.%s\n" class_tbl.name vfunc.func;
+      fprintf oc "era %s.%s\n" res.classInit vfunc.func;
       checkFuncParamsRec res.params vfunc.params {function_tbl=FNil; class_tbl=ClassTbl class_tbl; global_tbl=global_tbl} var_count const_tbl oc 1;
-      fprintf oc "%s %s.%s\n" "goSub" class_tbl.name vfunc.func; (* Check initial address *)
+      fprintf oc "%s %s.%s\n" "goSub" res.classInit vfunc.func; (* Check initial address *)
       match res.ftipo with
         | VoidTy -> {rtipo=res.ftipo; address=0; dim1=1; dim2=1;}
         | _ -> let addr = get_next_temporal var_count res.ftipo in fprintf oc "retVal %s.%s %d\n" class_tbl.name vfunc.func addr; {rtipo=res.ftipo; address=0; dim1=1; dim2=1;}

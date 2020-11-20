@@ -83,7 +83,7 @@ and fact =
   | FExp of tExp
 and var_id = 
   | VarID of {name: string}
-  | VarFuncCall of {func: string; params: exp list }
+  | VarFuncCall of {func: string; params: exp list; }
   | VarArray of {name: string; expresion: tExp}
   | Var2Array of {name: string; expresion1: tExp; expresion2: tExp}
   | VarPoint of {name: string; inner: var_id}

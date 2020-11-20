@@ -14,6 +14,7 @@ type funcion_tbl = {
   ftipo : type_def;
   variables: (string, variable) Hashtbl.t;
   params: variable list;
+  classInit: string;
 }
 
 type clase_tbl = {
@@ -104,18 +105,52 @@ and addParamsToVartblRec params table =
 and addParamsToVartbl param table =
   Hashtbl.add table param.name param;;
 
+let copy_class_var_count to_count from_count_name class_mem = 
+  let from_count = Hashtbl.find class_mem from_count_name in 
+    Hashtbl.replace to_count IntTy {count=(Hashtbl.find from_count IntTy).count; base=(Hashtbl.find from_count IntTy).base};
+    Hashtbl.replace to_count FloatTy {count=(Hashtbl.find from_count FloatTy).count; base=(Hashtbl.find from_count FloatTy).base};
+    Hashtbl.replace to_count StringTy {count=(Hashtbl.find from_count StringTy).count; base=(Hashtbl.find from_count StringTy).base};
+    Hashtbl.replace to_count CharTy {count=(Hashtbl.find from_count CharTy).count; base=(Hashtbl.find from_count CharTy).base};
+    Hashtbl.replace to_count BoolTy {count=(Hashtbl.find from_count BoolTy).count; base=(Hashtbl.find from_count BoolTy).base};;
+
+let rec copy_class_var_tbl_rec to_var_tbl from_var_tbl = 
+  Hashtbl.iter (copy_class_var_tbl to_var_tbl) from_var_tbl;
+and copy_class_var_tbl to_var_tbl k content =
+  Hashtbl.add to_var_tbl k content;;
+
+let rec copy_class_func_tbl_rec to_func_tbl from_func_tbl = 
+  Hashtbl.iter (copy_class_func_tbl to_func_tbl) from_func_tbl;
+and copy_class_func_tbl to_func_tbl k content = 
+  Hashtbl.add to_func_tbl k content;;
+
+let checkClassParent clase main_tbl var_count var_tbl func_tbl class_mem = 
+  match clase.parent with 
+  | NoParent -> ();
+  | Parent p -> try 
+                let cParent = Hashtbl.find main_tbl p in 
+                match cParent with 
+                | FuncT f -> failwith "Parent is a function";
+                | ClaseT c -> copy_class_var_count var_count c.name class_mem;
+                              copy_class_var_tbl_rec var_tbl c.vars;
+                              copy_class_func_tbl_rec func_tbl c.funcs;
+                              ();
+                with Not_found -> failwith "Clase padre no existe";;
+
 let add_high_level_element tbl value mem class_mem =
   match value with
   | Func f -> let fun_var_count = Hashtbl.create 0 in 
                 initialize_count fun_var_count;
                 let vars_tbl = Hashtbl.create 0 in 
-                let new_element = add_element tbl f.fname (FuncT {name=f.fname; ftipo=f.tipo; variables=vars_tbl; params=(getVariablesFromParamsRec f.params fun_var_count vars_tbl);}) in
+                let new_element = add_element tbl f.fname (FuncT {name=f.fname; ftipo=f.tipo; variables=vars_tbl; params=(getVariablesFromParamsRec f.params fun_var_count vars_tbl); classInit=""}) in
                 Hashtbl.add mem f.fname fun_var_count;
                 new_element
   (* | Func f -> add_element tbl f.fname (FuncT {name=f.fname; ftipo=f.tipo; variables=Hashtbl.create 0; params=(getVariablesFromParamsRec f.params);}) *)
   | Clase c -> let class_var_count = Hashtbl.create 0 in
                 initialize_count_class class_var_count;
-                let new_class = add_element tbl c.name (ClaseT {name=c.name; funcs=Hashtbl.create 0; vars=Hashtbl.create 0}) in
+                let vars_tbl = Hashtbl.create 0 in 
+                let funcs_tbl = Hashtbl.create 0 in 
+                checkClassParent c tbl class_var_count vars_tbl funcs_tbl class_mem;
+                let new_class = add_element tbl c.name (ClaseT {name=c.name; funcs=funcs_tbl; vars=vars_tbl}) in
                 Hashtbl.add class_mem c.name class_var_count;
                 new_class;;
 
