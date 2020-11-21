@@ -97,14 +97,14 @@ and process_factor_expression exp tbls var_count cte_tbl oc =
 
 and process_term_expression exp tbls var_count cte_tbl oc = 
   match exp with
-  | Times e -> let left_ = (process_factor_expression e.left tbls var_count cte_tbl oc) in
-                let right_ = (process_term_expression e.right tbls var_count cte_tbl oc) in
+  | Times e -> let left_ = (process_term_expression e.left tbls var_count cte_tbl oc) in
+                let right_ = (process_factor_expression e.right tbls var_count cte_tbl oc) in
                   let t = times_type_check left_.rtipo right_.rtipo in 
                     let nxt_temp = get_next_temporal var_count t in
                       fprintf oc "%s %d %d %d\n" "*" left_.address right_.address nxt_temp; 
                       {rtipo=t; address=nxt_temp; dim1=1; dim2=1;};
-  | Div e -> let left_ = (process_factor_expression e.left tbls var_count cte_tbl oc) in 
-              let right_ = (process_term_expression e.right tbls var_count cte_tbl oc) in
+  | Div e -> let left_ = (process_term_expression e.left tbls var_count cte_tbl oc) in 
+              let right_ = (process_factor_expression e.right tbls var_count cte_tbl oc) in
                 let t = div_type_check left_.rtipo right_.rtipo in 
                   let nxt_temp = get_next_temporal var_count t in
                     fprintf oc "%s %d %d %d\n" "/" left_.address right_.address nxt_temp;
@@ -113,14 +113,14 @@ and process_term_expression exp tbls var_count cte_tbl oc =
 
 and process_pm_expression exp tbls var_count cte_tbl oc = 
   match exp with
-  | Plus e -> let left_ = (process_term_expression e.left tbls var_count cte_tbl oc) in 
-                let right_ = (process_pm_expression e.right tbls var_count cte_tbl oc) in 
+  | Plus e -> let left_ = (process_pm_expression e.left tbls var_count cte_tbl oc) in 
+                let right_ = (process_term_expression e.right tbls var_count cte_tbl oc) in 
                   let t = sum_type_check left_.rtipo right_.rtipo in 
                     let nxt_temp = get_next_temporal var_count t in
                       fprintf oc "%s %d %d %d\n" "+" left_.address right_.address nxt_temp;
                       {rtipo=t; address=nxt_temp; dim1=1; dim2=1;};   
-  | Mnius e -> let left_ = (process_term_expression e.left tbls var_count cte_tbl oc) in 
-                let right_ = (process_pm_expression e.right tbls var_count cte_tbl oc) in 
+  | Mnius e -> let left_ = (process_pm_expression e.left tbls var_count cte_tbl oc) in 
+                let right_ = (process_term_expression e.right tbls var_count cte_tbl oc) in 
                   let t = sub_type_check left_.rtipo right_.rtipo in 
                     let nxt_temp = get_next_temporal var_count t in
                       fprintf oc "%s %d %d %d\n" "-" left_.address right_.address nxt_temp;
@@ -169,8 +169,8 @@ and process_logic_expression exp tbls var_count cte_tbl oc =
 
 and process_and_expression exp tbls var_count cte_tbl oc = 
   match exp with
-  | AndExp e -> let left_ = (process_logic_expression e.left tbls var_count cte_tbl oc) in 
-                  let right_ = (process_and_expression e.right tbls var_count cte_tbl oc) in 
+  | AndExp e -> let left_ = (process_or_expression e.left tbls var_count cte_tbl oc) in 
+                  let right_ = (process_or_expression e.right tbls var_count cte_tbl oc) in 
                     let t = logical_type_check left_.rtipo right_.rtipo in
                       let nxt_temp = get_next_temporal var_count t in
                         fprintf oc "%s %d %d %d\n" "&&" left_.address right_.address nxt_temp;

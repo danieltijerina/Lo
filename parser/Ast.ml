@@ -59,7 +59,7 @@ type exp =
   | OrExp of { left: aExp; right: exp}
   | Exp of aExp
 and aExp =
-  | AndExp of { left: oExp; right: aExp}
+  | AndExp of { left: exp; right: exp}
   | AExp of oExp
 and oExp =
   | GreaterT of { left: tExp; right: tExp } 
@@ -70,12 +70,12 @@ and oExp =
   | NotEqual of { left: tExp; right: tExp } 
   | OExp of tExp
 and tExp = 
-  | Plus of {left: term; right: tExp}
-  | Mnius of {left: term; right: tExp}
+  | Plus of {right: term; left: tExp}
+  | Mnius of {right: term; left: tExp}
   | Termino of term
 and term = 
-  | Times of {left: fact; right: term}
-  | Div of {left: fact; right: term}
+  | Times of {right: fact; left: term}
+  | Div of {right: fact; left: term}
   | Factor of fact
 and fact = 
   | Const of const

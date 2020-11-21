@@ -136,6 +136,7 @@ e1:
 ;
 expresion:
   e=e_exp { Exp e }
+  | LPAREN e=expresion RPAREN {e}
   | e1=e_exp OR e2=expresion { OrExp {left=e1; right=e2} }
 ;
 condicion:
@@ -147,7 +148,8 @@ c1:
 ;
 e_exp:
   e=c_exp {AExp e}
-  | e1=c_exp AND e2=e_exp {AndExp {left=e1; right=e2}}
+  | LPAREN e=e_exp RPAREN {e}
+  | e1=expresion AND e2=expresion {AndExp {left=e1; right=e2}}
 ;
 c_exp:
   e=exp { OExp e }
@@ -160,13 +162,13 @@ c_exp:
 ;
 exp:
   t=termino { Termino t }
-  | t=termino PLUS e=exp { Plus {left=t; right=e} }
-  | t=termino MINUS e=exp { Mnius {left=t; right=e} }
+  | e=exp PLUS t=termino  { Plus {left=e; right=t} }
+  | e=exp MINUS t=termino { Mnius {left=e; right=t} }
 ;
 termino:
   f=factor { Factor f }
-  | f=factor TIMES t=termino { Times {left=f; right=t} }
-  | f=factor DIV t=termino { Div {left=f; right=t} }
+  | t=termino TIMES f=factor { Times {left=t; right=f} }
+  | t=termino DIV f=factor   { Div {left=t; right=f} }
 ;
 factor:
   c = varcte {Const c}
