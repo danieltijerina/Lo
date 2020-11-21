@@ -31,7 +31,8 @@ namespace Quads {
     val,
     classMark,
     classInit,
-    read
+    read,
+    noRet
   };
 
   struct Quad {

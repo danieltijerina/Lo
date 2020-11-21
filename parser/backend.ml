@@ -275,10 +275,8 @@ let add_inner_func_to_tbl elem tbl var_count cte_tbl jmp_count mem oc =
                 fprintf oc "ftag %s\n" f.fname;
                 add_func_elems_to_tbl_rec f.fbloque { function_tbl=FuncTbl({variables=getFunctionTbl f.fname tbl; var_count=fun_var_count}); class_tbl=Nil; global_tbl=tbl} fun_var_count cte_tbl f.tipo f.dim1 f.dim2 jmp_count oc;
                 (* add_func_elems_to_tbl_rec f.fbloque { function_tbl=FuncTbl(getFunctionTbl f.fname tbl); class_tbl=Nil; global_tbl=tbl} var_count cte_tbl f.tipo oc; *)
+                if f.tipo != VoidTy then fprintf oc "noReturn %s\n" f.fname;
                 fprintf oc "%s\n" "endFunc -1 -1 -1";
-                (* fprintf oc "AHI TE VAN LOS DE LA FUNCION %s \n\n" f.fname; *)
-                (* print_counts fun_var_count oc; *)
-                (* fprintf oc "\nESOS FUERON TODOS LOS DE LA FUNCION \n\n"; *)
   | Clase c -> add_inner_fucs_of_class_rec c.bloque (Hashtbl.find tbl c.name) tbl var_count cte_tbl jmp_count oc mem;;
 
 (* Processing a single element of each class *)

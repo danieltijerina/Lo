@@ -95,6 +95,12 @@ namespace Reader {
         break;
       }
 
+      case noRet:
+      {
+        stream >> current_quad.name_;
+        break;
+      }
+
       case retVal:
       {
         stream >> current_quad.name_ >> current_quad.first_ >> current_quad.second_;
@@ -137,6 +143,7 @@ namespace Reader {
     std::unordered_map<string, QuadType> quad_type_ref({
       {"goSub", QuadType::goSub},
       {"return", QuadType::ret},
+      {"noReturn", QuadType::noRet},
       {"retVal", QuadType::retVal},
       {"ftag", QuadType::ftag},
       {"tag", QuadType::tag},

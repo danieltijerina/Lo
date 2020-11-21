@@ -30,11 +30,11 @@ let test_result tbl =
 *)
 
 let _ =
-  let in_channel = open_in "ejemploQuads.lo" in
+  let in_channel = open_in "demoFinal.lo" in
   try
     let lexbuf = Lexing.from_channel in_channel in
     while true do
-      let oc = open_out "ejemploSenc.clo" in
+      let oc = open_out "demoFinal.clo" in
         let parse_tree = Parser.init Lexer.token lexbuf in
           semantic_start parse_tree oc;
         (* print_string result; print_newline(); flush stdout *)

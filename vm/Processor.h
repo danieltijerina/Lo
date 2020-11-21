@@ -404,23 +404,21 @@ class Processor {
         for(int i=0; i<current_quad.third_; i++) {
           switch (current_quad.second_ / 1000) {
           case 1:
-            setIntParamFromPosition(current_quad.second_, current_quad.first_);
+            setIntParamFromPosition(current_quad.second_ + i, current_quad.first_ + i);
             break;
           case 2:
-            setFloatParamFromPosition(current_quad.second_, current_quad.first_);
+            setFloatParamFromPosition(current_quad.second_ + i, current_quad.first_ + i);
             break;
           case 3:
-            setStringParamFromPosition(current_quad.second_, current_quad.first_);
+            setStringParamFromPosition(current_quad.second_ + i, current_quad.first_ + i);
             break;
           case 4:
-            setCharParamFromPosition(current_quad.second_, current_quad.first_);
+            setCharParamFromPosition(current_quad.second_ + i, current_quad.first_ + i);
             break;
           case 5:
-            setBoolParamFromPosition(current_quad.second_, current_quad.first_);
+            setBoolParamFromPosition(current_quad.second_ + i, current_quad.first_ + i);
             break;
           }
-          current_quad.first_++;
-          current_quad.second_++;
         }
         break;
       }
@@ -469,9 +467,8 @@ class Processor {
         else{
           assert(false);
         }
-        break;
       }
-
+      // return quad goes to endFunc directly
       case QuadType::endFunc:
       {
         if(!mem_stack_.empty()){
@@ -486,6 +483,12 @@ class Processor {
         break;
       }
 
+      case QuadType::noRet:
+      {
+        std::cout << "ERROR: Function " << current_quad.name_ << " must always return a value.\n";
+        assert(false);
+      }
+
       case QuadType::retVal:
       {
         auto fun_def = function_def_ -> find(current_quad.name_/*CHANGE THIS TO READ FROM FUNCTION CALLED*/);
@@ -495,30 +498,29 @@ class Processor {
               case 1:
               case 10:
               case 20:
-                setIntFromValue(current_quad.first_, fun_def->second.intRet[i]);
+                setIntFromValue(current_quad.first_ + i, fun_def->second.intRet[i]);
                 break;
               case 2:
               case 11:
               case 21:
-                setFloatFromValue(current_quad.first_, fun_def->second.floatRet[i]);
+                setFloatFromValue(current_quad.first_ + i, fun_def->second.floatRet[i]);
                 break;
               case 3:
               case 12:
               case 22:
-                setStringFromValue(current_quad.first_, fun_def->second.stringRet[i]);
+                setStringFromValue(current_quad.first_ + i, fun_def->second.stringRet[i]);
                 break;
               case 4:
               case 13:
               case 23:
-                setCharFromValue(current_quad.first_, fun_def->second.charRet[i]);
+                setCharFromValue(current_quad.first_ + i, fun_def->second.charRet[i]);
                 break;
               case 5:
               case 14:
               case 24:
-                setBoolFromValue(current_quad.first_, fun_def->second.boolRet[i]);
+                setBoolFromValue(current_quad.first_ + i, fun_def->second.boolRet[i]);
                 break;
             }
-            current_quad.first_++;
           }
         }
         else{
