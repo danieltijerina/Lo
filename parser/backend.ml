@@ -9,8 +9,31 @@ let process_expression exp tbls var_count cte_tbl oc =
 
 (* Semantics *)
 
-let print_counts oc k var_count =
-  fprintf oc "%s\n" k;
+let tyToString t =
+  match t with
+  | IntTy -> "IntTy"
+  | FloatTy -> "FloatTy"
+  | StringTy -> "StringTy"
+  | CharTy -> "CharTy"
+  | BoolTy -> "BoolTy"
+  | VoidTy -> "VoidTy"
+
+let find_func k tbl oc =
+  match String.split_on_char '.' k with
+  | fname :: [] -> (match (Hashtbl.find tbl fname) with
+                    | FuncT f -> fprintf oc "%s %d %d\n" (tyToString f.ftipo) f.fdim1 f.fdim2
+                    | _ -> failwith "Error reading functions return size."
+                   )
+  | cname :: fname :: [] -> (match (Hashtbl.find tbl cname) with
+                              | ClaseT c -> let f = (Hashtbl.find c.funcs fname) in fprintf oc "%s %d %d\n" (tyToString f.ftipo) f.fdim1 f.fdim2
+                              | _ -> failwith "Error reading class functions return size"
+                    )
+  | _ -> failwith "Invalid function name"
+
+let print_counts oc tbl k var_count =
+  (* fprintf oc "%d\n" (Hashtbl.find tbl k).dim1; *)
+  fprintf oc "%s " k;
+  find_func k tbl oc;
   fprintf oc "IntTy %d\n" (Hashtbl.find var_count IntTy).count;
   fprintf oc "FloatTy %d\n" (Hashtbl.find var_count FloatTy).count;
   fprintf oc "CharTy %d\n" (Hashtbl.find var_count CharTy).count;
@@ -88,7 +111,8 @@ let process_asignacion left right tbls var_count cte_tbl oc =
   let rightExp = process_expression right tbls var_count cte_tbl oc in
     let leftVar = variableLookup left tbls var_count cte_tbl oc in
       assert_equal leftVar.rtipo rightExp.rtipo;
-      fprintf oc "%s %d %d %d\n" "=" leftVar.address rightExp.address (-1)
+      if leftVar.dim1 != rightExp.dim1 || leftVar.dim2 != rightExp.dim2 then failwith "Cannot assign variable to expression with different dimensions.";
+      fprintf oc "%s %d %d %d\n" "=" leftVar.address rightExp.address (leftVar.dim1 * leftVar.dim2)
 
 let checkClassInitQuad t class_id address oc = 
   match t with 
@@ -106,7 +130,8 @@ let rec add_vars_to_func_tbl_rec t vars class_id tbl var_count cte_tbl oc =
           match exp with
           | VDExp e ->  let tmp = process_expression e tbl var_count cte_tbl oc in
                           assert_equal tmp.rtipo t;
-                          fprintf oc "%s %d %d %d\n" "=" new_var.address tmp.address (-1);
+                          if tmp.dim1 != new_var.dimension1 || tmp.dim2 != new_var.dimension2 then failwith "Variable declaration has inconsistent dimension size";
+                          fprintf oc "%s %d %d %d\n" "=" new_var.address tmp.address (new_var.dimension1 * new_var.dimension2);
                           add_vars_to_func_tbl_rec t fs class_id tbl var_count cte_tbl oc
           | _ -> add_vars_to_func_tbl_rec t fs class_id tbl var_count cte_tbl oc
 
@@ -164,50 +189,53 @@ let getClaseTbl high_level =
     | ClaseT ct -> ct
     | FuncT ft -> failwith "Should be a classtable"
 (* Match estatuto to add variable to table *)
-let rec add_func_elems_to_tbl elem tbls var_count cte_tbl ft jmp_count oc=
+let rec add_func_elems_to_tbl elem tbls var_count cte_tbl ft fdim1 fdim2 jmp_count oc=
   match elem with 
   | Asigna a -> process_asignacion a.izq a.der tbls var_count cte_tbl oc; 
   | CondIf cif -> (let cond = process_condition cif.cond tbls var_count cte_tbl oc in
                     let next_tag = get_next_tag jmp_count in 
                       fprintf oc "%s %d %d\n" "gotoF" cond.address next_tag;
-                      process_block cif.true_block tbls var_count cte_tbl ft jmp_count oc;
+                      process_block cif.true_block tbls var_count cte_tbl ft fdim1 fdim2 jmp_count oc;
                       let else_block = check_else_block cif.false_block in 
                         match else_block with
                         | true -> ( let final_tag = get_next_tag jmp_count in 
                                       fprintf oc "%s %d\n" "goto" final_tag;
                                       fprintf oc "%s %d\n" "tag" next_tag;
-                                      process_block cif.false_block tbls var_count cte_tbl ft jmp_count oc;
+                                      process_block cif.false_block tbls var_count cte_tbl ft fdim1 fdim2 jmp_count oc;
                                       fprintf oc "%s %d\n" "tag" final_tag;
                                       )
                         | false -> ( fprintf oc "%s %d\n" "tag" next_tag; );
                     )
   | Escritura e -> process_print_rec e tbls var_count cte_tbl oc;
   | EVar evar -> add_vars_to_func_tbl_rec evar.tipo evar.vars evar.id_class tbls var_count cte_tbl oc;
-  | ForLoop floop -> process_for_loop floop tbls var_count cte_tbl ft jmp_count oc;
+  | ForLoop floop -> process_for_loop floop tbls var_count cte_tbl ft fdim1 fdim2 jmp_count oc;
   | WhileLoop wloop -> (let starter_tag = get_next_tag jmp_count in
                           fprintf oc "%s %d\n" "tag" starter_tag; 
                           let cond = process_condition wloop.cond tbls var_count cte_tbl oc in
                             let end_tag = get_next_tag jmp_count in
                               fprintf oc "%s %d %d\n" "gotoF" cond.address end_tag;
-                              process_block wloop.bloque tbls var_count cte_tbl ft jmp_count oc;
+                              process_block wloop.bloque tbls var_count cte_tbl ft fdim1 fdim2 jmp_count oc;
                               fprintf oc "%s %d\n" "goto" starter_tag;
                               fprintf oc "%s %d\n" "tag" end_tag; 
                               )
-  | Return r -> let ret_val = process_expression r tbls var_count cte_tbl oc in assert_equal ft ret_val.rtipo; fprintf oc "return %d\n" ret_val.address; ();
+  | Return r -> let ret_val = process_expression r tbls var_count cte_tbl oc in 
+                  assert_equal ft ret_val.rtipo;
+                  if fdim1 != ret_val.dim1 || fdim2 != ret_val.dim2 then failwith "Return dimensions do not match function definition.";
+                  fprintf oc "return %d %d\n" ret_val.address (fdim1*fdim2); ();
   | Expresion ex -> assert_equal VoidTy (process_expression ex tbls var_count cte_tbl oc).rtipo; ();
   | Lectura lc -> let var_ = variableLookup lc tbls var_count cte_tbl oc in 
                   fprintf oc "%s %d\n" "read" var_.address;
 (* Iterate through the function elements to add variables to the tbl *)
-and add_func_elems_to_tbl_rec bloque tbls var_count cte_tbl ft jmp_count oc=
+and add_func_elems_to_tbl_rec bloque tbls var_count cte_tbl ft fdim1 fdim2 jmp_count oc=
   match bloque with
   | [] -> ()
   | (f::fs) -> 
-      add_func_elems_to_tbl f tbls var_count cte_tbl ft jmp_count oc;
-      add_func_elems_to_tbl_rec fs tbls var_count cte_tbl ft jmp_count oc
+      add_func_elems_to_tbl f tbls var_count cte_tbl ft fdim1 fdim2 jmp_count oc;
+      add_func_elems_to_tbl_rec fs tbls var_count cte_tbl ft fdim1 fdim2 jmp_count oc
 (* Process blocks for conditions and loops *)
-and process_block bloque tbl var_count cte_tbl ft jmp_count oc=
-  add_func_elems_to_tbl_rec bloque tbl var_count cte_tbl ft jmp_count oc
-and process_for_loop floop tbl var_count cte_tbl ft jmp_count oc= 
+and process_block bloque tbl var_count cte_tbl ft fdim1 fdim2 jmp_count oc=
+  add_func_elems_to_tbl_rec bloque tbl var_count cte_tbl ft fdim1 fdim2 jmp_count oc
+and process_for_loop floop tbl var_count cte_tbl ft fdim1 fdim2 jmp_count oc= 
   variableLookup floop.init tbl;
   let starter_tag = get_next_tag jmp_count in
     fprintf oc "%s %d\n" "tag" starter_tag; 
@@ -215,8 +243,8 @@ and process_for_loop floop tbl var_count cte_tbl ft jmp_count oc=
       let end_tag = get_next_tag jmp_count in
         assert_equal BoolTy cond.rtipo;
         fprintf oc "%s %d %d\n" "gotoF" cond.address end_tag;
-        process_block floop.bloque tbl var_count cte_tbl ft jmp_count oc;
-        add_func_elems_to_tbl (Asigna floop.post) tbl var_count cte_tbl ft jmp_count oc;
+        process_block floop.bloque tbl var_count cte_tbl ft fdim1 fdim2 jmp_count oc;
+        add_func_elems_to_tbl (Asigna floop.post) tbl var_count cte_tbl ft fdim1 fdim2 jmp_count oc;
         fprintf oc "%s %d\n" "goto" starter_tag;
         fprintf oc "%s %d\n" "tag" end_tag;;
         
@@ -226,7 +254,7 @@ let add_inner_fucs_of_class elem class_tbl tbl var_count cte_tbl jmp_count oc me
   match elem, class_tbl with
   | Fun f, ClaseT ct -> fprintf oc "ftag %s.%s\n" ct.name f.fname;
                         let fun_var_count = Hashtbl.find mem (String.concat "." (ct.name :: f.fname :: [])) in 
-                        add_func_elems_to_tbl_rec f.fbloque { function_tbl=FuncTbl({variables=getFunctionTblInClass f.fname class_tbl; var_count=fun_var_count;}); class_tbl=ClassTbl (getClaseTbl class_tbl); global_tbl=tbl} var_count cte_tbl f.tipo jmp_count oc; 
+                        add_func_elems_to_tbl_rec f.fbloque { function_tbl=FuncTbl({variables=getFunctionTblInClass f.fname class_tbl; var_count=fun_var_count;}); class_tbl=ClassTbl (getClaseTbl class_tbl); global_tbl=tbl} var_count cte_tbl f.tipo f.dim1 f.dim2 jmp_count oc; 
                         fprintf oc "%s\n" "endFunc -1 -1 -1";
                         ();
   | CVar cv, ClaseT ct -> ();
@@ -245,7 +273,7 @@ let add_inner_func_to_tbl elem tbl var_count cte_tbl jmp_count mem oc =
   match elem with
   | Func f -> let fun_var_count = Hashtbl.find mem f.fname in 
                 fprintf oc "ftag %s\n" f.fname;
-                add_func_elems_to_tbl_rec f.fbloque { function_tbl=FuncTbl({variables=getFunctionTbl f.fname tbl; var_count=fun_var_count}); class_tbl=Nil; global_tbl=tbl} fun_var_count cte_tbl f.tipo jmp_count oc;
+                add_func_elems_to_tbl_rec f.fbloque { function_tbl=FuncTbl({variables=getFunctionTbl f.fname tbl; var_count=fun_var_count}); class_tbl=Nil; global_tbl=tbl} fun_var_count cte_tbl f.tipo f.dim1 f.dim2 jmp_count oc;
                 (* add_func_elems_to_tbl_rec f.fbloque { function_tbl=FuncTbl(getFunctionTbl f.fname tbl); class_tbl=Nil; global_tbl=tbl} var_count cte_tbl f.tipo oc; *)
                 fprintf oc "%s\n" "endFunc -1 -1 -1";
                 (* fprintf oc "AHI TE VAN LOS DE LA FUNCION %s \n\n" f.fname; *)
@@ -259,7 +287,7 @@ let add_class_att_to_table_inner elem class_tbl var_count cte_tbl class_var_coun
   | Fun f, ClaseT ctbl -> let fun_var_count = Hashtbl.create 0 in 
                             initialize_count fun_var_count;
                             let vars_tbl = Hashtbl.create 0 in 
-                              add_func class_tbl f.fname {name=f.fname; ftipo=f.tipo; variables=vars_tbl; params=(getVariablesFromParamsRec f.params fun_var_count vars_tbl); classInit=ctbl.name;}; 
+                              add_func class_tbl f.fname {name=f.fname; ftipo=f.tipo; variables=vars_tbl; params=(getVariablesFromParamsRec f.params fun_var_count vars_tbl); classInit=ctbl.name; fdim1=f.dim1; fdim2=f.dim2}; 
                               Hashtbl.add mem (String.concat "." (ctbl.name :: f.fname :: [])) fun_var_count;
                               [];
   | CVar cv, ClaseT ctbl -> add_vars_to_class_tbl_rec cv.tipo cv.vars cv.id_class ctbl var_count cte_tbl class_var_count oc; [];; (*If type is class, validate class type *)
@@ -275,9 +303,9 @@ let rec add_class_att_to_table bloque class_tbl var_count cte_tbl class_var_coun
 (* Processes single element of high order *)
 let add_upper_prog_to_table elem table var_count cte_tbl mem class_mem oc= 
   match elem with
-  | Func f -> add_high_level_element table elem mem class_mem; 0;
+  | Func f -> add_high_level_element table elem mem class_mem;
   | Clase c -> let class_tbl = add_high_level_element table elem mem class_mem in
-                let class_var_count = Hashtbl.find class_mem c.name in  add_class_att_to_table c.bloque class_tbl var_count cte_tbl class_var_count mem oc; 1;;
+                let class_var_count = Hashtbl.find class_mem c.name in  add_class_att_to_table c.bloque class_tbl var_count cte_tbl class_var_count mem oc;;
 
 (* Iterating through all the elemnts in tree *)
 let rec semantic_main tree table var_count cte_tbl jmp_count mem class_mem oc = 
@@ -291,9 +319,6 @@ let rec semantic_main tree table var_count cte_tbl jmp_count mem class_mem oc =
 
 let initialize_jmp tbl =
   Hashtbl.add tbl JTag {count=0; base=0}
-
-let print_mem mem oc =
-  Hashtbl.iter (print_counts oc) mem
   
 (* Main Semantic start *)
 let semantic_start tree oc = 
@@ -309,7 +334,7 @@ let semantic_start tree oc =
               fprintf oc "\n$$\n";
               Hashtbl.iter (print_class_counts oc) class_mem;
               fprintf oc "\n$$$\n";
-              Hashtbl.iter (print_counts oc) mem;
+              Hashtbl.iter (print_counts oc main_table) mem;
               print_constants oc cte_table
               (* print_counts oc var_count *)
     

@@ -197,7 +197,8 @@ and checkFuncParamsRec fparams vfparams current_tbls var_count const_tbl oc coun
 and checkFuncParams fparam vfparam current_tbls var_count const_tbl oc count= 
   let ex = (process_or_expression vfparam current_tbls var_count const_tbl oc) in
     assert_equal ex.rtipo fparam.tipo;
-    if fparam.dimension1 != ex.dim1 || fparam.dimension2 != ex.dim2 then fprintf oc "ERROR PARAMS %d %d %d %d\n" fparam.dimension1 ex.dim1 fparam.dimension2 ex.dim2; (*failwith "Parameter dimensions do not correspond";*)
+    if fparam.dimension1 != ex.dim1 || fparam.dimension2 != ex.dim2 then failwith "Parameter dimensions do not correspond" 
+    ex.dim2; (*failwith "Parameter dimensions do not correspond";*)
     fprintf oc "%s %d %d %d\n" "param" ex.address fparam.address (ex.dim1 * ex.dim2)
 
 and variableLookupVarID var current_tbls= 
@@ -222,16 +223,16 @@ and functionLookup f current_tbls var_count const_tbl oc=
           checkFuncParamsRec fres.params vf.params current_tbls var_count const_tbl oc 1;
           fprintf oc "%s %s\n" "goSub" vf.func; (* Check initial address *)
           match fres.ftipo with
-            | VoidTy -> {rtipo=fres.ftipo; address=0; dim1=1; dim2=1;}
-            | _ -> let addr = get_next_temporal var_count fres.ftipo in fprintf oc "retVal %s %d\n" vf.func addr; {rtipo=fres.ftipo; address=0; dim1=1; dim2=1;}
+            | VoidTy -> {rtipo=fres.ftipo; address=0; dim1=fres.fdim1; dim2=fres.fdim2;}
+            | _ -> let addr = get_next_temporal var_count fres.ftipo in fprintf oc "retVal %s %d %d\n" vf.func addr (fres.fdim1 * fres.fdim2); {rtipo=fres.ftipo; address=0; dim1=fres.fdim1; dim2=fres.fdim2;}
         with Not_found -> (
               try let tbl = (Hashtbl.find current_tbls.global_tbl vf.func) in match tbl  with 
                                     | FuncT funct -> fprintf oc "era %s\n" vf.func;
                                       checkFuncParamsRec funct.params vf.params current_tbls var_count const_tbl oc 1;
                                       fprintf oc "%s %s\n" "goSub" vf.func; (* Check initial address *)
                                       match funct.ftipo with
-                                        | VoidTy -> {rtipo=funct.ftipo; address=0; dim1=1; dim2=1;}
-                                        | _ -> let addr = get_next_temporal var_count funct.ftipo in fprintf oc "retVal %s %d\n" vf.func addr; {rtipo=funct.ftipo; address=addr; dim1=1; dim2=1;}
+                                        | VoidTy -> {rtipo=funct.ftipo; address=0; dim1=funct.fdim1; dim2=funct.fdim2;}
+                                        | _ -> let addr = get_next_temporal var_count funct.ftipo in fprintf oc "retVal %s %d %d\n" vf.func addr (funct.fdim1 * funct.fdim2); {rtipo=funct.ftipo; address=addr; dim1=funct.fdim1; dim2=funct.fdim2;}
                                     | _ -> failwith "No function found"
               with Not_found -> failwith "No function found"
             ))
@@ -242,8 +243,8 @@ and functionLookup f current_tbls var_count const_tbl oc=
               checkFuncParamsRec funct.params vf.params current_tbls var_count const_tbl oc 1;
               fprintf oc "%s %s\n" "goSub" vf.func ; (* Check initial address *) 
               match funct.ftipo with
-                | VoidTy -> {rtipo=funct.ftipo; address=0; dim1=1; dim2=1;}
-                | _ -> let addr = get_next_temporal var_count funct.ftipo in fprintf oc "retVal %s %d\n" vf.func addr; {rtipo=funct.ftipo; address=addr; dim1=1; dim2=1;}
+                | VoidTy -> {rtipo=funct.ftipo; address=0; dim1=funct.fdim1; dim2=funct.fdim2;}
+                | _ -> let addr = get_next_temporal var_count funct.ftipo in fprintf oc "retVal %s %d %d\n" vf.func addr  (funct.fdim1 * funct.fdim2); {rtipo=funct.ftipo; address=addr; dim1=funct.fdim1; dim2=funct.fdim2;}
             | _ -> failwith "No function found"
         with Not_found -> failwith "No function found") )
 
@@ -257,7 +258,7 @@ and variableInClassLookup var_id class_tbl var_count const_tbl oc current_tbls g
       fprintf oc "%s %s.%s\n" "goSub" res.classInit vfunc.func; (* Check initial address *)
       match res.ftipo with
         | VoidTy -> {rtipo=res.ftipo; address=0; dim1=1; dim2=1;}
-        | _ -> let addr = get_next_temporal var_count res.ftipo in fprintf oc "retVal %s.%s %d\n" res.classInit vfunc.func addr; {rtipo=res.ftipo; address=addr; dim1=1; dim2=1;}
+        | _ -> let addr = get_next_temporal var_count res.ftipo in fprintf oc "retVal %s.%s %d %d\n" res.classInit vfunc.func addr  (res.fdim1 * res.fdim2); {rtipo=res.ftipo; address=addr; dim1=res.fdim1; dim2=res.fdim2;}
     with Not_found -> failwith "No function found in class");
   (* | VarArray varr ->  (try let res = (Hashtbl.find class_tbl.vars varr.name) in {rtipo=res.tipo; address=res.address + 50000 + class_idx * 10000} with Not_found -> failwith "No Variable found in class"); Need to implement arrays *)
   | VarArray varr ->  let index = process_pm_expression varr.expresion current_tbls var_count const_tbl oc in
@@ -310,6 +311,6 @@ and variableLookup var_id current_tbls var_count const_tbl oc=
                                 let next_tmp = get_next_temporal var_count IntTy in
                                   fprintf oc "* %d %d %d\n" index2.address (find_or_add_int_cte var_count const_tbl base.dimension1) next_tmp;
                                   fprintf oc "+ %d %d %d\n" next_tmp next_ptr next_ptr;
-                                  {rtipo=base.tipo; address=next_ptr; dim1=base.dimension1; dim2=base.dimension2;}
+                                  {rtipo=base.tipo; address=next_ptr; dim1=1; dim2=1;}
 
   | VarPoint vpoint -> (pointVarLookup (VarPoint vpoint) current_tbls var_count const_tbl oc);;

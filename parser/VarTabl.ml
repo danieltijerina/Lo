@@ -15,6 +15,8 @@ type funcion_tbl = {
   variables: (string, variable) Hashtbl.t;
   params: variable list;
   classInit: string;
+  fdim1: int;
+  fdim2: int;
 }
 
 type clase_tbl = {
@@ -141,7 +143,7 @@ let add_high_level_element tbl value mem class_mem =
   | Func f -> let fun_var_count = Hashtbl.create 0 in 
                 initialize_count fun_var_count;
                 let vars_tbl = Hashtbl.create 0 in 
-                let new_element = add_element tbl f.fname (FuncT {name=f.fname; ftipo=f.tipo; variables=vars_tbl; params=(getVariablesFromParamsRec f.params fun_var_count vars_tbl); classInit=""}) in
+                let new_element = add_element tbl f.fname (FuncT {name=f.fname; ftipo=f.tipo; variables=vars_tbl; params=(getVariablesFromParamsRec f.params fun_var_count vars_tbl); classInit=""; fdim1=f.dim1; fdim2=f.dim2}) in
                 Hashtbl.add mem f.fname fun_var_count;
                 new_element
   (* | Func f -> add_element tbl f.fname (FuncT {name=f.fname; ftipo=f.tipo; variables=Hashtbl.create 0; params=(getVariablesFromParamsRec f.params);}) *)

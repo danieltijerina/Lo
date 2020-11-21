@@ -147,6 +147,8 @@ type funcionDef = {
   tipo : type_def;
   params: functionParams list;
   fbloque : estatuto list;
+  dim1: int;
+  dim2: int;
 }
 
 type clase_bloque =

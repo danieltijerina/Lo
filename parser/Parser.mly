@@ -34,7 +34,7 @@ b:
 ;
 
 main:
-  FUNC MAIN LPAREN RPAREN COLON INTTYPE blo = bloque { Func {fname="main"; tipo=IntTy; fbloque=blo; params=[]} }
+  FUNC MAIN LPAREN RPAREN COLON INTTYPE blo = bloque { Func {fname="main"; tipo=IntTy; fbloque=blo; params=[]; dim1=1; dim2=1} }
 ;
 
 clase:
@@ -54,14 +54,22 @@ class_bloque:
 ;
 
 funcion:
-  FUNC ID LPAREN par=funcParamsRec RPAREN t = funcType b = bloque { {fname=$2; tipo=t; fbloque=b; params=par} }
-  | FUNC ID LPAREN RPAREN t = funcType b = bloque { {fname=$2; tipo=t; fbloque=b; params=[]} }
+  FUNC ID LPAREN par=funcParamsRec RPAREN t = funcType d1=funcDim d2=funcDim b = bloque { {fname=$2; tipo=t; fbloque=b; params=par; dim1=d1; dim2=d2} }
+  | FUNC ID LPAREN RPAREN t = funcType d1=funcDim d2=funcDim b = bloque { {fname=$2; tipo=t; fbloque=b; params=[]; dim1=d1; dim2=d2} }
+  | FUNC ID LPAREN par=funcParamsRec RPAREN t = funcType d1=funcDim b = bloque { {fname=$2; tipo=t; fbloque=b; params=par; dim1=d1; dim2=1} }
+  | FUNC ID LPAREN RPAREN t = funcType d1=funcDim b = bloque { {fname=$2; tipo=t; fbloque=b; params=[]; dim1=d1; dim2=1} }
+  | FUNC ID LPAREN par=funcParamsRec RPAREN t = funcType b = bloque { {fname=$2; tipo=t; fbloque=b; params=par; dim1=1; dim2=1} }
+  | FUNC ID LPAREN RPAREN t = funcType b = bloque { {fname=$2; tipo=t; fbloque=b; params=[]; dim1=1; dim2=1} }
+  | FUNC ID LPAREN par=funcParamsRec RPAREN b = bloque { {fname=$2; tipo=VoidTy; fbloque=b; params=par; dim1=0; dim2=0} }
+  | FUNC ID LPAREN RPAREN b = bloque { {fname=$2; tipo=VoidTy; fbloque=b; params=[]; dim1=0; dim2=0} }
 ;
 
 funcType:
   COLON tipo { $2 }
-  | /* empty */ { VoidTy }
 ;
+
+funcDim:
+  LBRACK i=INT RBRACK { i }
 
 funcParamsRec:
   t=tipo id=ID LBRACK d1=INT RBRACK LBRACK d2=INT RBRACK COMMA r=funcParamsRec { {param_id=VDVar2Array {name=id; dim1=d1; dim2=d2;}; ptipo=t} :: r}
@@ -72,8 +80,8 @@ funcParamsRec:
   | t=tipo id=ID { {param_id=VDVarID {name=id}; ptipo=t} :: []}
 
 constructor:
-  CONSTRUCTOR id=ID LPAREN param=funcParamsRec RPAREN blo=bloque { {fname=id; tipo=VoidTy; fbloque=blo; params=param} }
-  | CONSTRUCTOR id=ID LPAREN RPAREN blo=bloque { {fname=id; tipo=VoidTy; fbloque=blo; params=[]} }
+  CONSTRUCTOR id=ID LPAREN param=funcParamsRec RPAREN blo=bloque { {fname=id; tipo=VoidTy; fbloque=blo; params=param; dim1=0; dim2=0} }
+  | CONSTRUCTOR id=ID LPAREN RPAREN blo=bloque { {fname=id; tipo=VoidTy; fbloque=blo; params=[]; dim1=1; dim2=1} }
 ;
 
 tipo:
@@ -174,6 +182,7 @@ varcte:
 ;
 variable:
   id=ID LPAREN p=var1 RPAREN { VarFuncCall { func=id; params=p } }
+  | id=ID LBRACK e1=exp RBRACK LBRACK e2=exp RBRACK { Var2Array {name=id; expresion1=e1; expresion2=e2}}
   | id=ID LBRACK e=exp RBRACK { VarArray {name=id; expresion=e;} }
   | id=ID POINT i=variable { VarPoint {name=id; inner=i} }
   | id=ID { VarID {name=id} }
