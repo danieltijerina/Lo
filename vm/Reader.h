@@ -91,13 +91,13 @@ namespace Reader {
 
       case ret:
       {
-        stream >> current_quad.first_;
+        stream >> current_quad.first_ >> current_quad.second_;
         break;
       }
 
       case retVal:
       {
-        stream >> current_quad.name_ >> current_quad.first_;
+        stream >> current_quad.name_ >> current_quad.first_ >> current_quad.second_;
         break;
       }
 
@@ -169,7 +169,7 @@ namespace Reader {
     std::unordered_map<string, int> tags_;
     std::unordered_map<string, std::vector<int>> pending_tags_;
 
-    string quad_type;
+    string quad_type, ret_type, dim1, dim2;
     quad_stream >> quad_type;
     while(quad_type != "$$"){
       Quad quad = processNextQuad((quad_type_ref.find(quad_type))->second, 
@@ -194,7 +194,20 @@ namespace Reader {
 
     quad_stream >> quad_type;
     while(quad_type != "$$$$"){
+      quad_stream >> ret_type >> dim1 >> dim2;
+
       FunctionDef func;
+      if(ret_type == "IntTy")
+        func.intRet = new int[std::stoi(dim1) * std::stoi(dim2)];
+      if(ret_type == "FloatTy")
+        func.floatRet = new float[std::stoi(dim1) * std::stoi(dim2)];
+      if(ret_type == "StringTy")
+        func.stringRet = new string[std::stoi(dim1) * std::stoi(dim2)];
+      if(ret_type == "CharTy")
+        func.charRet = new char[std::stoi(dim1) * std::stoi(dim2)];
+      if(ret_type == "BoolTy")
+        func.boolRet = new bool[std::stoi(dim1) * std::stoi(dim2)];
+
       quad_stream >> trash >> func.intTy;
       quad_stream >> trash >> func.floatTy;
       quad_stream >> trash >> func.charTy;

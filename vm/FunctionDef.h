@@ -10,11 +10,19 @@ struct FunctionDef {
     int boolTy, boolTmp, boolPtr;
     int classTy; //TODO: check how this works
     // return values
-    int intRet;
-    float floatRet;
-    std::string stringRet;
-    char charRet;
-    bool boolRet;
+    int *intRet;
+    float *floatRet;
+    std::string *stringRet;
+    char *charRet;
+    bool *boolRet;
+
+    // FunctionDef(int i, int f, int s, int c, int b) {
+    //   intRet = new int[i];
+    //   floatRet = new float[f];
+    //   stringRet = new std::string[s];
+    //   charRet = new char[c];
+    //   boolRet = new bool[b];
+    // }
 };
 
 #endif

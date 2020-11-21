@@ -63,7 +63,7 @@ class Processor {
   }
   bool isString(int pos) {
     int tmp = pos / 1000;
-    return tmp == 3 || tmp == 12 || tmp == 22 || tmp == 42 || (tmp > 50 && tmp % 10 == 3) || (tmp < 0 && (pos + 50000) / 1000 == 4);
+    return tmp == 3 || tmp == 12 || tmp == 22 || tmp == 42 || (tmp > 50 && tmp % 10 == 3) || (tmp < 0 && (pos + 50000) / 1000 == 3);
   }
 
   public:
@@ -198,8 +198,13 @@ class Processor {
 
       case QuadType::plus:
       {
-        if(current_quad.third_ / 10000 == 4) {
+        if(current_quad.second_ / 10000 == 4) {
+          setPointerFromPosition(current_quad.third_, getIntFromPosition(current_quad.first_) + getPointerFromPosition(current_quad.second_));
+        }
+        else if(current_quad.third_ / 10000 == 4) {
+          // std::cout << current_quad.third_ << " = " << getIntFromPosition(current_quad.first_) << " + " << getIntFromPosition(current_quad.second_) << "\n";
           setPointerFromPosition(current_quad.third_, getIntFromPosition(current_quad.first_) + getIntFromPosition(current_quad.second_));
+          // std::cout << "Result: " << getPointerFromPosition(current_quad.third_) << "\n";
         }
         else if(isInt(current_quad.third_)) {
           // Result of addition is int so both first_ and second_ must be int
@@ -330,37 +335,43 @@ class Processor {
           type_num = (current_quad.first_ + 50000) / 1000;
         }
 
-        switch (type_num) {
-        case 1:
-          setIntFromPosition(current_quad.first_, current_quad.second_);
-          break;
-        case 2:
-          setFloatFromPosition(current_quad.first_, current_quad.second_);
-          break;
-        case 3:
-          setStringFromPosition(current_quad.first_, current_quad.second_);
-          break;
-        case 4:
-          setCharFromPosition(current_quad.first_, current_quad.second_);
-          break;
-        case 5:
-          setBoolFromPosition(current_quad.first_, current_quad.second_);
-          break;
-        case 40:
-          setIntFromPosition(getPointerFromPosition(current_quad.first_), current_quad.second_);
-          break;
-        case 41:
-          setFloatFromPosition(getPointerFromPosition(current_quad.first_), current_quad.second_);
-          break;
-        case 42:
-          setStringFromPosition(getPointerFromPosition(current_quad.first_), current_quad.second_);
-          break;
-        case 43:
-          setCharFromPosition(getPointerFromPosition(current_quad.first_), current_quad.second_);
-          break;
-        case 44:
-          setBoolFromPosition(getPointerFromPosition(current_quad.first_), current_quad.second_);
-          break;
+        for(int i=0; i<current_quad.third_; i++) {
+          // std::cout << "i = " << i << " leftpos = " << current_quad.first_+i << "-> " << getIntFromPosition(current_quad.first_+i) << " rightpos = " << current_quad.second_+i << "-> " << getIntFromPosition(current_quad.second_+i) << "\n";
+          switch (type_num) {
+          case 1:
+            setIntFromPosition(current_quad.first_+i, current_quad.second_+i);
+            break;
+          case 2:
+            setFloatFromPosition(current_quad.first_+i, current_quad.second_+i);
+            break;
+          case 3:
+            setStringFromPosition(current_quad.first_+i, current_quad.second_+i);
+            break;
+          case 4:
+            setCharFromPosition(current_quad.first_+i, current_quad.second_+i);
+            break;
+          case 5:
+            setBoolFromPosition(current_quad.first_+i, current_quad.second_+i);
+            break;
+          case 40:
+            setIntFromPosition(getPointerFromPosition(current_quad.first_+i), current_quad.second_+i);
+            // std::cout << "Assigned pos: " << current_quad.first_+i << " to value: " << getIntFromPosition(current_quad.first_+i) << "\n";
+            break;
+          case 41:
+            setFloatFromPosition(getPointerFromPosition(current_quad.first_+i), current_quad.second_+i);
+            break;
+          case 42:
+            setStringFromPosition(getPointerFromPosition(current_quad.first_+i), current_quad.second_+i);
+            break;
+          case 43:
+            setCharFromPosition(getPointerFromPosition(current_quad.first_+i), current_quad.second_+i);
+            break;
+          case 44:
+            setBoolFromPosition(getPointerFromPosition(current_quad.first_+i), current_quad.second_+i);
+            break;
+          }
+        //   current_quad.first_++;
+        //   current_quad.second_++;
         }
         break;
       }
@@ -424,37 +435,41 @@ class Processor {
           }else if(current_quad.first_ < 0){
             type_int = (current_quad.first_ + 50000) / 1000;
           }
-          switch (type_int) {
-            case 1:
-            case 10:
-            case 20:
-              fun_def->second.intRet = getIntFromPosition(current_quad.first_);
-              break;
-            case 2:
-            case 11:
-            case 21:
-              fun_def->second.floatRet = getFloatFromPosition(current_quad.first_);
-              break;
-            case 3:
-            case 12:
-            case 22:
-              fun_def->second.stringRet = getStringFromPosition(current_quad.first_);
-              break;
-            case 4:
-            case 13:
-            case 23:
-              fun_def->second.charRet = getCharFromPosition(current_quad.first_);
-              break;
-            case 5:
-            case 14:
-            case 24:
-              fun_def->second.boolRet = getBoolFromPosition(current_quad.first_);
-              break;
+          for(int i=0; i<current_quad.second_; i++) {
+            switch (type_int) {
+              case 1:
+              case 10:
+              case 20:
+                fun_def->second.intRet[i] = getIntFromPosition(current_quad.first_ + i);
+                break;
+              case 2:
+              case 11:
+              case 21:
+                fun_def->second.floatRet[i] = getFloatFromPosition(current_quad.first_ + i);
+                break;
+              case 3:
+              case 12:
+              case 22:
+                fun_def->second.stringRet[i] = getStringFromPosition(current_quad.first_ + i);
+                break;
+              case 4:
+              case 13:
+              case 23:
+                fun_def->second.charRet[i] = getCharFromPosition(current_quad.first_ + i);
+                break;
+              case 5:
+              case 14:
+              case 24:
+                fun_def->second.boolRet[i] = getBoolFromPosition(current_quad.first_ + i);
+                break;
+            }
+            // current_quad.first_++;
           }
         }
         else{
           assert(false);
         }
+        break;
       }
 
       case QuadType::endFunc:
@@ -475,32 +490,35 @@ class Processor {
       {
         auto fun_def = function_def_ -> find(current_quad.name_/*CHANGE THIS TO READ FROM FUNCTION CALLED*/);
         if(fun_def != function_def_ -> end()) {
-          switch (current_quad.first_ / 1000) {
-            case 1:
-            case 10:
-            case 20:
-              setIntFromValue(current_quad.first_, fun_def->second.intRet);
-              break;
-            case 2:
-            case 11:
-            case 21:
-              setFloatFromValue(current_quad.first_, fun_def->second.floatRet);
-              break;
-            case 3:
-            case 12:
-            case 22:
-              setStringFromValue(current_quad.first_, fun_def->second.stringRet);
-              break;
-            case 4:
-            case 13:
-            case 23:
-              setCharFromValue(current_quad.first_, fun_def->second.charRet);
-              break;
-            case 5:
-            case 14:
-            case 24:
-              setBoolFromValue(current_quad.first_, fun_def->second.boolRet);
-              break;
+          for(int i=0; i<current_quad.second_; i++) {
+            switch (current_quad.first_ / 1000) {
+              case 1:
+              case 10:
+              case 20:
+                setIntFromValue(current_quad.first_, fun_def->second.intRet[i]);
+                break;
+              case 2:
+              case 11:
+              case 21:
+                setFloatFromValue(current_quad.first_, fun_def->second.floatRet[i]);
+                break;
+              case 3:
+              case 12:
+              case 22:
+                setStringFromValue(current_quad.first_, fun_def->second.stringRet[i]);
+                break;
+              case 4:
+              case 13:
+              case 23:
+                setCharFromValue(current_quad.first_, fun_def->second.charRet[i]);
+                break;
+              case 5:
+              case 14:
+              case 24:
+                setBoolFromValue(current_quad.first_, fun_def->second.boolRet[i]);
+                break;
+            }
+            current_quad.first_++;
           }
         }
         else{
@@ -662,6 +680,9 @@ void Processor::setIntParamFromPosition(int leftPos, int rightPos){
     if(area == 40){
       next_mem->variables_.integers[leftPos % 1000] = getIntFromPosition(current_mem->pointers_.integers[rightPos % 40000]);
     }
+    else {
+      next_mem->variables_.integers[leftPos % 1000] = getIntFromPosition(rightPos);
+    }
 }
 
 void Processor::setIntFromValue(int pos, int value) {
@@ -728,6 +749,9 @@ void Processor::setFloatParamFromPosition(int leftPos, int rightPos){
     if(area == 41){
       next_mem->variables_.floats[leftPos % 2000] = getFloatFromPosition(current_mem->pointers_.floats[rightPos % 41000]);
     }
+    else {
+      next_mem->variables_.floats[leftPos % 2000] = getFloatFromPosition(rightPos);
+    }
 }
 
 void Processor::setFloatFromPosition(int leftPos, int rightPos){
@@ -770,7 +794,6 @@ void Processor::setFloatFromPosition(int leftPos, int rightPos){
       }
     }
     else {
-      std::cout << "testing" << std::endl;
       if(area == 1){
         current_class_mem->floats[(leftPos + 50000) % 2000] = current_mem->variables_.floats[rightPos % 2000];
       }
@@ -778,7 +801,6 @@ void Processor::setFloatFromPosition(int leftPos, int rightPos){
         current_class_mem->floats[(leftPos + 50000) % 2000] = constant_memory->floats[rightPos % 11000];
       }
       if(area == 21){
-        std::cout << "testing" << std::endl;
         current_class_mem->floats[(leftPos + 50000) % 2000] = current_mem->temporals_.floats[rightPos % 21000];
       }
       if(area==41){
@@ -845,7 +867,7 @@ std::string Processor::getStringFromPosition(int position){
 
 void Processor::setStringFromPosition(int leftPos, int rightPos){
     int area = rightPos / 1000;
-    if(leftPos < 50000){
+    if(leftPos < 50000 && leftPos > 0){
       if(area == 3){
         current_mem->variables_.strings[leftPos % 3000] = current_mem->variables_.strings[rightPos % 3000];
       }
@@ -862,7 +884,7 @@ void Processor::setStringFromPosition(int leftPos, int rightPos){
         int right_mem_index = (rightPos - 50000) / 10000;
         current_mem->variables_.strings[leftPos % 3000] = current_mem->classes_[right_mem_index].integers[rightPos % 1000];
       }
-    }else{
+    }else if(leftPos > 50000) {
       int mem_index = (leftPos - 50000) / 10000;
       int left_pos_index = ((leftPos - 50000) % 10000) % 3000;
       if(area == 3){
@@ -882,6 +904,26 @@ void Processor::setStringFromPosition(int leftPos, int rightPos){
         int right_pos_index = ((rightPos - 50000) % 10000) % 3000;
         current_mem->classes_[mem_index].integers[left_pos_index] = current_mem->classes_[right_mem_index].integers[right_pos_index];
       }
+    } else {
+     if(area == 3){
+        current_class_mem->strings[(leftPos + 50000) % 3000] = current_mem->variables_.strings[rightPos % 3000];
+      }
+      if(area == 12){
+        current_class_mem->strings[(leftPos + 50000) % 3000] = constant_memory->strings[rightPos % 12000];
+      }
+      if(area == 22){
+        current_class_mem->strings[(leftPos + 50000) % 3000] = current_mem->temporals_.strings[rightPos % 22000];
+      }
+      if(area==42){
+        current_class_mem->strings[(leftPos + 50000) % 3000] = getFloatFromPosition(current_mem->pointers_.strings[rightPos % 42000]);
+      }
+      if(area > 50){
+        int right_mem_index = (rightPos - 50000) / 10000;
+        current_class_mem->strings[(leftPos + 50000) % 3000] = current_mem->classes_[right_mem_index].strings[rightPos % 3000];
+      }
+      if(area < 0){
+        current_class_mem->strings[(leftPos + 50000) % 3000] = current_class_mem->strings[(rightPos + 50000) % 3000];
+      } 
     }
 }
 
@@ -898,6 +940,9 @@ void Processor::setStringParamFromPosition(int leftPos, int rightPos){
     }
     if(area == 42){
       next_mem->variables_.strings[leftPos % 3000] = getStringFromPosition(current_mem->pointers_.strings[rightPos % 42000]);
+    }
+    else {
+      next_mem->variables_.strings[leftPos % 3000] = getStringFromPosition(rightPos);
     }
 }
 
@@ -951,7 +996,7 @@ char Processor::getCharFromPosition(int position){
 
 void Processor::setCharFromPosition(int leftPos, int rightPos){
     int area = rightPos / 1000;
-    if(leftPos < 50000){
+    if(leftPos < 50000 && leftPos > 0){
       if(area == 4){
         current_mem->variables_.chars[leftPos % 4000] = current_mem->variables_.chars[rightPos % 4000];
       }
@@ -969,8 +1014,7 @@ void Processor::setCharFromPosition(int leftPos, int rightPos){
         int right_pos_index = ((rightPos - 50000) % 10000) % 4000;
         current_mem->variables_.chars[leftPos % 4000] = current_mem->classes_[right_mem_index].chars[right_pos_index];
       }
-    }
-    else{
+    } else if(leftPos > 50000) {
       int mem_index = (leftPos - 50000) / 10000;
       int left_pos_index = ((leftPos - 50000) % 10000) % 4000;
       if(area == 4){
@@ -990,6 +1034,26 @@ void Processor::setCharFromPosition(int leftPos, int rightPos){
         int right_pos_index = ((rightPos - 50000) % 10000) % 3000;
         current_mem->classes_[mem_index].chars[left_pos_index] = current_mem->classes_[right_mem_index].chars[right_pos_index];
       }
+    } else {
+     if(area == 4){
+        current_class_mem->chars[(leftPos + 50000) % 4000] = current_mem->variables_.chars[rightPos % 4000];
+      }
+      if(area == 13){
+        current_class_mem->chars[(leftPos + 50000) % 4000] = constant_memory->chars[rightPos % 13000];
+      }
+      if(area == 23){
+        current_class_mem->chars[(leftPos + 50000) % 4000] = current_mem->temporals_.chars[rightPos % 23000];
+      }
+      if(area==43){
+        current_class_mem->chars[(leftPos + 50000) % 4000] = getFloatFromPosition(current_mem->pointers_.chars[rightPos % 43000]);
+      }
+      if(area > 50){
+        int right_mem_index = (rightPos - 50000) / 10000;
+        current_class_mem->chars[(leftPos + 50000) % 4000] = current_mem->classes_[right_mem_index].chars[rightPos % 4000];
+      }
+      if(area < 0){
+        current_class_mem->chars[(leftPos + 50000) % 4000] = current_class_mem->chars[(rightPos + 50000) % 4000];
+      }
     }
 }
 
@@ -1006,6 +1070,9 @@ void Processor::setCharParamFromPosition(int leftPos, int rightPos){
     }
     if(area == 43){
       next_mem->variables_.chars[leftPos % 4000] = getCharFromPosition(current_mem->pointers_.chars[rightPos % 43000]);
+    }
+    else {
+      next_mem->variables_.chars[leftPos % 4000] = getCharFromPosition(rightPos);
     }
 }
 
@@ -1059,7 +1126,7 @@ bool Processor::getBoolFromPosition(int position){
 
 void Processor::setBoolFromPosition(int leftPos, int rightPos){
     int area = rightPos / 1000;
-    if(leftPos < 50000){
+    if(leftPos < 50000 && leftPos > 0){
       if(area == 5){
         current_mem->variables_.booleans[leftPos % 5000] = current_mem->variables_.booleans[rightPos % 5000];
       }
@@ -1077,8 +1144,7 @@ void Processor::setBoolFromPosition(int leftPos, int rightPos){
         int right_pos_index = ((rightPos - 50000) % 10000) % 5000;
         current_mem->variables_.booleans[leftPos % 5000] = current_mem->classes_[right_mem_index].booleans[right_pos_index];
       }
-    }
-    else{
+    } else if(leftPos > 50000) {
       int mem_index = (leftPos - 50000) / 10000;
       int left_pos_index = ((leftPos - 50000) % 10000) % 5000;
       if(area == 5){
@@ -1098,6 +1164,26 @@ void Processor::setBoolFromPosition(int leftPos, int rightPos){
         int right_pos_index = ((rightPos - 50000) % 10000) % 5000;
         current_mem->classes_[mem_index].booleans[left_pos_index] = current_mem->classes_[right_mem_index].booleans[right_pos_index];
       }
+    } else {
+     if(area == 5){
+        current_class_mem->booleans[(leftPos + 50000) % 5000] = current_mem->variables_.booleans[rightPos % 5000];
+      }
+      if(area == 14){
+        current_class_mem->booleans[(leftPos + 50000) % 5000] = constant_memory->booleans[rightPos % 14000];
+      }
+      if(area == 24){
+        current_class_mem->booleans[(leftPos + 50000) % 5000] = current_mem->temporals_.booleans[rightPos % 24000];
+      }
+      if(area==44){
+        current_class_mem->booleans[(leftPos + 50000) % 5000] = getFloatFromPosition(current_mem->pointers_.booleans[rightPos % 44000]);
+      }
+      if(area > 50){
+        int right_mem_index = (rightPos - 50000) / 10000;
+        current_class_mem->booleans[(leftPos + 50000) % 5000] = current_mem->classes_[right_mem_index].booleans[rightPos % 5000];
+      }
+      if(area < 0){
+        current_class_mem->booleans[(leftPos + 50000) % 5000] = current_class_mem->booleans[(rightPos + 50000) % 5000];
+      }
     }
 }
 
@@ -1114,6 +1200,9 @@ void Processor::setBoolParamFromPosition(int leftPos, int rightPos){
     }
     if(area == 44){
       next_mem->variables_.booleans[leftPos % 5000] = getBoolFromPosition(current_mem->pointers_.booleans[rightPos % 44000]);
+    }
+    else {
+      next_mem->variables_.booleans[leftPos % 5000] = getBoolFromPosition(rightPos);
     }
 }
 
