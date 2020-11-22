@@ -1,0 +1,182 @@
+ftag main
+val 10002 10 -1
++ 10000 10002 40000
+= 40000 10001 1
+val 10004 10 -1
++ 10000 10004 40001
+= 40001 10003 1
+val 10006 10 -1
++ 10000 10006 40002
+= 40002 10005 1
+val 10008 10 -1
++ 10000 10008 40003
+= 40003 10007 1
+val 10010 10 -1
++ 10000 10010 40004
+= 40004 10009 1
+val 10011 10 -1
++ 10000 10011 40005
+= 40005 10011 1
+val 10009 10 -1
++ 10000 10009 40006
+= 40006 10010 1
+val 10007 10 -1
++ 10000 10007 40007
+= 40007 10008 1
+val 10005 10 -1
++ 10000 10005 40008
+= 40008 10006 1
+val 10003 10 -1
++ 10000 10003 40009
+= 40009 10004 1
+val 10002 10 -1
++ 10012 10002 40010
+= 40010 10004 1
+val 10004 10 -1
++ 10012 10004 40011
+= 40011 10006 1
+val 10006 10 -1
++ 10012 10006 40012
+= 40012 10008 1
+val 10008 10 -1
++ 10012 10008 40013
+= 40013 10010 1
+val 10010 10 -1
++ 10012 10010 40014
+= 40014 10011 1
+val 10011 10 -1
++ 10012 10011 40015
+= 40015 10009 1
+val 10009 10 -1
++ 10012 10009 40016
+= 40016 10007 1
+val 10007 10 -1
++ 10012 10007 40017
+= 40017 10005 1
+val 10005 10 -1
++ 10012 10005 40018
+= 40018 10003 1
+val 10003 10 -1
++ 10012 10003 40019
+= 40019 10001 1
+era addArrays
+param 1000 1010 10
+param 1010 1000 10
+goSub addArrays
+retVal addArrays 20000 10
+= 1020 20000 10
+era printArr
+param 1020 1000 10
+goSub printArr
+return 10002 1
+noReturn main
+endFunc -1 -1 -1
+ftag addArrays
+= 1030 10002 1
+tag 0
+< 1030 10001 24000
+gotoF 24000 1
+val 1030 10 -1
++ 10012 1030 40000
+val 1030 10 -1
++ 10000 1030 40001
++ 40000 40001 20000
+val 1030 10 -1
++ 10013 1030 40002
+= 40002 20000 1
++ 1030 10004 20001
+= 1030 20001 1
+goto 0
+tag 1
+return 1020 10
+noReturn addArrays
+endFunc -1 -1 -1
+ftag printArr
+= 1010 10002 1
+tag 2
+< 1010 10001 24000
+gotoF 24000 3
+val 1010 10 -1
++ 10000 1010 40000
+print 40000 -1 -1
++ 1010 10004 20000
+= 1010 20000 1
+goto 2
+tag 3
+endFunc -1 -1 -1
+
+$$
+
+$$$
+main IntTy 1 1
+IntTy 30
+FloatTy 0
+CharTy 0
+StringTy 0
+BoolTy 0
+ClassTy 0
+IntTmp 1
+FloatTmp 0
+CharTmp 0
+StringTmp 0
+BoolTmp 0
+IntPtr 20
+FloatPtr 0
+CharPtr 0
+StringPtr 0
+BoolPtr 0
+addArrays IntTy 10 1
+IntTy 32
+FloatTy 0
+CharTy 0
+StringTy 0
+BoolTy 0
+ClassTy 0
+IntTmp 2
+FloatTmp 0
+CharTmp 0
+StringTmp 0
+BoolTmp 1
+IntPtr 3
+FloatPtr 0
+CharPtr 0
+StringPtr 0
+BoolPtr 0
+printArr VoidTy 0 0
+IntTy 11
+FloatTy 0
+CharTy 0
+StringTy 0
+BoolTy 0
+ClassTy 0
+IntTmp 1
+FloatTmp 0
+CharTmp 0
+StringTmp 0
+BoolTmp 1
+IntPtr 1
+FloatPtr 0
+CharPtr 0
+StringPtr 0
+BoolPtr 0
+
+$$$$ 
+ints 14
+10006 2
+10007 7
+10002 0
+10001 10
+10011 5
+10000 1000
+10009 6
+10013 1020
+10003 9
+10008 3
+10004 1
+10005 8
+10012 1010
+10010 4
+float 0
+string 0
+chars 0
+bools 0

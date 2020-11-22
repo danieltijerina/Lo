@@ -1,0 +1,166 @@
+ftag main
+val 10002 10 -1
++ 10000 10002 40000
+= 40000 10001 1
+val 10001 10 -1
++ 10000 10001 40001
+= 40001 10003 1
+val 10003 10 -1
++ 10000 10003 40002
+= 40002 10004 1
+val 10004 10 -1
++ 10000 10004 40003
+= 40003 10005 1
+val 10005 10 -1
++ 10000 10005 40004
+= 40004 10006 1
+val 10006 10 -1
++ 10000 10006 40005
+= 40005 10007 1
+val 10007 10 -1
++ 10000 10007 40006
+= 40006 10008 1
+val 10008 10 -1
++ 10000 10008 40007
+= 40007 10009 1
+val 10009 10 -1
++ 10000 10009 40008
+= 40008 10010 1
+val 10010 10 -1
++ 10000 10010 40009
+= 40009 10011 1
+era binary_search
+param 1000 1003 10
+param 10002 1002 1
+param 10010 1001 1
+param 10009 1000 1
+goSub binary_search
+retVal binary_search 20000 1
+print 20000 -1 -1
+era binary_search
+param 1000 1003 10
+param 10002 1002 1
+param 10010 1001 1
+param 10003 1000 1
+goSub binary_search
+retVal binary_search 20001 1
+print 20001 -1 -1
+era binary_search
+param 1000 1003 10
+param 10002 1002 1
+param 10010 1001 1
+param 10012 1000 1
+goSub binary_search
+retVal binary_search 20002 1
+print 20002 -1 -1
+era binary_search
+param 1000 1003 10
+param 10002 1002 1
+param 10010 1001 1
+param 10006 1000 1
+goSub binary_search
+retVal binary_search 20003 1
+print 20003 -1 -1
+return 10002 1
+noReturn main
+endFunc -1 -1 -1
+ftag binary_search
+>= 1001 1002 24000
+gotoF 24000 0
+- 1001 1002 20000
+/ 20000 10003 20001
++ 1002 20001 20002
+= 1013 20002 1
+val 1013 10 -1
++ 10013 1013 40000
+== 40000 1000 24001
+gotoF 24001 1
+return 1013 1
+tag 1
+val 1013 10 -1
++ 10013 1013 40001
+> 40001 1000 24002
+gotoF 24002 2
+era binary_search
+param 1003 1003 10
+param 1002 1002 1
+- 1013 10001 20003
+param 20003 1001 1
+param 1000 1000 1
+goSub binary_search
+retVal binary_search 20004 1
+return 20004 1
+tag 2
+era binary_search
+param 1003 1003 10
++ 1013 10001 20005
+param 20005 1002 1
+param 1001 1001 1
+param 1000 1000 1
+goSub binary_search
+retVal binary_search 20006 1
+return 20006 1
+tag 0
+return 10014 1
+noReturn binary_search
+endFunc -1 -1 -1
+
+$$
+
+$$$
+main IntTy 1 1
+IntTy 10
+FloatTy 0
+CharTy 0
+StringTy 0
+BoolTy 0
+ClassTy 0
+IntTmp 4
+FloatTmp 0
+CharTmp 0
+StringTmp 0
+BoolTmp 0
+IntPtr 10
+FloatPtr 0
+CharPtr 0
+StringPtr 0
+BoolPtr 0
+binary_search IntTy 1 1
+IntTy 14
+FloatTy 0
+CharTy 0
+StringTy 0
+BoolTy 0
+ClassTy 0
+IntTmp 7
+FloatTmp 0
+CharTmp 0
+StringTmp 0
+BoolTmp 3
+IntPtr 2
+FloatPtr 0
+CharPtr 0
+StringPtr 0
+BoolPtr 0
+
+$$$$ 
+ints 15
+10003 2
+10008 7
+10002 0
+10011 10
+10014 -1
+10006 5
+10013 1003
+10000 1000
+10007 6
+10010 9
+10004 3
+10001 1
+10012 201
+10009 8
+10005 4
+float 0
+string 0
+chars 0
+bools 0

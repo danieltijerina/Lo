@@ -198,7 +198,21 @@ class Processor {
 
       case QuadType::plus:
       {
-        if(current_quad.second_ / 10000 == 4) {
+        if(current_quad.first_ / 10000 == 4 && current_quad.second_ / 10000 == 4) {
+          if(isInt(current_quad.third_)) {
+            // Result of addition is int so both first_ and second_ must be int
+            setIntFromValue(current_quad.third_, getIntFromPosition(current_quad.first_) + getIntFromPosition(current_quad.second_));
+          } else {
+            if(isFloat(current_quad.first_) && isFloat(current_quad.second_)) {
+              setFloatFromValue(current_quad.third_, getFloatFromPosition(current_quad.first_) + getFloatFromPosition(current_quad.second_));
+            }
+            else if(isInt(current_quad.first_))
+              setFloatFromValue(current_quad.third_, getIntFromPosition(current_quad.first_) + getFloatFromPosition(current_quad.second_));
+            else
+              setFloatFromValue(current_quad.third_, getFloatFromPosition(current_quad.first_) + getIntFromPosition(current_quad.second_));
+          }
+        }
+        else if(current_quad.second_ / 10000 == 4) {
           setPointerFromPosition(current_quad.third_, getIntFromPosition(current_quad.first_) + getPointerFromPosition(current_quad.second_));
         }
         else if(current_quad.third_ / 10000 == 4) {

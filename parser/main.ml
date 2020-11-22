@@ -29,15 +29,18 @@ let test_result tbl =
     | _ -> assert false;;
 *)
 
+
+
 let _ =
-  let in_channel = open_in "demoFinal.lo" in
-  try
-    let lexbuf = Lexing.from_channel in_channel in
-    while true do
-      let oc = open_out "demoFinal.clo" in
-        let parse_tree = Parser.init Lexer.token lexbuf in
-          semantic_start parse_tree oc;
-        (* print_string result; print_newline(); flush stdout *)
-    done
+  let filename = (match String.split_on_char '.' Sys.argv.(1) with | x :: y :: [] -> x | _ -> "out") in 
+    let in_channel = open_in Sys.argv.(1) in
+    try
+      let lexbuf = Lexing.from_channel in_channel in
+      while true do
+        let oc = open_out (String.concat "." [filename; "clo"]) in
+          let parse_tree = Parser.init Lexer.token lexbuf in
+            semantic_start parse_tree oc;
+          (* print_string result; print_newline(); flush stdout *)
+      done
   with Lexer.Eof ->
     exit 0
