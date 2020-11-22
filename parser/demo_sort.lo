@@ -1,0 +1,38 @@
+func bubbleSort(int arreglo[10]) : int[10] {
+  int i = 0;  
+  for(i; i < 10; i = i + 1){
+    int j = 0;
+    for(j; j < 9; j = j + 1){
+      if(arreglo[j] > arreglo[j + 1]){
+        int temp = arreglo[j];
+        arreglo[j] = arreglo[j + 1];
+        arreglo[j + 1] = temp;
+      }
+    }
+  }
+
+  return arreglo;
+}
+
+func main() : int {
+  int arreglo[10];
+  arreglo[0] = 10;
+  arreglo[1] = 9;
+  arreglo[2] = 8;
+  arreglo[3] = 7;
+  arreglo[4] = 6;
+  arreglo[5] = 5;
+  arreglo[6] = 4;
+  arreglo[7] = 3;
+  arreglo[8] = 2;
+  arreglo[9] = 1;
+
+  int bubble_sorted[10] = bubbleSort(arreglo);
+
+  int i = 0;
+  for(i; i < 10; i = i + 1){
+    print(bubble_sorted[i]);
+  }
+
+ return 0; 
+}
