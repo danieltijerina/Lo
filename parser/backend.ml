@@ -114,9 +114,16 @@ let process_asignacion left right tbls var_count cte_tbl oc =
       if leftVar.dim1 != rightExp.dim1 || leftVar.dim2 != rightExp.dim2 then failwith "Cannot assign variable to expression with different dimensions.";
       fprintf oc "%s %d %d %d\n" "=" leftVar.address rightExp.address (leftVar.dim1 * leftVar.dim2)
 
-let checkClassInitQuad t class_id address oc = 
+let checkClassInitQuad t class_id address oc tbl= 
   match t with 
-  | ClassTy -> fprintf oc "classInit %s %d\n" class_id address;
+  | ClassTy -> (fprintf oc "classInit %s %d\n" class_id address;
+                try 
+                  let c = Hashtbl.find tbl.global_tbl class_id in 
+                  match c with
+                    | ClaseT ct -> ()
+                    | _ -> failwith "Cannot make an object from a function"
+                with Not_found -> failwith "No class found"
+  )
   | _ -> ()
 
 let rec add_vars_to_func_tbl_rec t vars class_id tbl var_count cte_tbl oc = 
@@ -125,7 +132,7 @@ let rec add_vars_to_func_tbl_rec t vars class_id tbl var_count cte_tbl oc =
   | (f::fs) -> 
       (* let new_var = add_vars_to_tbl t f class_id (match tbl.function_tbl with | FuncTbl f -> f.variables | FNil -> failwith "Not valid") var_count cte_tbl in *)
       let new_var = add_vars_to_tbl t f class_id (match tbl.function_tbl with | FuncTbl f -> f.variables | FNil -> failwith "Not valid") (match tbl.function_tbl with | FuncTbl f -> f.var_count | FNil -> failwith "Not valid") cte_tbl oc in
-        checkClassInitQuad t class_id new_var.address oc;
+        checkClassInitQuad t class_id new_var.address oc tbl;
         let exp = f.right in
           match exp with
           | VDExp e ->  let tmp = process_expression e tbl var_count cte_tbl oc in
