@@ -216,9 +216,7 @@ class Processor {
           setPointerFromPosition(current_quad.third_, getIntFromPosition(current_quad.first_) + getPointerFromPosition(current_quad.second_));
         }
         else if(current_quad.third_ / 10000 == 4) {
-          // std::cout << current_quad.third_ << " = " << getIntFromPosition(current_quad.first_) << " + " << getIntFromPosition(current_quad.second_) << "\n";
           setPointerFromPosition(current_quad.third_, getIntFromPosition(current_quad.first_) + getIntFromPosition(current_quad.second_));
-          // std::cout << "Result: " << getPointerFromPosition(current_quad.third_) << "\n";
         }
         else if(isInt(current_quad.third_)) {
           // Result of addition is int so both first_ and second_ must be int
@@ -350,7 +348,6 @@ class Processor {
         }
 
         for(int i=0; i<current_quad.third_; i++) {
-          // std::cout << "i = " << i << " leftpos = " << current_quad.first_+i << "-> " << getIntFromPosition(current_quad.first_+i) << " rightpos = " << current_quad.second_+i << "-> " << getIntFromPosition(current_quad.second_+i) << "\n";
           switch (type_num) {
           case 1:
             setIntFromPosition(current_quad.first_+i, current_quad.second_+i);
@@ -369,7 +366,6 @@ class Processor {
             break;
           case 40:
             setIntFromPosition(getPointerFromPosition(current_quad.first_+i), current_quad.second_+i);
-            // std::cout << "Assigned pos: " << current_quad.first_+i << " to value: " << getIntFromPosition(current_quad.first_+i) << "\n";
             break;
           case 41:
             setFloatFromPosition(getPointerFromPosition(current_quad.first_+i), current_quad.second_+i);
@@ -384,8 +380,6 @@ class Processor {
             setBoolFromPosition(getPointerFromPosition(current_quad.first_+i), current_quad.second_+i);
             break;
           }
-        //   current_quad.first_++;
-        //   current_quad.second_++;
         }
         break;
       }
@@ -394,7 +388,6 @@ class Processor {
       {
         auto fun_def = function_def_ -> find(current_quad.name_);
         if(fun_def != function_def_ -> end()){
-          //TODO: push previous memory to stack;
           next_mem = new FunctionMemory(fun_def->second, current_quad.name_);
         }
         else{
@@ -475,7 +468,6 @@ class Processor {
                 fun_def->second.boolRet[i] = getBoolFromPosition(current_quad.first_ + i);
                 break;
             }
-            // current_quad.first_++;
           }
         }
         else{
@@ -1271,11 +1263,9 @@ void Processor::setPointerFromPosition(int position, int value) {
   int area = position / 1000;
   switch(area) {
     case 40:
-      // setIntFromValue(position, value);
       current_mem->pointers_.integers[position % 40000] = value;
       break;
     case 41:
-      // setFloatFromValue(position, value);
       current_mem->pointers_.floats[position % 41000] = value;
       break;
     case 42:

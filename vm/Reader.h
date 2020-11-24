@@ -185,7 +185,7 @@ namespace Reader {
       quad_stream >> quad_type;
     }
 
-    string trash; // TODO: Delete this (needed since the type e.g IntTy is printed in clo)
+    string trash; 
     quad_stream >> quad_type;
     while(quad_type != "$$$"){
       ClassDef cl;
