@@ -1,3 +1,8 @@
+(*
+  VarTabl
+  Modulo encargado de inicializar tablas de variables asi como hacer operaciones sobre ellas.
+*)
+
 open Ast
 
 type variable = {
@@ -146,7 +151,6 @@ let add_high_level_element tbl value mem class_mem =
                 let new_element = add_element tbl f.fname (FuncT {name=f.fname; ftipo=f.tipo; variables=vars_tbl; params=(getVariablesFromParamsRec f.params fun_var_count vars_tbl); classInit=""; fdim1=f.dim1; fdim2=f.dim2}) in
                 Hashtbl.add mem f.fname fun_var_count;
                 new_element
-  (* | Func f -> add_element tbl f.fname (FuncT {name=f.fname; ftipo=f.tipo; variables=Hashtbl.create 0; params=(getVariablesFromParamsRec f.params);}) *)
   | Clase c -> let class_var_count = Hashtbl.create 0 in
                 initialize_count_class class_var_count;
                 let vars_tbl = Hashtbl.create 0 in 
@@ -180,18 +184,3 @@ let find_func parent key =
   match parent with
   | ClaseT clase -> Hashtbl.find clase.funcs key
   | _ -> assert false;;
-
-
-
-(* 
-add_element has_tab "figura" (Clase {name="figura"; tipo="int"; funcs=Hashtbl.create 123; vars=Hashtbl.create 123; dep=Hashtbl.create 123;});;
-(*let x = Hashtbl.find has_tab "main" in 
-  print_endline (get_element x);;*)
-
-add_var (Hashtbl.find has_tab "figura") "i" {name="i"; tipo="float";};;
-let var_name = find_var (Hashtbl.find has_tab "figura") "i";;
-print_string var_name.name; print_string " "; print_endline var_name.tipo;;
-
-add_func (Hashtbl.find has_tab "figura") "getColor" {name="getColor"; tipo="string"; variables=Hashtbl.create 123;};;
-print_endline (find_func (Hashtbl.find has_tab "figura") "getColor").tipo;;
-*)

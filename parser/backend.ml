@@ -1,3 +1,11 @@
+(* Modulo principal para ejecucion de acciones semanticas
+
+   Este archivo utiliza funciones de:
+   - Ast
+   - VarTabl
+   - ExpValidator
+   - Util
+*)
 open Ast
 open VarTabl
 open ExpValidator
@@ -6,8 +14,6 @@ open Printf
 
 let process_expression exp tbls var_count cte_tbl oc = 
   process_or_expression exp tbls var_count cte_tbl oc
-
-(* Semantics *)
 
 let tyToString t =
   match t with
@@ -31,7 +37,6 @@ let find_func k tbl oc =
   | _ -> failwith "Invalid function name"
 
 let print_counts oc tbl k var_count =
-  (* fprintf oc "%d\n" (Hashtbl.find tbl k).dim1; *)
   fprintf oc "%s " k;
   find_func k tbl oc;
   fprintf oc "IntTy %d\n" (Hashtbl.find var_count IntTy).count;
@@ -130,7 +135,6 @@ let rec add_vars_to_func_tbl_rec t vars class_id tbl var_count cte_tbl oc =
   match vars with
   | [] -> ();
   | (f::fs) -> 
-      (* let new_var = add_vars_to_tbl t f class_id (match tbl.function_tbl with | FuncTbl f -> f.variables | FNil -> failwith "Not valid") var_count cte_tbl in *)
       let new_var = add_vars_to_tbl t f class_id (match tbl.function_tbl with | FuncTbl f -> f.variables | FNil -> failwith "Not valid") (match tbl.function_tbl with | FuncTbl f -> f.var_count | FNil -> failwith "Not valid") cte_tbl oc in
         checkClassInitQuad t class_id new_var.address oc tbl;
         let exp = f.right in
@@ -142,7 +146,6 @@ let rec add_vars_to_func_tbl_rec t vars class_id tbl var_count cte_tbl oc =
                           add_vars_to_func_tbl_rec t fs class_id tbl var_count cte_tbl oc
           | _ -> add_vars_to_func_tbl_rec t fs class_id tbl var_count cte_tbl oc
 
-(* Expresion validation in class variable declaration is STILL missing *)
 let rec add_vars_to_class_tbl_rec t vars class_id tbl var_count cte_tbl class_var_count oc = 
   match vars with
   | [] -> ();
@@ -195,7 +198,22 @@ let getClaseTbl high_level =
     match high_level with
     | ClaseT ct -> ct
     | FuncT ft -> failwith "Should be a classtable"
-(* Match estatuto to add variable to table *)
+
+(*
+  add_func_elems_to_tbl
+  This function maps every "estatuto" to its corresponding semantic action
+
+  Parameters: elem - Elemento. Tipo = Ast.estatuto
+              tbls - Tabla actual. Tipo = Util.current_tbls
+              var_count - Cuenta global de variables. Tipo = (string, Ast.count_tbl) Hashtbl.t
+              cte_tbl - Cuenta de constantes. Tipo = Ast.cte_tbl
+              ft - Tipo de datos de retorno de la funcion actual
+              fdim1 - Dimension1 del valor de retorno de la funcion actual
+              fdim2 - Dimension2 del valor de retorno de la funcion actual
+              jmp_count - Conteo de tags para saltos. Tipo = (Ast.type_def, Ast.count_tbl) Hashtbl.t
+              oc - Archivo de salida donde se escribe el codigo intermedio
+  Return: unit()
+ *)
 let rec add_func_elems_to_tbl elem tbls var_count cte_tbl ft fdim1 fdim2 jmp_count oc=
   match elem with 
   | Asigna a -> process_asignacion a.izq a.der tbls var_count cte_tbl oc; 
@@ -255,8 +273,20 @@ and process_for_loop floop tbl var_count cte_tbl ft fdim1 fdim2 jmp_count oc=
         fprintf oc "%s %d\n" "goto" starter_tag;
         fprintf oc "%s %d\n" "tag" end_tag;;
         
-(* Match the element of a class to a function and add the function elements to tbl *)
-(* FALTA INICIALIZAR EL VARCOUNT DE LA FUNCION *)
+(*
+  add_inner_fucs_of_class & add_inner_fucs_of_class_rec
+  Match the element of a class to a function and add the function elements to tbl 
+
+  Parameters: elem - Elemento a procesar. Tipo = Ast.estatuto
+              class_tbl - Tabla de la clase actual. Tipo = Util.class_tbl
+              tbls - Tabla actual. Tipo = Util.current_tbls
+              var_count - Cuenta global de variables. Tipo = (string, Ast.count_tbl) Hashtbl.t
+              cte_tbl - Cuenta de constantes. Tipo = Ast.cte_tbl
+              jmp_count - Conteo de tags para saltos. Tipo = (Ast.type_def, Ast.count_tbl) Hashtbl.t
+              oc - Archivo de salida donde se escribe el codigo intermedio
+              mem - Memoria donde se guardan las cuentas de cada funcion. Tipo = (string, Ast.var_count) Hashtbl.t
+  Return: unit()
+*)
 let add_inner_fucs_of_class elem class_tbl tbl var_count cte_tbl jmp_count oc mem=
   match elem, class_tbl with
   | Fun f, ClaseT ct -> fprintf oc "ftag %s.%s\n" ct.name f.fname;
@@ -266,7 +296,6 @@ let add_inner_fucs_of_class elem class_tbl tbl var_count cte_tbl jmp_count oc me
                         ();
   | CVar cv, ClaseT ct -> ();
   | _, _ -> assert false;;
-
 (* Iterate through the class to check on functions *)
 let rec add_inner_fucs_of_class_rec bloque class_tbl tbl var_count cte_tbl jmp_count oc mem = 
   match bloque with
@@ -275,18 +304,41 @@ let rec add_inner_fucs_of_class_rec bloque class_tbl tbl var_count cte_tbl jmp_c
       add_inner_fucs_of_class f class_tbl tbl var_count cte_tbl jmp_count oc mem;
       add_inner_fucs_of_class_rec fs class_tbl tbl var_count cte_tbl jmp_count oc mem;;
 
-(* Check elem to match class of function, then add all variables in functions to table*)
+(* 
+  add_inner_func_to_tbl
+  Check elem to match class of function, then add all variables in functions to table
+
+  Parameters: elem - Elemento a procesar. Tipo = Ast.estatuto
+              tbl - Tabla actual. Tipo = Util.current_tbls
+              var_count - Cuenta global de variables. Tipo = (string, Ast.count_tbl) Hashtbl.t
+              cte_tbl - Cuenta de constantes. Tipo = Ast.cte_tbl
+              jmp_count - Conteo de tags para saltos. Tipo = (Ast.type_def, Ast.count_tbl) Hashtbl.t
+              mem - Memoria donde se guardan las cuentas de cada funcion. Tipo = (string, Ast.var_count) Hashtbl.t
+              oc - Archivo de salida donde se escribe el codigo intermedio
+  Return: unit() 
+*)
 let add_inner_func_to_tbl elem tbl var_count cte_tbl jmp_count mem oc = 
   match elem with
   | Func f -> let fun_var_count = Hashtbl.find mem f.fname in 
                 fprintf oc "ftag %s\n" f.fname;
                 add_func_elems_to_tbl_rec f.fbloque { function_tbl=FuncTbl({variables=getFunctionTbl f.fname tbl; var_count=fun_var_count}); class_tbl=Nil; global_tbl=tbl} fun_var_count cte_tbl f.tipo f.dim1 f.dim2 jmp_count oc;
-                (* add_func_elems_to_tbl_rec f.fbloque { function_tbl=FuncTbl(getFunctionTbl f.fname tbl); class_tbl=Nil; global_tbl=tbl} var_count cte_tbl f.tipo oc; *)
                 if f.tipo != VoidTy then fprintf oc "noReturn %s\n" f.fname;
                 fprintf oc "%s\n" "endFunc -1 -1 -1";
   | Clase c -> add_inner_fucs_of_class_rec c.bloque (Hashtbl.find tbl c.name) tbl var_count cte_tbl jmp_count oc mem;;
 
-(* Processing a single element of each class *)
+(*
+  add_class_att_to_table
+  Processing a single element of each class 
+
+  Parameters: elem - Elemento a procesar. Tipo = Ast.estatuto
+              class_tbl - Tabla de la clase actual. Tipo = Util.class_tbl
+              var_count - Cuenta global de variables. Tipo = (string, Ast.count_tbl) Hashtbl.t
+              cte_tbl - Cuenta de constantes. Tipo = Ast.cte_tbl
+              class_var_count - Cuenta de variables especifica a la clase. Tipo = (string, Ast.count_tbl) Hashtbl.t
+              mem - Memoria donde se guardan las cuentas de cada funcion. Tipo = (string, Ast.var_count) Hashtbl.t
+              oc - Archivo de salida donde se escribe el codigo intermedio
+  Return: unit() 
+*)
 let add_class_att_to_table_inner elem class_tbl var_count cte_tbl class_var_count mem oc = 
   match elem, class_tbl with
   | Fun f, ClaseT ctbl -> let fun_var_count = Hashtbl.create 0 in 
@@ -296,7 +348,6 @@ let add_class_att_to_table_inner elem class_tbl var_count cte_tbl class_var_coun
                               Hashtbl.add mem (String.concat "." (ctbl.name :: f.fname :: [])) fun_var_count;
                               [];
   | CVar cv, ClaseT ctbl -> add_vars_to_class_tbl_rec cv.tipo cv.vars cv.id_class ctbl var_count cte_tbl class_var_count oc; [];; (*If type is class, validate class type *)
-
 (* Iterating through all the class variables and funcs *)
 let rec add_class_att_to_table bloque class_tbl var_count cte_tbl class_var_count mem oc = 
   match bloque with 
@@ -305,14 +356,39 @@ let rec add_class_att_to_table bloque class_tbl var_count cte_tbl class_var_coun
       add_class_att_to_table_inner f class_tbl var_count cte_tbl class_var_count mem oc; 
       add_class_att_to_table fs class_tbl var_count cte_tbl class_var_count mem oc;;
 
-(* Processes single element of high order *)
+(*
+  add_upper_prog_to_table
+  Processes single element of high order
+
+  Parameters: elem - Elemento a procesar. Tipo = Ast.estatuto
+              table - Tabla actual. Tipo = Util.current_tbls
+              var_count - Cuenta global de variables. Tipo = (string, Ast.count_tbl) Hashtbl.t
+              cte_tbl - Cuenta de constantes. Tipo Ast.cte_tbl
+              class_mem - Memoria donde se guardan las cuentas para cada clase. Tipo: (string, Ast.var_count) Hashtbl.t
+              mem - Memoria donde se guardan las cuentas de cada funcion. Tipo = (string, Ast.var_count) Hashtbl.t
+              oc - Archivo de salida donde se escribe el codigo intermedio
+  Return: unit()  
+*)
 let add_upper_prog_to_table elem table var_count cte_tbl mem class_mem oc= 
   match elem with
   | Func f -> add_high_level_element table elem mem class_mem;
   | Clase c -> let class_tbl = add_high_level_element table elem mem class_mem in
                 let class_var_count = Hashtbl.find class_mem c.name in  add_class_att_to_table c.bloque class_tbl var_count cte_tbl class_var_count mem oc;;
 
-(* Iterating through all the elemnts in tree *)
+(*
+  semantic_main
+  Iterating through all the elemnts in tree
+
+  Parameters: tree - Arbol de todo el programa. Tipo = Ast.upper_prog
+              table - Tabla actual. Tipo = Util.current_tbls
+              var_count - Cuenta global de variables. Tipo = (string, Ast.count_tbl) Hashtbl.t
+              jmp_count - Conteo de tags para saltos. Tipo = (Ast.type_def, Ast.count_tbl) Hashtbl.t
+              cte_tbl - Cuenta de constantes. Tipo Ast.cte_tbl
+              class_mem - Memoria donde se guardan las cuentas para cada clase. Tipo: (string, Ast.var_count) Hashtbl.t
+              mem - Memoria donde se guardan las cuentas de cada funcion. Tipo = (string, Ast.var_count) Hashtbl.t
+              oc - Archivo de salida donde se escribe el codigo intermedio
+  Return: unit() 
+*)
 let rec semantic_main tree table var_count cte_tbl jmp_count mem class_mem oc = 
   match tree with 
   | Program [] -> table

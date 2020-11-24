@@ -1,3 +1,8 @@
+(* 
+	CuboSemantico
+	Modulo encargado de hacer respetar los tipos de datos en expresiones.
+*)
+
 open Ast
 type op = CsPlus | CsMinus | CsTimes | CsDiv | CsLT | CsGT | CsLE | CsGE | CsNE | CsEE | CsAnd | CsOr;;
 

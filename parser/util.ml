@@ -1,3 +1,7 @@
+(*
+  Util
+  Modulo con definiciones de estructuras de datos adicionales.
+*)
 open Ast
 open VarTabl
 
@@ -20,8 +24,6 @@ type classTbl =
   | Nil;;
 
 type functionTbl = 
-  (* | FuncTbl of {variables: (string, variable) Hashtbl.t;
-                count: (type_def, count_tbl) Hashtbl.t} *)
   | FuncTbl of funcInfo
   | FNil
 

@@ -1,3 +1,8 @@
+(*
+  ExpValidator
+  Modulo encargado de validar expresiones y realizar las acciones semanticas para cada expresion que se encuentre.
+*)
+
 open Ast
 open CuboSemantico
 open Util
@@ -198,7 +203,7 @@ and checkFuncParams fparam vfparam current_tbls var_count const_tbl oc count=
   let ex = (process_or_expression vfparam current_tbls var_count const_tbl oc) in
     assert_equal ex.rtipo fparam.tipo;
     if fparam.dimension1 != ex.dim1 || fparam.dimension2 != ex.dim2 then failwith "Parameter dimensions do not correspond" 
-    ex.dim2; (*failwith "Parameter dimensions do not correspond";*)
+    ex.dim2;
     fprintf oc "%s %d %d %d\n" "param" ex.address fparam.address (ex.dim1 * ex.dim2)
 
 and variableLookupVarID var current_tbls= 
@@ -213,6 +218,17 @@ and variableLookupVarID var current_tbls=
             | ClassTbl ct -> (try (Hashtbl.find ct.vars var) with Not_found -> (failwith (String.concat var ["Variable "; " not found"] )));
             | Nil -> failwith "No variable found";)
 
+(*
+  functionLookup
+  Searches and returns function that might be inside a class or not.
+
+  Parameters: f - Function to lookup. Tipo = Ast.var_id
+              current_tbls - Tabla actual. Tipo = Util.current_tbls
+              var_count - Cuenta global de variables. Tipo = (string, Ast.count_tbl) Hashtbl.t
+              cte_tbl - Cuenta de constantes. Tipo Ast.cte_tbl
+              oc - Archivo de salida donde se escribe el codigo intermedio
+  Return: Util.quadInfo
+*)
 and functionLookup f current_tbls var_count const_tbl oc= 
   match f with 
   | VarFuncCall vf -> (
@@ -248,6 +264,19 @@ and functionLookup f current_tbls var_count const_tbl oc=
             | _ -> failwith "No function found"
         with Not_found -> failwith "No function found") )
 
+(*
+  variableInClassLookup
+  Searches and returns a class attribute.
+
+  Parameters: var_id - ID of the variable to lookup. Tipo = Ast.var_id
+              current_tbls - Tabla actual. Tipo = Util.current_tbls
+              var_count - Cuenta global de variables. Tipo = (string, Ast.count_tbl) Hashtbl.t
+              const_tbl - Cuenta de constantes. Tipo Ast.cte_tbl
+              oc - Archivo de salida donde se escribe el codigo intermedio
+              global_tbl - Tabla global con informacion de todas las clases y funciones. Tipo = (string, Ast.high_level) Hashtbl.t
+              class_idx = ID del objeto. Tipo = int
+  Return: Util.quadInfo
+*)
 and variableInClassLookup var_id class_tbl var_count const_tbl oc current_tbls global_tbl class_idx=
   match var_id with
   | VarID v -> (try let res = (Hashtbl.find class_tbl.vars v.name) in {rtipo=res.tipo; address=res.address + 50000 + class_idx * 10000; dim1=res.dimension1; dim2=res.dimension2; } with Not_found -> failwith "No Variable found in class");
@@ -261,7 +290,6 @@ and variableInClassLookup var_id class_tbl var_count const_tbl oc current_tbls g
         | VoidTy -> {rtipo=res.ftipo; address=0; dim1=1; dim2=1;}
         | _ -> let addr = get_next_temporal var_count res.ftipo in fprintf oc "retVal %s.%s %d %d\n" res.classInit vfunc.func addr  (res.fdim1 * res.fdim2); {rtipo=res.ftipo; address=addr; dim1=res.fdim1; dim2=res.fdim2;}
     with Not_found -> failwith "No function found in class");
-  (* | VarArray varr ->  (try let res = (Hashtbl.find class_tbl.vars varr.name) in {rtipo=res.tipo; address=res.address + 50000 + class_idx * 10000} with Not_found -> failwith "No Variable found in class"); Need to implement arrays *)
   | VarArray varr ->  let index = process_pm_expression varr.expresion current_tbls var_count const_tbl oc in
                         if index.rtipo != IntTy then failwith "Array index must be int";
                         (* try *)let base = (Hashtbl.find class_tbl.vars varr.name) in
@@ -288,6 +316,17 @@ and pointVarLookup vp current_tbls var_count const_tbl oc =
                         | _ -> failwith "variable is not a class");
   | _ -> failwith "error";
 
+  (*
+  variableLookup
+  Searches and returns a variable.
+
+  Parameters: var_id - ID of the variable to lookup. Tipo = Ast.var_id
+              current_tbls - Tabla actual. Tipo = Util.current_tbls
+              var_count - Cuenta global de variables. Tipo = (string, Ast.count_tbl) Hashtbl.t
+              const_tbl - Cuenta de constantes. Tipo Ast.cte_tbl
+              oc - Archivo de salida donde se escribe el codigo intermedio
+  Return: Util.quadInfo
+*)
 and variableLookup var_id current_tbls var_count const_tbl oc= 
   match var_id with
   | VarID v -> let res = (variableLookupVarID v.name current_tbls) in {rtipo=res.tipo; address=res.address; dim1=res.dimension1; dim2=res.dimension2;};
