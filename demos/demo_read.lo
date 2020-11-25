@@ -1,0 +1,10 @@
+func main() : int {
+
+  print("Enter an int");
+  int int_read;
+  read(int_read);
+
+  print("Your int is:", int_read);
+
+  return 0;
+}

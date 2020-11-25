@@ -1,0 +1,149 @@
+ftag main
+val 10002 10 -1
++ 10000 10002 40000
+= 40000 10001 1
+val 10004 10 -1
++ 10000 10004 40001
+= 40001 10003 1
+val 10006 10 -1
++ 10000 10006 40002
+= 40002 10005 1
+val 10008 10 -1
++ 10000 10008 40003
+= 40003 10007 1
+val 10010 10 -1
++ 10000 10010 40004
+= 40004 10009 1
+val 10011 10 -1
++ 10000 10011 40005
+= 40005 10011 1
+val 10009 10 -1
++ 10000 10009 40006
+= 40006 10010 1
+val 10007 10 -1
++ 10000 10007 40007
+= 40007 10008 1
+val 10005 10 -1
++ 10000 10005 40008
+= 40008 10006 1
+val 10003 10 -1
++ 10000 10003 40009
+= 40009 10004 1
+era bubbleSort
+param 1000 1000 10
+goSub bubbleSort
+retVal bubbleSort 20000 10
+= 1010 20000 10
+= 1020 10002 1
+tag 0
+<= 1020 10011 24000
+gotoF 24000 1
+val 1020 10 -1
++ 10012 1020 40010
+print 40010 -1 -1
++ 1020 10004 20001
+= 1020 20001 1
+goto 0
+tag 1
+return 10002 1
+noReturn main
+endFunc -1 -1 -1
+ftag bubbleSort
+= 1010 10002 1
+tag 2
+< 1010 10001 24000
+gotoF 24000 3
+= 1011 10002 1
+tag 4
+< 1011 10003 24001
+gotoF 24001 5
+val 1011 10 -1
++ 10000 1011 40000
++ 1011 10004 20000
+val 20000 10 -1
++ 10000 20000 40001
+> 40000 40001 24002
+gotoF 24002 6
+val 1011 10 -1
++ 10000 1011 40002
+= 1012 40002 1
++ 1011 10004 20001
+val 20001 10 -1
++ 10000 20001 40003
+val 1011 10 -1
++ 10000 1011 40004
+= 40004 40003 1
++ 1011 10004 20002
+val 20002 10 -1
++ 10000 20002 40005
+= 40005 1012 1
+tag 6
++ 1011 10004 20003
+= 1011 20003 1
+goto 4
+tag 5
++ 1010 10004 20004
+= 1010 20004 1
+goto 2
+tag 3
+return 1000 10
+noReturn bubbleSort
+endFunc -1 -1 -1
+
+$$
+
+$$$
+main IntTy 1 1
+IntTy 21
+FloatTy 0
+CharTy 0
+StringTy 0
+BoolTy 0
+ClassTy 0
+IntTmp 2
+FloatTmp 0
+CharTmp 0
+StringTmp 0
+BoolTmp 1
+IntPtr 11
+FloatPtr 0
+CharPtr 0
+StringPtr 0
+BoolPtr 0
+bubbleSort IntTy 10 1
+IntTy 13
+FloatTy 0
+CharTy 0
+StringTy 0
+BoolTy 0
+ClassTy 0
+IntTmp 5
+FloatTmp 0
+CharTmp 0
+StringTmp 0
+BoolTmp 3
+IntPtr 6
+FloatPtr 0
+CharPtr 0
+StringPtr 0
+BoolPtr 0
+
+$$$$ 
+ints 13
+10006 2
+10007 7
+10002 0
+10001 10
+10011 5
+10000 1000
+10009 6
+10003 9
+10008 3
+10004 1
+10005 8
+10012 1010
+10010 4
+float 0
+string 0
+chars 0
+bools 0

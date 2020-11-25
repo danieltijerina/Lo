@@ -1,0 +1,363 @@
+ftag main
+classInit Person 30000
+= 53000 12000 1
+= 51000 10002 1
+val 10003 3 -1
++ 10001 10004 20000
++ 20000 10003 42000
+= 42000 12001 1
+val 10005 3 -1
++ 10001 10004 20001
++ 20001 10005 42001
+= 42001 12002 1
+val 10006 3 -1
++ 10001 10004 20002
++ 20002 10006 42002
+= 42002 12003 1
+class 30000
+era Person.printName
+goSub Person.printName
+class 30000
+era Person.printKnownNames
+goSub Person.printKnownNames
+class 30000
+era Person.getDoubleAge
+goSub Person.getDoubleAge
+retVal Person.getDoubleAge 20003 1
+= 1000 20003 1
+print 1000 -1 -1
+class 30000
+era Person.getName
+goSub Person.getName
+retVal Person.getName 22000 1
+print 22000 -1 -1
+classInit Doctor 30001
+= 63000 12004 1
+= 63004 12005 1
+= 61000 10007 1
+val 10003 3 -1
++ 10001 10008 20004
++ 20004 10003 42003
+= 42003 12006 1
+val 10005 3 -1
++ 10001 10008 20005
++ 20005 10005 42004
+= 42004 12007 1
+val 10006 3 -1
++ 10001 10008 20006
++ 20006 10006 42005
+= 42005 12008 1
+class 30001
+era Person.printName
+goSub Person.printName
+class 30001
+era Doctor.printDoctorName
+goSub Doctor.printDoctorName
+class 30001
+era Person.printKnownNames
+goSub Person.printKnownNames
+class 30001
+era Person.getDoubleAge
+goSub Person.getDoubleAge
+retVal Person.getDoubleAge 20007 1
+= 1000 20007 1
+print 1000 -1 -1
+class 30001
+era Doctor.getDoctorName
+goSub Doctor.getDoctorName
+retVal Doctor.getDoctorName 22001 1
+= 3000 22001 1
+print 3000 -1 -1
+classInit SuperDoctor 30002
+= 73000 12009 1
+= 73004 12010 1
+= 73005 12011 1
+val 10003 3 -1
++ 10001 10009 20008
++ 20008 10003 42006
+= 42006 12012 1
+val 10005 3 -1
++ 10001 10009 20009
++ 20009 10005 42007
+= 42007 12013 1
+val 10006 3 -1
++ 10001 10009 20010
++ 20010 10006 42008
+= 42008 12014 1
+class 30002
+era Person.printName
+goSub Person.printName
+class 30002
+era Doctor.printDoctorName
+goSub Doctor.printDoctorName
+class 30002
+era SuperDoctor.printSuperDoctor
+goSub SuperDoctor.printSuperDoctor
+class 30002
+era Person.printKnownNames
+goSub Person.printKnownNames
+class 30002
+era Doctor.getDoctorName
+goSub Doctor.getDoctorName
+retVal Doctor.getDoctorName 22002 1
+= 3000 22002 1
+print 3000 -1 -1
+return 10003 1
+noReturn main
+endFunc -1 -1 -1
+ftag SuperDoctor.printSuperDoctor
+print -46995 -1 -1
+endFunc -1 -1 -1
+ftag Doctor.printDoctorName
+print -46996 -1 -1
+endFunc -1 -1 -1
+ftag Doctor.getDoctorName
+return -46996 1
+endFunc -1 -1 -1
+ftag Person.printAccounts
+= 1000 10003 1
+tag 0
+< 1000 10010 24000
+gotoF 24000 1
+val 1000 10 -1
++ 10011 1000 41000
+print 41000 -1 -1
++ 1000 10005 20000
+= 1000 20000 1
+goto 0
+tag 1
+endFunc -1 -1 -1
+ftag Person.printKnownNames
+= 1000 10003 1
+tag 2
+< 1000 10012 24001
+gotoF 24001 3
+val 1000 3 -1
++ 10013 1000 42000
+print 42000 -1 -1
++ 1000 10005 20001
+= 1000 20001 1
+goto 2
+tag 3
+endFunc -1 -1 -1
+ftag Person.printName
+print -47000 -1 -1
+endFunc -1 -1 -1
+ftag Person.getDoubleAge
+* -49000 10006 20002
+return 20002 1
+endFunc -1 -1 -1
+ftag Person.getName
+return -47000 1
+endFunc -1 -1 -1
+
+$$
+SuperDoctor
+IntTy 1
+FloatTy 10
+CharTy 0
+StringTy 6
+BoolTy 0
+Person
+IntTy 1
+FloatTy 10
+CharTy 0
+StringTy 4
+BoolTy 0
+Doctor
+IntTy 1
+FloatTy 10
+CharTy 0
+StringTy 5
+BoolTy 0
+
+$$$
+Person.printName VoidTy 0 0
+IntTy 0
+FloatTy 0
+CharTy 0
+StringTy 0
+BoolTy 0
+ClassTy 0
+IntTmp 0
+FloatTmp 0
+CharTmp 0
+StringTmp 0
+BoolTmp 0
+IntPtr 0
+FloatPtr 0
+CharPtr 0
+StringPtr 0
+BoolPtr 0
+main IntTy 1 1
+IntTy 1
+FloatTy 0
+CharTy 0
+StringTy 1
+BoolTy 0
+ClassTy 3
+IntTmp 11
+FloatTmp 0
+CharTmp 0
+StringTmp 3
+BoolTmp 0
+IntPtr 0
+FloatPtr 0
+CharPtr 0
+StringPtr 9
+BoolPtr 0
+Person.getDoubleAge IntTy 1 1
+IntTy 0
+FloatTy 0
+CharTy 0
+StringTy 0
+BoolTy 0
+ClassTy 0
+IntTmp 0
+FloatTmp 0
+CharTmp 0
+StringTmp 0
+BoolTmp 0
+IntPtr 0
+FloatPtr 0
+CharPtr 0
+StringPtr 0
+BoolPtr 0
+Person.printKnownNames VoidTy 0 0
+IntTy 1
+FloatTy 0
+CharTy 0
+StringTy 0
+BoolTy 0
+ClassTy 0
+IntTmp 0
+FloatTmp 0
+CharTmp 0
+StringTmp 0
+BoolTmp 0
+IntPtr 0
+FloatPtr 0
+CharPtr 0
+StringPtr 0
+BoolPtr 0
+Doctor.printDoctorName VoidTy 0 0
+IntTy 0
+FloatTy 0
+CharTy 0
+StringTy 0
+BoolTy 0
+ClassTy 0
+IntTmp 0
+FloatTmp 0
+CharTmp 0
+StringTmp 0
+BoolTmp 0
+IntPtr 0
+FloatPtr 0
+CharPtr 0
+StringPtr 0
+BoolPtr 0
+Person.printAccounts VoidTy 0 0
+IntTy 1
+FloatTy 0
+CharTy 0
+StringTy 0
+BoolTy 0
+ClassTy 0
+IntTmp 0
+FloatTmp 0
+CharTmp 0
+StringTmp 0
+BoolTmp 0
+IntPtr 0
+FloatPtr 0
+CharPtr 0
+StringPtr 0
+BoolPtr 0
+SuperDoctor.printSuperDoctor VoidTy 0 0
+IntTy 0
+FloatTy 0
+CharTy 0
+StringTy 0
+BoolTy 0
+ClassTy 0
+IntTmp 0
+FloatTmp 0
+CharTmp 0
+StringTmp 0
+BoolTmp 0
+IntPtr 0
+FloatPtr 0
+CharPtr 0
+StringPtr 0
+BoolPtr 0
+Person.getName StringTy 1 1
+IntTy 0
+FloatTy 0
+CharTy 0
+StringTy 0
+BoolTy 0
+ClassTy 0
+IntTmp 0
+FloatTmp 0
+CharTmp 0
+StringTmp 0
+BoolTmp 0
+IntPtr 0
+FloatPtr 0
+CharPtr 0
+StringPtr 0
+BoolPtr 0
+Doctor.getDoctorName StringTy 1 1
+IntTy 0
+FloatTy 0
+CharTy 0
+StringTy 0
+BoolTy 0
+ClassTy 0
+IntTmp 0
+FloatTmp 0
+CharTmp 0
+StringTmp 0
+BoolTmp 0
+IntPtr 0
+FloatPtr 0
+CharPtr 0
+StringPtr 0
+BoolPtr 0
+
+$$$$ 
+ints 14
+10006 2
+10013 -46999
+10007 35
+10003 0
+10010 10
+10001 3001
+10004 50000
+10000 2000
+10012 3
+10008 60000
+10005 1
+10009 70000
+10002 12
+10011 -48000
+float 0
+string 15
+12001 "P Name 1"
+12011 "Super Super doc name"
+12008 "D Name 3"
+12004 "Testing Person Name"
+12010 "Super Doc Name"
+12003 "P Name 3"
+12014 "SP Name 3"
+12006 "D Name 1"
+12005 "Testing Doc Name"
+12002 "P Name 2"
+12007 "D Name 2"
+12000 "Only a person"
+12012 "SP Name 1"
+12009 "Super Name"
+12013 "SP Name 2"
+chars 0
+bools 0

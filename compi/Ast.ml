@@ -11,8 +11,44 @@ type type_def =
   | CharTy
   | StringTy
   | BoolTy
+  | IntCte
+  | FloatCte
+  | CharCte
+  | StringCte
+  | BoolCte
+  | IntTmp
+  | FloatTmp
+  | CharTmp
+  | StringTmp
+  | BoolTmp
   | VoidTy
   | ClassTy
+  | JTag
+  | IntPtr
+  | FloatPtr
+  | CharPtr
+  | StringPtr
+  | BoolPtr
+
+type quad = {
+  operator: string;
+  operand_left: int;
+  operand_right: int;
+  stored: int;
+}
+
+type count_tbl = {
+  count: int;
+  base: int;
+}
+
+type cte_table = {
+  integer: (int, int) Hashtbl.t;
+  floating: (float, int) Hashtbl.t;
+  strings: (string, int) Hashtbl.t;
+  characters: (char, int) Hashtbl.t;
+  booleans: (bool, int) Hashtbl.t;
+}
 
 type varDeclID =
   | VDVarID of {name: string}
@@ -23,7 +59,7 @@ type exp =
   | OrExp of { left: aExp; right: exp}
   | Exp of aExp
 and aExp =
-  | AndExp of { left: oExp; right: aExp}
+  | AndExp of { left: exp; right: exp}
   | AExp of oExp
 and oExp =
   | GreaterT of { left: tExp; right: tExp } 
@@ -34,12 +70,12 @@ and oExp =
   | NotEqual of { left: tExp; right: tExp } 
   | OExp of tExp
 and tExp = 
-  | Plus of {left: term; right: tExp}
-  | Mnius of {left: term; right: tExp}
+  | Plus of {right: term; left: tExp}
+  | Mnius of {right: term; left: tExp}
   | Termino of term
 and term = 
-  | Times of {left: fact; right: term}
-  | Div of {left: fact; right: term}
+  | Times of {right: fact; left: term}
+  | Div of {right: fact; left: term}
   | Factor of fact
 and fact = 
   | Const of const
@@ -47,7 +83,7 @@ and fact =
   | FExp of tExp
 and var_id = 
   | VarID of {name: string}
-  | VarFuncCall of {func: string; params: exp list }
+  | VarFuncCall of {func: string; params: exp list; }
   | VarArray of {name: string; expresion: tExp}
   | Var2Array of {name: string; expresion1: tExp; expresion2: tExp}
   | VarPoint of {name: string; inner: var_id}
@@ -80,6 +116,7 @@ type estatuto =
   | WhileLoop of whileLoopDef
   | Return of exp
   | Expresion of exp
+  | Lectura of var_id
 and asignacion = {
   izq: var_id;
   der: exp;
@@ -102,7 +139,7 @@ and whileLoopDef = {
 
 type functionParams = {
   param_id: varDeclID;
-  tipo: type_def;
+  ptipo: type_def;
 }
 
 type funcionDef = {
@@ -110,15 +147,22 @@ type funcionDef = {
   tipo : type_def;
   params: functionParams list;
   fbloque : estatuto list;
+  dim1: int;
+  dim2: int;
 }
 
 type clase_bloque =
   | Fun of funcionDef
   | CVar of variableDef
 
+type claseParent = 
+  | NoParent
+  | Parent of string
+
 type claseDef = {
   name : string;
-  bloque : clase_bloque list
+  bloque : clase_bloque list;
+  parent: claseParent;
 }
 
 type high_level = 

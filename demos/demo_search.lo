@@ -1,0 +1,34 @@
+func binary_search(int arreglo[10], int low, int high, int x) : int {
+  if(high >= low){
+    int mid = low + (high - low) / 2;
+
+    if(arreglo[mid] == x) { return mid; }
+
+    if(arreglo[mid] > x) { return binary_search(arreglo, low, mid - 1, x); }
+    
+    return binary_search(arreglo, mid + 1, high, x);
+  }
+
+  return -1;
+}
+
+func main() : int {
+  int arreglo[10];
+  arreglo[0] = 1;
+  arreglo[1] = 2;
+  arreglo[2] = 3;
+  arreglo[3] = 4;
+  arreglo[4] = 5;
+  arreglo[5] = 6;
+  arreglo[6] = 7;
+  arreglo[7] = 8;
+  arreglo[8] = 9;
+  arreglo[9] = 10;
+
+  print(binary_search(arreglo, 0, 9, 8));
+  print(binary_search(arreglo, 0, 9, 2));
+  print(binary_search(arreglo, 0, 9, 201));
+  print(binary_search(arreglo, 0, 9, 5));
+
+  return 0; 
+}

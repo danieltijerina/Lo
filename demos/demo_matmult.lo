@@ -1,0 +1,56 @@
+func printMat(int mat[3][3]) {
+    int i=0, j=0;
+    for(i; i<3; i=i+1) {
+        j=0;
+        for(j; j<3; j=j+1) {
+            print(mat[i][j]);
+        }
+        print(" ");
+    }
+}
+
+func matrixMult(int a[3][3], int b[3][3]): int[3][3] {
+    int c[3][3];
+    int i=0, j=0, k=0;
+
+    for(i; i<3; i=i+1) {
+        j = 0;
+        for(j; j<3; j=j+1) {
+            c[i][j] = 0;
+            k = 0;
+            for(k; k<3; k=k+1) {
+                c[i][j] = c[i][j] + a[i][k] * b[k][j];
+            }
+        }
+    }
+    return c;
+}
+
+func main(): int {
+    int a[3][3];
+    a[0][0] = 10;
+    a[0][1] = 11;
+    a[0][2] = 12;
+    a[1][0] = 20;
+    a[1][1] = 21;
+    a[1][2] = 22;
+    a[2][0] = 30;
+    a[2][1] = 31;
+    a[2][2] = 32;
+
+    int b[3][3];
+    b[0][0] = 1;
+    b[0][1] = 2;
+    b[0][2] = 3;
+    b[1][0] = 4;
+    b[1][1] = 5;
+    b[1][2] = 6;
+    b[2][0] = 7;
+    b[2][1] = 8;
+    b[2][2] = 9;
+
+    int c[3][3] = matrixMult(a, b);
+    printMat(c);
+
+    return 0;
+}

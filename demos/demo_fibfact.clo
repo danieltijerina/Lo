@@ -1,0 +1,196 @@
+ftag main
+era factorialSerial
+param 10000 1000 1
+goSub factorialSerial
+retVal factorialSerial 20000 1
+print 20000 -1 -1
+era factorialRec
+param 10000 1000 1
+goSub factorialRec
+retVal factorialRec 20001 1
+print 20001 -1 -1
+era fibRec
+param 10001 1000 1
+goSub fibRec
+retVal fibRec 20002 1
+print 20002 -1 -1
+era fibSerial
+param 10001 1000 1
+goSub fibSerial
+retVal fibSerial 20003 1
+print 20003 -1 -1
+return 10002 1
+noReturn main
+endFunc -1 -1 -1
+ftag fibRec
+<= 1000 10003 24000
+gotoF 24000 0
+return 10004 1
+tag 0
+era fibRec
+- 1000 10004 20000
+param 20000 1000 1
+goSub fibRec
+retVal fibRec 20001 1
+era fibRec
+- 1000 10003 20002
+param 20002 1000 1
+goSub fibRec
+retVal fibRec 20003 1
++ 20001 20003 20004
+return 20004 1
+noReturn fibRec
+endFunc -1 -1 -1
+ftag fibSerial
+<= 1000 10003 24000
+gotoF 24000 1
+return 10004 1
+tag 1
+= 1001 10004 1
+= 1002 10004 1
+= 1003 10003 1
+tag 2
+< 1003 1000 24001
+gotoF 24001 3
+= 1004 1002 1
++ 1002 1001 20000
+= 1002 20000 1
+= 1001 1004 1
++ 1003 10004 20001
+= 1003 20001 1
+goto 2
+tag 3
+return 1002 1
+noReturn fibSerial
+endFunc -1 -1 -1
+ftag factorialRec
+<= 1000 10004 24000
+gotoF 24000 4
+return 10004 1
+tag 4
+era factorialRec
+- 1000 10004 20000
+param 20000 1000 1
+goSub factorialRec
+retVal factorialRec 20001 1
+* 1000 20001 20002
+return 20002 1
+noReturn factorialRec
+endFunc -1 -1 -1
+ftag factorialSerial
+= 1001 1000 1
+- 1000 10004 20000
+= 1000 20000 1
+tag 5
+> 1000 10004 24000
+gotoF 24000 6
+* 1001 1000 20001
+= 1001 20001 1
+- 1000 10004 20002
+= 1000 20002 1
+goto 5
+tag 6
+return 1001 1
+noReturn factorialSerial
+endFunc -1 -1 -1
+
+$$
+
+$$$
+main IntTy 1 1
+IntTy 0
+FloatTy 0
+CharTy 0
+StringTy 0
+BoolTy 0
+ClassTy 0
+IntTmp 4
+FloatTmp 0
+CharTmp 0
+StringTmp 0
+BoolTmp 0
+IntPtr 0
+FloatPtr 0
+CharPtr 0
+StringPtr 0
+BoolPtr 0
+fibRec IntTy 1 1
+IntTy 1
+FloatTy 0
+CharTy 0
+StringTy 0
+BoolTy 0
+ClassTy 0
+IntTmp 5
+FloatTmp 0
+CharTmp 0
+StringTmp 0
+BoolTmp 1
+IntPtr 0
+FloatPtr 0
+CharPtr 0
+StringPtr 0
+BoolPtr 0
+factorialRec IntTy 1 1
+IntTy 1
+FloatTy 0
+CharTy 0
+StringTy 0
+BoolTy 0
+ClassTy 0
+IntTmp 3
+FloatTmp 0
+CharTmp 0
+StringTmp 0
+BoolTmp 1
+IntPtr 0
+FloatPtr 0
+CharPtr 0
+StringPtr 0
+BoolPtr 0
+fibSerial IntTy 1 1
+IntTy 5
+FloatTy 0
+CharTy 0
+StringTy 0
+BoolTy 0
+ClassTy 0
+IntTmp 2
+FloatTmp 0
+CharTmp 0
+StringTmp 0
+BoolTmp 2
+IntPtr 0
+FloatPtr 0
+CharPtr 0
+StringPtr 0
+BoolPtr 0
+factorialSerial IntTy 1 1
+IntTy 2
+FloatTy 0
+CharTy 0
+StringTy 0
+BoolTy 0
+ClassTy 0
+IntTmp 3
+FloatTmp 0
+CharTmp 0
+StringTmp 0
+BoolTmp 1
+IntPtr 0
+FloatPtr 0
+CharPtr 0
+StringPtr 0
+BoolPtr 0
+
+$$$$ 
+ints 5
+10003 2
+10001 20
+10002 0
+10000 10
+10004 1
+float 0
+string 0
+chars 0
+bools 0
