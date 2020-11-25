@@ -76,6 +76,7 @@ class Processor {
     function_def_ = functions;
     class_def_ = class_def;
     current_index = 0;
+    next_mem = nullptr;
   }
 
   void startProcessing(){
@@ -298,18 +299,31 @@ class Processor {
         switch (type_num) {
           case 1:
           case 40: // int pointers
-            int temp_int;
+          {
+            string temp_int;
             std::cin >> temp_int;
-            setIntFromValue(current_quad.first_, temp_int);
+            try{
+            setIntFromValue(current_quad.first_, stoi(temp_int));
+            }catch(std::invalid_argument& e){
+              std::cout << "Error: Expected an int" << std::endl;
+              assert(false);
+            }
             std::cin.ignore();
             break;
+          }
           case 2:
           case 41: // float pointers
-            float temp_float;
+          {
+            string temp_float;
             std::cin >> temp_float;
-            setFloatFromValue(current_quad.first_, temp_float);
+            try{
+            setFloatFromValue(current_quad.first_, stof(temp_float));
+            }catch(std::invalid_argument& e){
+              std::cout << "Error: Expected a float" << std::endl;
+            }
             std::cin.ignore();
             break;
+          }
           case 3:
           case 42: // string pointers
           {
@@ -320,11 +334,17 @@ class Processor {
           }
           case 4:
           case 43: // char pointers
-            char temp_char;
+          {
+            string temp_char;
             std::cin >> temp_char;
-            setCharFromValue(current_quad.first_, temp_char);
+            if(temp_char.length() != 1){
+              std::cout << "Error: Expected a char" << std::endl;
+              assert(false);
+            }
+            setCharFromValue(current_quad.first_, temp_char[0]);
             std::cin.ignore();
             break;
+          }
           case 5:
           case 44: // bool pointers
           {
@@ -388,7 +408,13 @@ class Processor {
       {
         auto fun_def = function_def_ -> find(current_quad.name_);
         if(fun_def != function_def_ -> end()){
-          next_mem = new FunctionMemory(fun_def->second, current_quad.name_);
+          if(next_mem == nullptr){
+            next_mem = new FunctionMemory(fun_def->second, current_quad.name_);
+          }
+          else{
+            mem_stack_.push(previous_mem(current_index, next_mem));
+            next_mem = new FunctionMemory(fun_def->second, current_quad.name_);
+          }
         }
         else{
           assert(false);
@@ -408,6 +434,10 @@ class Processor {
 
       case QuadType::param:
       {
+        if(next_mem == nullptr){
+          next_mem = mem_stack_.top().second;
+          mem_stack_.pop();
+        }
         for(int i=0; i<current_quad.third_; i++) {
           switch (current_quad.second_ / 1000) {
           case 1:
@@ -471,6 +501,7 @@ class Processor {
           }
         }
         else{
+          std::cout << "Function not found in function class" << std::endl;
           assert(false);
         }
       }

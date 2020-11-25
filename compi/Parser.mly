@@ -7,13 +7,14 @@ open Ast
 %token <int> INT
 %token <float> FLOAT
 %token <string> STRING
+%token <string> CHAR
 %token INTTYPE FLOATTYPE CHARTYPE STRINGTYPE BOOLTYPE
 %token TRUE FALSE
 %token PLUS MINUS TIMES DIV
 %token LBRACE RBRACE LPAREN RPAREN LBRACK RBRACK
 %token EOL EQ GT GE LT LE NE EE AND OR
 %token PRINT VAR IF ELSE READ
-%token MAIN FOR WHILE RETURN IN
+%token MAIN FOR WHILE RETURN
 %token FUNC CLASS CONSTRUCTOR
 %token COMMA COLON SEMICOLON POINT
 %token <string> ID
@@ -181,6 +182,7 @@ varcte:
   | s = STRING { String s }
   | b = TRUE { Bool true }
   | b = FALSE { Bool false }
+  | c = CHAR { Char c.[1] }
 ;
 variable:
   id=ID LPAREN p=var1 RPAREN { VarFuncCall { func=id; params=p } }

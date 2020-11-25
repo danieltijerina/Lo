@@ -1,0 +1,39 @@
+ftag main
+print 12000 -1 -1
+read 1000
+print 12001 -1 -1
+print 1000 -1 -1
+return 10000 1
+noReturn main
+endFunc -1 -1 -1
+
+$$
+
+$$$
+main IntTy 1 1
+IntTy 1
+FloatTy 0
+CharTy 0
+StringTy 0
+BoolTy 0
+ClassTy 0
+IntTmp 0
+FloatTmp 0
+CharTmp 0
+StringTmp 0
+BoolTmp 0
+IntPtr 0
+FloatPtr 0
+CharPtr 0
+StringPtr 0
+BoolPtr 0
+
+$$$$ 
+ints 1
+10000 0
+float 0
+string 2
+12001 "Your int is:"
+12000 "Enter an int"
+chars 0
+bools 0
